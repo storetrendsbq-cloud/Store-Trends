@@ -1,10 +1,7 @@
-// Base de datos de productos - Perfumes Colombia
-const productsData = {
-    hombre: [
-        {
+{
   "metadata": {
     "totalProductos": 411,
-    "fechaConversion": "2025-10-21T15:19:16.957Z",
+    "fechaConversion": "2025-10-21T15:44:37.045Z",
     "categorias": {
       "hombre": 154,
       "combo": 325,
@@ -12,7 +9,8 @@ const productsData = {
       "mixto": 32,
       "unisex": 3
     },
-    "productosConDescuento": 305
+    "productosConDescuento": 305,
+    "productosConImagen": 411
   },
   "productos": [
     {
@@ -34,7 +32,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 19,
+      "stock": 23,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -61,7 +59,7 @@ const productsData = {
         "especiado",
         "fresco"
       ],
-      "stock": 19,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -87,7 +85,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 22,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -110,7 +108,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 6,
+      "stock": 21,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -139,7 +137,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -163,7 +161,7 @@ const productsData = {
         "floral",
         "citrico"
       ],
-      "stock": 18,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -214,7 +212,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -239,7 +237,7 @@ const productsData = {
         "citrico",
         "madera"
       ],
-      "stock": 20,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -264,7 +262,7 @@ const productsData = {
         "ambar",
         "madera"
       ],
-      "stock": 21,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -287,7 +285,7 @@ const productsData = {
       "tags": [
         "dulce"
       ],
-      "stock": 11,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -314,7 +312,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -337,7 +335,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 23,
+      "stock": 15,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -364,7 +362,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -394,7 +392,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -417,7 +415,7 @@ const productsData = {
         "floral",
         "citrico"
       ],
-      "stock": 17,
+      "stock": 20,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -443,7 +441,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 17,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -467,7 +465,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 12,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -491,7 +489,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 16,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -520,7 +518,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -543,7 +541,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 17,
+      "stock": 8,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -568,7 +566,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 12,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -592,7 +590,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 6,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -620,7 +618,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 21,
+      "stock": 20,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -644,7 +642,7 @@ const productsData = {
         "floral",
         "dulce"
       ],
-      "stock": 21,
+      "stock": 15,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -667,7 +665,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 15,
+      "stock": 5,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -692,7 +690,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 20,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -720,7 +718,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 11,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -743,7 +741,7 @@ const productsData = {
         "floral",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 20,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -769,7 +767,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 13,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -795,7 +793,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 11,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -817,7 +815,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 23,
+      "stock": 13,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -847,7 +845,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -870,7 +868,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 17,
+      "stock": 8,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -898,7 +896,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 16,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -924,7 +922,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 16,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -952,7 +950,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 16,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -979,7 +977,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 9,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1003,7 +1001,7 @@ const productsData = {
         "citrico",
         "madera"
       ],
-      "stock": 14,
+      "stock": 12,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -1030,7 +1028,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1057,7 +1055,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1079,7 +1077,7 @@ const productsData = {
       "tags": [
         "floral"
       ],
-      "stock": 24,
+      "stock": 21,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -1104,7 +1102,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 12,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1133,7 +1131,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 16,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1156,7 +1154,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 15,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1176,7 +1174,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 17,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1199,7 +1197,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 16,
+      "stock": 21,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -1221,7 +1219,7 @@ const productsData = {
       "tags": [
         "fresco"
       ],
-      "stock": 5,
+      "stock": 22,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -1247,7 +1245,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 24,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1275,7 +1273,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 21,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1302,7 +1300,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1351,7 +1349,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 8,
+      "stock": 23,
       "disponible": true,
       "tipo": "unisex"
     },
@@ -1371,7 +1369,7 @@ const productsData = {
       },
       "marca": "Lacoste",
       "tags": [],
-      "stock": 13,
+      "stock": 15,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -1400,7 +1398,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 24,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1420,7 +1418,7 @@ const productsData = {
       },
       "marca": "Lattafa",
       "tags": [],
-      "stock": 20,
+      "stock": 13,
       "disponible": true,
       "tipo": "unisex"
     },
@@ -1447,7 +1445,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 24,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1473,7 +1471,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 11,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1529,7 +1527,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 7,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1558,7 +1556,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 16,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1581,7 +1579,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 13,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1606,7 +1604,7 @@ const productsData = {
         "floral",
         "dulce"
       ],
-      "stock": 24,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1629,7 +1627,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 9,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1658,7 +1656,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 22,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1678,7 +1676,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 20,
+      "stock": 17,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -1704,7 +1702,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1731,7 +1729,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 10,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1759,7 +1757,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 6,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1779,7 +1777,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 5,
+      "stock": 9,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -1809,7 +1807,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 6,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1833,7 +1831,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 5,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1859,7 +1857,7 @@ const productsData = {
         "floral",
         "dulce"
       ],
-      "stock": 13,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1884,7 +1882,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 13,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1910,7 +1908,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 5,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1933,7 +1931,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 5,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1958,7 +1956,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -1986,7 +1984,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2017,7 +2015,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2043,7 +2041,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2070,7 +2068,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2096,7 +2094,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 19,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2122,7 +2120,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 22,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2148,7 +2146,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 8,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2201,7 +2199,7 @@ const productsData = {
         "madera",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2247,7 +2245,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 8,
+      "stock": 22,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -2273,7 +2271,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 17,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2299,7 +2297,7 @@ const productsData = {
         "especiado",
         "fresco"
       ],
-      "stock": 9,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2328,7 +2326,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 17,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2356,7 +2354,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 18,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2379,7 +2377,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 19,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2407,7 +2405,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 15,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2435,7 +2433,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 12,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2462,7 +2460,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 5,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2484,7 +2482,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 20,
+      "stock": 21,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -2514,7 +2512,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 16,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2541,7 +2539,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 14,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2564,7 +2562,7 @@ const productsData = {
         "citrico",
         "unisex"
       ],
-      "stock": 6,
+      "stock": 13,
       "disponible": true,
       "tipo": "unisex"
     },
@@ -2610,7 +2608,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 23,
+      "stock": 24,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -2640,7 +2638,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 6,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2689,7 +2687,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2737,7 +2735,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 6,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2765,7 +2763,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2791,7 +2789,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 17,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2818,7 +2816,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 11,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2841,7 +2839,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 23,
+      "stock": 7,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -2867,7 +2865,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 13,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2892,7 +2890,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 21,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2918,7 +2916,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 20,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2948,7 +2946,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2971,7 +2969,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 19,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -2995,7 +2993,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 23,
+      "stock": 19,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -3019,7 +3017,7 @@ const productsData = {
         "floral",
         "dulce"
       ],
-      "stock": 24,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3075,7 +3073,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 5,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3104,7 +3102,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 8,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3129,7 +3127,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 9,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3155,7 +3153,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 8,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3184,7 +3182,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 9,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3211,7 +3209,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 14,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3234,7 +3232,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 21,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3260,7 +3258,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 5,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3286,7 +3284,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 8,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3313,7 +3311,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 23,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3338,7 +3336,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 11,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3367,7 +3365,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 7,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3393,7 +3391,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 13,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3416,7 +3414,7 @@ const productsData = {
         "floral",
         "dulce"
       ],
-      "stock": 21,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3441,7 +3439,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 8,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3469,7 +3467,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3497,7 +3495,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 21,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3525,7 +3523,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 7,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3552,7 +3550,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3574,7 +3572,7 @@ const productsData = {
       "tags": [
         "frutal"
       ],
-      "stock": 7,
+      "stock": 10,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -3600,7 +3598,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 20,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3654,7 +3652,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 17,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3681,7 +3679,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 9,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3709,7 +3707,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 20,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3734,7 +3732,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 23,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3764,7 +3762,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 6,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3819,7 +3817,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 17,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3841,7 +3839,7 @@ const productsData = {
       "tags": [
         "frutal"
       ],
-      "stock": 20,
+      "stock": 7,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -3868,7 +3866,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 5,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3895,7 +3893,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 21,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3925,7 +3923,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 8,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3955,7 +3953,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -3984,7 +3982,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 17,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4014,7 +4012,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4037,7 +4035,7 @@ const productsData = {
         "oud",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4064,7 +4062,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 19,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4090,7 +4088,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 8,
+      "stock": 23,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -4116,7 +4114,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 21,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4136,7 +4134,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 6,
+      "stock": 11,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -4162,7 +4160,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4186,7 +4184,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 10,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4213,7 +4211,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 21,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4240,7 +4238,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 12,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4267,7 +4265,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 7,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4294,7 +4292,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 12,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4323,7 +4321,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 14,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4352,7 +4350,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 12,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4378,7 +4376,7 @@ const productsData = {
         "citrico",
         "dulce"
       ],
-      "stock": 23,
+      "stock": 19,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -4403,7 +4401,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4425,7 +4423,7 @@ const productsData = {
       "tags": [
         "dulce"
       ],
-      "stock": 21,
+      "stock": 10,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -4453,7 +4451,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 14,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4480,7 +4478,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4508,7 +4506,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 17,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4534,7 +4532,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 22,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4560,7 +4558,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4586,7 +4584,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 14,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4614,7 +4612,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4641,7 +4639,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 11,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4667,7 +4665,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 11,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4693,7 +4691,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4718,7 +4716,7 @@ const productsData = {
         "especiado",
         "fresco"
       ],
-      "stock": 6,
+      "stock": 13,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -4741,7 +4739,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 9,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4769,7 +4767,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4793,7 +4791,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 23,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4820,7 +4818,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 22,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4843,7 +4841,7 @@ const productsData = {
         "floral",
         "fresco"
       ],
-      "stock": 15,
+      "stock": 18,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -4868,7 +4866,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 17,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4890,7 +4888,7 @@ const productsData = {
       "tags": [
         "dulce"
       ],
-      "stock": 6,
+      "stock": 8,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -4919,7 +4917,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 20,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4945,7 +4943,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 24,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4971,7 +4969,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 14,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -4998,7 +4996,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 23,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5023,7 +5021,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 8,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5045,7 +5043,7 @@ const productsData = {
       "tags": [
         "dulce"
       ],
-      "stock": 20,
+      "stock": 23,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -5067,7 +5065,7 @@ const productsData = {
       "tags": [
         "citrico"
       ],
-      "stock": 12,
+      "stock": 19,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -5094,7 +5092,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 21,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5117,7 +5115,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5164,7 +5162,7 @@ const productsData = {
       },
       "marca": "Moschino",
       "tags": [],
-      "stock": 9,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5189,7 +5187,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5212,7 +5210,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 15,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5240,7 +5238,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5265,7 +5263,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 23,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5287,7 +5285,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 18,
+      "stock": 20,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -5314,7 +5312,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 9,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5342,7 +5340,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 23,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5371,7 +5369,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 8,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5393,7 +5391,7 @@ const productsData = {
       "tags": [
         "oriental"
       ],
-      "stock": 22,
+      "stock": 18,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -5417,7 +5415,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 14,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5448,7 +5446,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 7,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5475,7 +5473,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 21,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5501,7 +5499,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 11,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -5527,7 +5525,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 10,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5550,7 +5548,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 17,
+      "stock": 18,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -5575,7 +5573,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5602,7 +5600,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 20,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5652,7 +5650,7 @@ const productsData = {
         "madera",
         "oriental"
       ],
-      "stock": 7,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5674,7 +5672,7 @@ const productsData = {
       "tags": [
         "floral"
       ],
-      "stock": 8,
+      "stock": 11,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -5701,7 +5699,7 @@ const productsData = {
         "especiado",
         "fresco"
       ],
-      "stock": 23,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5726,7 +5724,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5748,7 +5746,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 8,
+      "stock": 19,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -5774,7 +5772,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 18,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5801,7 +5799,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 9,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5827,7 +5825,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 11,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5873,7 +5871,7 @@ const productsData = {
         "floral",
         "dulce"
       ],
-      "stock": 16,
+      "stock": 13,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -5900,7 +5898,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5926,7 +5924,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 9,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5949,7 +5947,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 11,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -5976,7 +5974,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 20,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6001,7 +5999,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 16,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6027,7 +6025,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 9,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6050,7 +6048,7 @@ const productsData = {
         "floral",
         "especiado"
       ],
-      "stock": 20,
+      "stock": 21,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -6077,7 +6075,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 23,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6107,7 +6105,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 6,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6131,7 +6129,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 8,
+      "stock": 21,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -6158,7 +6156,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6185,7 +6183,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 10,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6208,7 +6206,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 11,
+      "stock": 10,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -6228,7 +6226,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 7,
+      "stock": 19,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -6255,7 +6253,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 15,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6278,7 +6276,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 11,
+      "stock": 18,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -6304,7 +6302,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 19,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6330,7 +6328,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 11,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6356,7 +6354,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 10,
+      "stock": 16,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -6381,7 +6379,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 14,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6406,7 +6404,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6433,7 +6431,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 8,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6482,7 +6480,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 7,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6511,7 +6509,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 21,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6535,7 +6533,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 7,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6561,7 +6559,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6583,7 +6581,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 7,
+      "stock": 17,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -6608,7 +6606,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 15,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6637,7 +6635,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 7,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6661,7 +6659,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 24,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6688,7 +6686,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 15,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6710,7 +6708,7 @@ const productsData = {
       "tags": [
         "dulce"
       ],
-      "stock": 8,
+      "stock": 9,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -6759,7 +6757,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 8,
+      "stock": 22,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -6782,7 +6780,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 18,
+      "stock": 17,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -6810,7 +6808,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 16,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6838,7 +6836,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 10,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6868,7 +6866,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 24,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6892,7 +6890,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 19,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6920,7 +6918,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6944,7 +6942,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 21,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -6967,7 +6965,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 20,
+      "stock": 15,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7019,7 +7017,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7048,7 +7046,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7071,7 +7069,7 @@ const productsData = {
         "floral",
         "citrico"
       ],
-      "stock": 9,
+      "stock": 21,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7098,7 +7096,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 11,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7126,7 +7124,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 12,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7149,7 +7147,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 9,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7176,7 +7174,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 14,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7199,7 +7197,7 @@ const productsData = {
         "citrico",
         "madera"
       ],
-      "stock": 21,
+      "stock": 9,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7227,7 +7225,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7277,7 +7275,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 7,
+      "stock": 13,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7304,7 +7302,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 19,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7329,7 +7327,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 16,
+      "stock": 8,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7355,7 +7353,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 24,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7384,7 +7382,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7411,7 +7409,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 9,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7438,7 +7436,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 9,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7464,7 +7462,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 14,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7494,7 +7492,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 6,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7519,7 +7517,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 10,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7546,7 +7544,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 12,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7569,7 +7567,7 @@ const productsData = {
         "ambar",
         "dulce"
       ],
-      "stock": 18,
+      "stock": 5,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7596,7 +7594,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 11,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7619,7 +7617,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7645,7 +7643,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 12,
+      "stock": 22,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7671,7 +7669,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 18,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7700,7 +7698,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 9,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7723,7 +7721,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 15,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7752,7 +7750,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 11,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7776,7 +7774,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 24,
+      "stock": 20,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -7802,7 +7800,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 20,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7829,7 +7827,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7854,7 +7852,7 @@ const productsData = {
         "madera",
         "frutal"
       ],
-      "stock": 12,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7877,7 +7875,7 @@ const productsData = {
         "floral",
         "dulce"
       ],
-      "stock": 9,
+      "stock": 24,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -7907,7 +7905,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 13,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7934,7 +7932,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 16,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7961,7 +7959,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 23,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -7990,7 +7988,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 20,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8021,7 +8019,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 18,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8075,7 +8073,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 8,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8102,7 +8100,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 24,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8156,7 +8154,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8179,7 +8177,7 @@ const productsData = {
         "floral",
         "madera"
       ],
-      "stock": 17,
+      "stock": 8,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -8204,7 +8202,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 17,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8231,7 +8229,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 7,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8255,7 +8253,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 8,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8286,7 +8284,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 11,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8314,7 +8312,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 11,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8342,7 +8340,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8370,7 +8368,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 19,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8397,7 +8395,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 21,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8421,7 +8419,7 @@ const productsData = {
         "ambar",
         "madera"
       ],
-      "stock": 15,
+      "stock": 19,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -8450,7 +8448,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 6,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8477,7 +8475,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 18,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8501,7 +8499,7 @@ const productsData = {
         "floral",
         "frutal"
       ],
-      "stock": 19,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8524,7 +8522,7 @@ const productsData = {
         "ambar",
         "dulce"
       ],
-      "stock": 12,
+      "stock": 19,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -8552,7 +8550,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 17,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8582,7 +8580,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8609,7 +8607,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 8,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8629,7 +8627,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 18,
+      "stock": 15,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -8653,7 +8651,7 @@ const productsData = {
         "madera",
         "dulce"
       ],
-      "stock": 21,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8676,7 +8674,7 @@ const productsData = {
         "floral",
         "frutal"
       ],
-      "stock": 20,
+      "stock": 12,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -8700,7 +8698,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 13,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8726,7 +8724,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 12,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8753,7 +8751,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 23,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8781,7 +8779,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8811,7 +8809,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 14,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8833,7 +8831,7 @@ const productsData = {
       "tags": [
         "citrico"
       ],
-      "stock": 8,
+      "stock": 9,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -8858,7 +8856,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 14,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8885,7 +8883,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 13,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8910,7 +8908,7 @@ const productsData = {
         "madera",
         "oriental"
       ],
-      "stock": 22,
+      "stock": 16,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -8936,7 +8934,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8961,7 +8959,7 @@ const productsData = {
         "dulce",
         "fresco"
       ],
-      "stock": 10,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -8984,7 +8982,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 6,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9009,7 +9007,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 13,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9034,7 +9032,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 7,
+      "stock": 21,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -9091,7 +9089,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 20,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9113,7 +9111,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 8,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9137,7 +9135,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 7,
+      "stock": 18,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -9165,7 +9163,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 14,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9188,7 +9186,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 22,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9214,7 +9212,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 11,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9240,7 +9238,7 @@ const productsData = {
         "madera",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9264,7 +9262,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 21,
+      "stock": 20,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -9292,7 +9290,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 9,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9315,7 +9313,7 @@ const productsData = {
         "ambar",
         "dulce"
       ],
-      "stock": 21,
+      "stock": 18,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9363,7 +9361,7 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 24,
+      "stock": 22,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -9386,7 +9384,7 @@ const productsData = {
       "tags": [
         "especiado"
       ],
-      "stock": 15,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9412,7 +9410,7 @@ const productsData = {
         "madera",
         "oriental"
       ],
-      "stock": 16,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9438,7 +9436,7 @@ const productsData = {
         "citrico",
         "dulce"
       ],
-      "stock": 10,
+      "stock": 9,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -9460,7 +9458,7 @@ const productsData = {
       "tags": [
         "frutal"
       ],
-      "stock": 18,
+      "stock": 16,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -9486,7 +9484,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 24,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9511,7 +9509,7 @@ const productsData = {
         "especiado",
         "fresco"
       ],
-      "stock": 12,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9537,7 +9535,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 15,
+      "stock": 13,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9590,7 +9588,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 23,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9618,7 +9616,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 11,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9646,7 +9644,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 19,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9670,7 +9668,7 @@ const productsData = {
         "floral",
         "frutal"
       ],
-      "stock": 7,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9697,7 +9695,7 @@ const productsData = {
         "dulce",
         "especiado"
       ],
-      "stock": 9,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9725,7 +9723,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 10,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9753,7 +9751,7 @@ const productsData = {
         "especiado",
         "fresco"
       ],
-      "stock": 11,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9780,7 +9778,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 17,
+      "stock": 19,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9806,7 +9804,7 @@ const productsData = {
         "madera",
         "especiado"
       ],
-      "stock": 14,
+      "stock": 21,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9829,7 +9827,7 @@ const productsData = {
         "citrico",
         "madera"
       ],
-      "stock": 14,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9855,7 +9853,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 5,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9879,7 +9877,7 @@ const productsData = {
         "citrico",
         "frutal"
       ],
-      "stock": 13,
+      "stock": 10,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -9904,7 +9902,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 14,
+      "stock": 10,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9928,7 +9926,7 @@ const productsData = {
         "madera",
         "fresco"
       ],
-      "stock": 10,
+      "stock": 6,
       "disponible": true,
       "tipo": "combo"
     },
@@ -9952,7 +9950,7 @@ const productsData = {
         "citrico",
         "especiado"
       ],
-      "stock": 6,
+      "stock": 20,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -9978,7 +9976,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 12,
+      "stock": 17,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10003,7 +10001,7 @@ const productsData = {
         "dulce",
         "frutal"
       ],
-      "stock": 11,
+      "stock": 12,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10025,7 +10023,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 22,
+      "stock": 23,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -10045,7 +10043,7 @@ const productsData = {
       },
       "marca": "Jean Paul Gaultier",
       "tags": [],
-      "stock": 7,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10072,7 +10070,7 @@ const productsData = {
         "especiado",
         "frutal"
       ],
-      "stock": 8,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10098,7 +10096,7 @@ const productsData = {
         "citrico",
         "dulce"
       ],
-      "stock": 20,
+      "stock": 8,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -10123,7 +10121,7 @@ const productsData = {
         "especiado",
         "oriental"
       ],
-      "stock": 13,
+      "stock": 20,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10150,7 +10148,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 9,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10178,7 +10176,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 6,
+      "stock": 16,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10203,7 +10201,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 12,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10223,7 +10221,7 @@ const productsData = {
       },
       "marca": "Carolina Herrera",
       "tags": [],
-      "stock": 16,
+      "stock": 24,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10251,7 +10249,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 22,
+      "stock": 23,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10273,7 +10271,7 @@ const productsData = {
       "tags": [
         "madera"
       ],
-      "stock": 12,
+      "stock": 11,
       "disponible": true,
       "tipo": "hombre"
     },
@@ -10301,7 +10299,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 16,
+      "stock": 5,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10327,7 +10325,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 20,
+      "stock": 9,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10350,7 +10348,7 @@ const productsData = {
         "floral",
         "fresco"
       ],
-      "stock": 19,
+      "stock": 24,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -10376,7 +10374,7 @@ const productsData = {
         "dulce",
         "oriental"
       ],
-      "stock": 19,
+      "stock": 7,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10403,7 +10401,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 8,
+      "stock": 14,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10426,7 +10424,7 @@ const productsData = {
         "floral",
         "oriental"
       ],
-      "stock": 18,
+      "stock": 13,
       "disponible": true,
       "tipo": "mujer"
     },
@@ -10450,7 +10448,7 @@ const productsData = {
         "frutal",
         "fresco"
       ],
-      "stock": 14,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10474,7 +10472,7 @@ const productsData = {
         "oriental",
         "fresco"
       ],
-      "stock": 24,
+      "stock": 15,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10525,7 +10523,7 @@ const productsData = {
         "oriental",
         "frutal"
       ],
-      "stock": 22,
+      "stock": 11,
       "disponible": true,
       "tipo": "combo"
     },
@@ -10572,11 +10570,9 @@ const productsData = {
       },
       "marca": "Otra Marca",
       "tags": [],
-      "stock": 13,
+      "stock": 22,
       "disponible": true,
       "tipo": "combo"
     }
   ]
 }
-
-// Aquí después agregarás los otros 406 productos siguiendo el mismo formato
