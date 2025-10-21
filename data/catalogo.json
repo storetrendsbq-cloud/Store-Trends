@@ -10531,26 +10531,7 @@
       "disponible": true,
       "tipo": "combo"
     },
-    {
-      "id": "prod_415",
-      "nombre": "Promo 441 X6",
-      "imagen": "https://d39ru7awumhhs2.cloudfront.net/colombia/products/1860947/1750870426WhatsApp%20Image%202024-08-22%20at%2012.03.15%20PM.jpeg",
-      "descripcion": "Perfumes Réplica 1.1                                                                                                                                                                                                                                                                                                                                                        La duración depende del clima, humor propio de cada persona, hay perfuemes suaves cuya duración es entre 2 y 6 horas y existen otros mas fuertes e intensos cuya duración está entre 6 y 10 horas (incluso mas dependiendo del comportamiento de los factores influyentes)                                                                                                                                                                                                                                                                                                                                                                Garantía:orden incompleta: 2 días (a partir del recibido).Malfunccionamiento: 10 días(a partir del recibido).Producto Roto:1 día  (a partir del recibido).Pedido diferente:2 días (a partir del recibido). Tiempo de entrega: 4 a 8 días hábile( a partir de realizado el pedido).",
-      "categorias": [
-        "combo"
-      ],
-      "precio": {
-        "actual": 459900,
-        "anterior": 590000,
-        "descuento": 22,
-        "esOportunidad": true
-      },
-      "marca": "Otra Marca",
-      "tags": [],
-      "stock": 22,
-      "disponible": true,
-      "tipo": "combo"
-    }
-  ]
+   ]
 
 }
+
