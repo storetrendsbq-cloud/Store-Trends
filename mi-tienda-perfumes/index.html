@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfumes Premium Colombia | Fragancias de Lujo</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/shop.css">
+    <link rel="stylesheet" href="styles/cart.css">
+    
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Pantalla de carga -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-logo">
+            <span>💎</span>
+        </div>
+        <p>Cargando experiencia premium...</p>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="brand">
+                    <div class="logo">
+                        <h1>💎 Perfumes Premium</h1>
+                    </div>
+                </div>
+                
+                <!-- Navegación -->
+                <nav class="nav-main">
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#hombre">Para Él</a></li>
+                        <li><a href="#mujer">Para Ella</a></li>
+                        <li><a href="#combos">Combos</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </nav>
+                
+                <!-- Carrito -->
+                <div class="header-actions">
+                    <div class="cart-wrapper">
+                        <button class="btn-cart" id="openCart">
+                            🛒 <span class="cart-count">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span>Fragancias que</span>
+                    <span class="highlight">Definen Tu Esencia</span>
+                </h1>
+                
+                <p class="hero-subtitle">
+                    Perfumes réplica premium 1:1. <strong>Calidad idéntica, precio increíble.</strong>
+                </p>
+                
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="scrollToSection('hombre')">
+                        Ver Colección
+                    </button>
+                    <button class="btn btn-secondary" onclick="scrollToSection('combos')">
+                        Combos Especiales
+                    </button>
+                </div>
+                
+                <!-- Beneficios -->
+                <div class="hero-benefits">
+                    <div class="benefit">
+                        <span>🚚</span>
+                        <span>Envío gratis desde $150.000</span>
+                    </div>
+                    <div class="benefit">
+                        <span>💎</span>
+                        <span>Calidad premium garantizada</span>
+                    </div>
+                    <div class="benefit">
+                        <span>🇨🇴</span>
+                        <span>Envíos a toda Colombia</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Productos -->
+    <section class="products-section" id="hombre">
+        <div class="container">
+            <div class="section-header">
+                <h2>Perfumes para Él</h2>
+                <p>Fragancias masculinas que proyectan confianza y elegancia</p>
+            </div>
+            
+            <div class="products-grid" id="productsGridHombre">
+                <!-- Los productos se cargan automáticamente -->
+            </div>
+        </div>
+    </section>
+
+    <section class="products-section" id="mujer">
+        <div class="container">
+            <div class="section-header">
+                <h2>Perfumes para Ella</h2>
+                <p>Fragancias femeninas que capturan la esencia de la elegancia</p>
+            </div>
+            
+            <div class="products-grid" id="productsGridMujer">
+                <!-- Los productos se cargan automáticamente -->
+            </div>
+        </div>
+    </section>
+
+    <section class="products-section" id="combos">
+        <div class="container">
+            <div class="section-header">
+                <h2>Combos Especiales</h2>
+                <p>Ahorra comprando nuestros packs exclusivos</p>
+            </div>
+            
+            <div class="products-grid" id="productsGridCombos">
+                <!-- Los productos se cargan automáticamente -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Carrito Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Tu Carrito</h3>
+            <button class="close-cart" id="closeCart">✕</button>
+        </div>
+        
+        <div class="cart-content">
+            <div class="cart-empty" id="cartEmpty">
+                <p>Tu carrito está vacío</p>
+                <button class="btn btn-primary" onclick="closeCart()">Seguir Comprando</button>
+            </div>
+            
+            <div class="cart-items" id="cartItems" style="display: none;"></div>
+        </div>
+        
+        <div class="cart-footer" id="cartFooter" style="display: none;">
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotalAmount">$0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Envío:</span>
+                    <span id="shippingAmount">$0</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span id="totalAmount">$0</span>
+                </div>
+            </div>
+            
+            <div class="cart-actions">
+                <button class="btn btn-primary" onclick="openCheckout()">
+                    Finalizar Compra
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="contacto">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>💎 Perfumes Premium</h3>
+                    <p>Tu destino para fragancias de lujo en Colombia</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p>📞 WhatsApp: +57 XXX XXX XXXX</p>
+                    <p>📧 Email: contacto@tutienda.com</p>
+                    <p>📍 Envíos a toda Colombia</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Horario</h4>
+                    <p>Lunes a Viernes: 8am - 6pm</p>
+                    <p>Sábados: 9am - 2pm</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/products-data.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Función simple para scroll
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+        
+        // Ocultar loading screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
