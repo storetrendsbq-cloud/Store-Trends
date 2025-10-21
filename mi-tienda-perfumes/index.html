@@ -3,223 +3,726 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfumes Premium Colombia | Fragancias de Lujo</title>
-    
-    <!-- Estilos -->
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/shop.css">
-    <link rel="stylesheet" href="styles/cart.css">
-    
-    <!-- Fuentes -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Pantalla de carga -->
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-logo">
-            <span>💎</span>
-        </div>
-        <p>Cargando experiencia premium...</p>
-    </div>
-
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <!-- Logo -->
-                <div class="brand">
-                    <div class="logo">
-                        <h1>💎 Perfumes Premium</h1>
-                    </div>
-                </div>
-                
-                <!-- Navegación -->
-                <nav class="nav-main">
-                    <ul>
-                        <li><a href="#inicio">Inicio</a></li>
-                        <li><a href="#hombre">Para Él</a></li>
-                        <li><a href="#mujer">Para Ella</a></li>
-                        <li><a href="#combos">Combos</a></li>
-                        <li><a href="#contacto">Contacto</a></li>
-                    </ul>
-                </nav>
-                
-                <!-- Carrito -->
-                <div class="header-actions">
-                    <div class="cart-wrapper">
-                        <button class="btn-cart" id="openCart">
-                            🛒 <span class="cart-count">0</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero" id="inicio">
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    <span>Fragancias que</span>
-                    <span class="highlight">Definen Tu Esencia</span>
-                </h1>
-                
-                <p class="hero-subtitle">
-                    Perfumes réplica premium 1:1. <strong>Calidad idéntica, precio increíble.</strong>
-                </p>
-                
-                <div class="hero-actions">
-                    <button class="btn btn-primary" onclick="scrollToSection('hombre')">
-                        Ver Colección
-                    </button>
-                    <button class="btn btn-secondary" onclick="scrollToSection('combos')">
-                        Combos Especiales
-                    </button>
-                </div>
-                
-                <!-- Beneficios -->
-                <div class="hero-benefits">
-                    <div class="benefit">
-                        <span>🚚</span>
-                        <span>Envío gratis desde $150.000</span>
-                    </div>
-                    <div class="benefit">
-                        <span>💎</span>
-                        <span>Calidad premium garantizada</span>
-                    </div>
-                    <div class="benefit">
-                        <span>🇨🇴</span>
-                        <span>Envíos a toda Colombia</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sección Productos -->
-    <section class="products-section" id="hombre">
-        <div class="container">
-            <div class="section-header">
-                <h2>Perfumes para Él</h2>
-                <p>Fragancias masculinas que proyectan confianza y elegancia</p>
-            </div>
-            
-            <div class="products-grid" id="productsGridHombre">
-                <!-- Los productos se cargan automáticamente -->
-            </div>
-        </div>
-    </section>
-
-    <section class="products-section" id="mujer">
-        <div class="container">
-            <div class="section-header">
-                <h2>Perfumes para Ella</h2>
-                <p>Fragancias femeninas que capturan la esencia de la elegancia</p>
-            </div>
-            
-            <div class="products-grid" id="productsGridMujer">
-                <!-- Los productos se cargan automáticamente -->
-            </div>
-        </div>
-    </section>
-
-    <section class="products-section" id="combos">
-        <div class="container">
-            <div class="section-header">
-                <h2>Combos Especiales</h2>
-                <p>Ahorra comprando nuestros packs exclusivos</p>
-            </div>
-            
-            <div class="products-grid" id="productsGridCombos">
-                <!-- Los productos se cargan automáticamente -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Carrito Sidebar -->
-    <div class="cart-sidebar" id="cartSidebar">
-        <div class="cart-header">
-            <h3>🛒 Tu Carrito</h3>
-            <button class="close-cart" id="closeCart">✕</button>
-        </div>
-        
-        <div class="cart-content">
-            <div class="cart-empty" id="cartEmpty">
-                <p>Tu carrito está vacío</p>
-                <button class="btn btn-primary" onclick="closeCart()">Seguir Comprando</button>
-            </div>
-            
-            <div class="cart-items" id="cartItems" style="display: none;"></div>
-        </div>
-        
-        <div class="cart-footer" id="cartFooter" style="display: none;">
-            <div class="cart-summary">
-                <div class="summary-row">
-                    <span>Subtotal:</span>
-                    <span id="subtotalAmount">$0</span>
-                </div>
-                <div class="summary-row">
-                    <span>Envío:</span>
-                    <span id="shippingAmount">$0</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total:</span>
-                    <span id="totalAmount">$0</span>
-                </div>
-            </div>
-            
-            <div class="cart-actions">
-                <button class="btn btn-primary" onclick="openCheckout()">
-                    Finalizar Compra
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer" id="contacto">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>💎 Perfumes Premium</h3>
-                    <p>Tu destino para fragancias de lujo en Colombia</p>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Contacto</h4>
-                    <p>📞 WhatsApp: +57 XXX XXX XXXX</p>
-                    <p>📧 Email: contacto@tutienda.com</p>
-                    <p>📍 Envíos a toda Colombia</p>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Horario</h4>
-                    <p>Lunes a Viernes: 8am - 6pm</p>
-                    <p>Sábados: 9am - 2pm</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="js/products-data.js"></script>
-    <script src="js/app.js"></script>
-    
-    <script>
-        // Función simple para scroll
-        function scrollToSection(sectionId) {
-            document.getElementById(sectionId).scrollIntoView({
-                behavior: 'smooth'
-            });
+    <title>Conversor CSV a JSON - Catálogo de Perfumes</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
-        // Ocultar loading screen
-        window.addEventListener('load', function() {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .upload-section {
+            padding: 40px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #3498db;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            border: 3px solid #3498db;
+        }
+        
+        .file-input-label:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .convert-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .convert-btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3);
+        }
+        
+        .convert-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 25px;
+            margin: 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stats h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .oportunidad {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .result-section {
+            padding: 30px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .copy-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 500px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            resize: vertical;
+            background: #f8f9fa;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .image-preview {
+            max-width: 100px;
+            max-height: 100px;
+            margin: 5px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .preview-section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .preview-item {
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .upload-section {
+                padding: 20px;
+            }
+            
+            .convert-btn, .file-input-label {
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛍️ Conversor de Catálogo CSV a JSON</h1>
+            <p>Convierte tu archivo CSV de perfumes a formato JSON optimizado</p>
+        </header>
+
+        <section class="instructions">
+            <h3>📋 Instrucciones de uso:</h3>
+            <ol>
+                <li>Sube tu archivo CSV con la estructura de catálogo de perfumes</li>
+                <li>El conversor procesará automáticamente los datos</li>
+                <li>Revisa las estadísticas y vista previa de imágenes</li>
+                <li>Copia el JSON generado para usar en tu aplicación</li>
+            </ol>
+        </section>
+
+        <section class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="csvFile" accept=".csv">
+                <label for="csvFile" class="file-input-label">
+                    📁 Seleccionar archivo CSV
+                </label>
+            </div>
+            <br>
+            <button class="convert-btn" onclick="procesarCSV()" id="convertBtn">
+                🔄 Convertir a JSON
+            </button>
+        </section>
+
+        <section class="stats" id="estadisticas" style="display: none;">
+            <h3>📊 Estadísticas del Catálogo</h3>
+            <div id="statsContent"></div>
+        </section>
+
+        <section class="preview-section" id="vistaPreviaImagenes" style="display: none;">
+            <h3>🖼️ Vista Previa de Imágenes</h3>
+            <div id="imagenesContainer"></div>
+        </section>
+
+        <section class="result-section">
+            <div class="result-header">
+                <h3>📄 JSON Generado</h3>
+                <button class="copy-btn" onclick="copiarJSON()">
+                    📋 Copiar JSON
+                </button>
+            </div>
+            <textarea id="resultado" placeholder="El JSON convertido aparecerá aquí..."></textarea>
+        </section>
+    </div>
+
+    <script>
+        // Función para procesar el CSV
+        function procesarCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const convertBtn = document.getElementById('convertBtn');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Por favor selecciona un archivo CSV');
+                return;
+            }
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '⏳ Procesando...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const resultado = convertirCSVaJSON(csv);
+                    document.getElementById('resultado').value = JSON.stringify(resultado, null, 2);
+                    mostrarEstadisticas(resultado);
+                    mostrarVistaPreviaImagenes(resultado);
+                } catch (error) {
+                    alert('Error al procesar el archivo: ' + error.message);
+                    console.error(error);
+                } finally {
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = '🔄 Convertir a JSON';
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('Error al leer el archivo');
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '🔄 Convertir a JSON';
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Función para copiar el JSON al portapapeles
+        function copiarJSON() {
+            const textarea = document.getElementById('resultado');
+            if (!textarea.value) {
+                alert('No hay JSON para copiar');
+                return;
+            }
+            
+            textarea.select();
+            document.execCommand('copy');
+            
+            // Mostrar confirmación
+            const originalText = textarea.placeholder;
+            textarea.placeholder = '✅ JSON copiado al portapapeles!';
             setTimeout(() => {
-                document.getElementById('loadingScreen').style.display = 'none';
+                textarea.placeholder = originalText;
             }, 2000);
-        });
+        }
+
+        // Las demás funciones (convertirCSVaJSON, crearProducto, parsearLineaCSV, etc.)
+        // se mantienen exactamente igual que en la versión anterior que te funcionó bien
+        // [Incluir aquí todas las funciones JavaScript de la versión anterior]
+
+        // Solo para referencia, aquí irían todas las funciones que ya teníamos:
+        function convertirCSVaJSON(csv) {
+            const lineas = csv.split('\n');
+            const catalogo = {
+                metadata: {
+                    totalProductos: 0,
+                    fechaConversion: new Date().toISOString(),
+                    categorias: {},
+                    productosConDescuento: 0,
+                    productosConImagen: 0
+                },
+                productos: []
+            };
+            
+            // Obtener encabezados
+            const encabezados = parsearLineaCSV(lineas[0]);
+            console.log("Encabezados detectados:", encabezados);
+            
+            // Procesar cada línea de datos
+            for (let i = 1; i < lineas.length; i++) {
+                const linea = lineas[i].trim();
+                if (!linea) continue;
+                
+                const columnas = parsearLineaCSV(linea);
+                if (columnas.length >= 6) {
+                    const producto = crearProducto(columnas, encabezados, i);
+                    if (producto) {
+                        catalogo.productos.push(producto);
+                        
+                        // Actualizar estadísticas de categorías
+                        producto.categorias.forEach(cat => {
+                            catalogo.metadata.categorias[cat] = (catalogo.metadata.categorias[cat] || 0) + 1;
+                        });
+
+                        // Contar productos con descuento
+                        if (producto.precio.descuento > 0) {
+                            catalogo.metadata.productosConDescuento++;
+                        }
+
+                        // Contar productos con imagen
+                        if (producto.imagen && producto.imagen !== '') {
+                            catalogo.metadata.productosConImagen++;
+                        }
+                    }
+                }
+            }
+            
+            catalogo.metadata.totalProductos = catalogo.productos.length;
+            return catalogo;
+        }
+
+        function crearProducto(columnas, encabezados, indice) {
+            try {
+                // Mapear columnas según los encabezados
+                const datos = {};
+                encabezados.forEach((header, index) => {
+                    datos[header.toLowerCase()] = columnas[index] || '';
+                });
+
+                console.log(`Datos línea ${indice}:`, datos);
+
+                // Determinar categorías (pueden ser múltiples separadas por coma)
+                const categoriasTexto = (datos['categoria'] || datos['categoría'] || '').toLowerCase();
+                const categorias = determinarCategorias(categoriasTexto);
+
+                // Extraer precios
+                const precioActual = extraerPrecio(datos['precio']);
+                const precioAnterior = extraerPrecio(datos['precio anterior']);
+                
+                // Calcular descuento solo si hay precio anterior válido
+                const descuento = precioAnterior > precioActual ? 
+                    Math.round(((precioAnterior - precioActual) / precioAnterior) * 100) : 0;
+
+                // Obtener imagen - buscar en diferentes posibles nombres de columna
+                const imagen = obtenerImagen(datos);
+
+                const producto = {
+                    id: `prod_${indice}`,
+                    nombre: datos['nombre'] || datos['name'] || `Producto ${indice}`,
+                    imagen: imagen,
+                    descripcion: datos['descripción'] || datos['description'] || '',
+                    categorias: categorias,
+                    precio: {
+                        actual: precioActual,
+                        anterior: precioAnterior > precioActual ? precioAnterior : null,
+                        descuento: descuento,
+                        esOportunidad: descuento > 0
+                    },
+                    marca: extraerMarca(datos['nombre'] + ' ' + (datos['descripción'] || '')),
+                    tags: extraerTags(datos['nombre'] + ' ' + (datos['descripción'] || '')),
+                    stock: Math.floor(Math.random() * 20) + 5,
+                    disponible: true,
+                    tipo: determinarTipoProducto(categorias)
+                };
+
+                return producto;
+            } catch (error) {
+                console.error(`Error procesando línea ${indice}:`, error);
+                return null;
+            }
+        }
+
+        function obtenerImagen(datos) {
+            // Buscar la imagen en diferentes posibles nombres de columna
+            const posiblesColumnasImagen = [
+                'url normalizada', 'url', 'imagen', 'image', 'link', 
+                'url_normalizada', 'url_imagen', 'imagen_url'
+            ];
+            
+            for (const columna of posiblesColumnasImagen) {
+                if (datos[columna] && datos[columna].trim() !== '') {
+                    const url = datos[columna].trim();
+                    // Validar que sea una URL válida
+                    if (url.startsWith('http') || url.startsWith('https')) {
+                        return url;
+                    }
+                }
+            }
+            
+            return '';
+        }
+
+        function parsearLineaCSV(linea) {
+            const resultado = [];
+            let entreComillas = false;
+            let campo = '';
+            
+            for (let i = 0; i < linea.length; i++) {
+                const caracter = linea[i];
+                
+                if (caracter === '"') {
+                    entreComillas = !entreComillas;
+                } else if (caracter === ',' && !entreComillas) {
+                    resultado.push(campo.trim());
+                    campo = '';
+                } else {
+                    campo += caracter;
+                }
+            }
+            
+            resultado.push(campo.trim());
+            return resultado;
+        }
+
+        function determinarCategorias(categoriaTexto) {
+            const categorias = new Set();
+            const texto = categoriaTexto.toLowerCase();
+            
+            // Categorías principales
+            if (texto.includes('combo')) categorias.add('combo');
+            if (texto.includes('mixto')) categorias.add('mixto');
+            if (texto.includes('hombre')) categorias.add('hombre');
+            if (texto.includes('mujer')) categorias.add('mujer');
+            if (texto.includes('dama')) categorias.add('mujer');
+            if (texto.includes('caballero')) categorias.add('hombre');
+            if (texto.includes('unisex')) categorias.add('unisex');
+            
+            // Si no se detectó ninguna categoría específica, asumir que es combo
+            if (categorias.size === 0) {
+                categorias.add('combo');
+            }
+            
+            return Array.from(categorias);
+        }
+
+        function determinarTipoProducto(categorias) {
+            if (categorias.includes('unisex')) {
+                return 'unisex';
+            } else if (categorias.includes('combo') || categorias.includes('mixto')) {
+                return 'combo';
+            } else if (categorias.includes('hombre') && categorias.includes('mujer')) {
+                return 'mixto';
+            } else if (categorias.includes('hombre')) {
+                return 'hombre';
+            } else if (categorias.includes('mujer')) {
+                return 'mujer';
+            }
+            return 'combo';
+        }
+
+        function extraerPrecio(textoPrecio) {
+            if (!textoPrecio || textoPrecio.trim() === '') return 0;
+            
+            // Remover caracteres no numéricos excepto puntos
+            const textoLimpio = textoPrecio.toString().replace(/[^\d]/g, '');
+            const precio = parseInt(textoLimpio);
+            
+            return isNaN(precio) ? 0 : precio;
+        }
+
+        function extraerMarca(texto) {
+            const marcas = [
+                'Lattafa', 'Paco Rabanne', 'Carolina Herrera', 'Dior', 
+                'Jean Paul Gaultier', 'Moschino', 'Bvlgari', 'Armani', 
+                'Versace', 'Chanel', 'Calvin Klein', 'Dolce & Gabbana',
+                'Valentino', 'Lacoste', 'Ariana Grande', 'Perry Ellis',
+                'Nautica', 'Orientica', 'Afnan', 'Haramain', 'Bharara'
+            ];
+            
+            for (const marca of marcas) {
+                if (texto.toLowerCase().includes(marca.toLowerCase())) {
+                    return marca;
+                }
+            }
+            return 'Otra Marca';
+        }
+
+        function extraerTags(nombre, descripcion) {
+            const texto = (nombre + ' ' + descripcion).toLowerCase();
+            const tags = [];
+            
+            const palabrasClave = {
+                'oud': ['oud'],
+                'ambar': ['ambar', 'ámbar'],
+                'floral': ['floral', 'flores', 'jazmín', 'rosa'],
+                'citrico': ['cítrico', 'citrico', 'bergamota', 'limón', 'limon', 'pomelo'],
+                'madera': ['madera', 'amaderado', 'sándalo', 'cedro'],
+                'dulce': ['dulce', 'vainilla', 'caramelo', 'miel'],
+                'especiado': ['especiado', 'canela', 'pimienta', 'jengibre'],
+                'oriental': ['oriental', 'árabe'],
+                'frutal': ['frutal', 'fruta', 'manzana', 'pera', 'piña'],
+                'fresco': ['fresco', 'limpio', 'acuático'],
+                'unisex': ['unisex', 'para hombre y mujer']
+            };
+            
+            for (const [tag, palabras] of Object.entries(palabrasClave)) {
+                if (palabras.some(palabra => texto.includes(palabra))) {
+                    tags.push(tag);
+                }
+            }
+            
+            return tags;
+        }
+
+        function mostrarEstadisticas(catalogo) {
+            const statsDiv = document.getElementById('estadisticas');
+            const statsContent = document.getElementById('statsContent');
+            
+            let html = `<div class="stats-grid">`;
+            
+            // Total productos
+            html += `
+                <div class="stat-card">
+                    <span class="stat-number">${catalogo.metadata.totalProductos}</span>
+                    <span class="stat-label">Total Productos</span>
+                </div>
+            `;
+            
+            // Productos con imagen
+            html += `
+                <div class="stat-card">
+                    <span class="stat-number">${catalogo.metadata.productosConImagen}</span>
+                    <span class="stat-label">Con Imágenes</span>
+                </div>
+            `;
+            
+            // Productos con descuento
+            if (catalogo.metadata.productosConDescuento > 0) {
+                html += `
+                    <div class="stat-card oportunidad">
+                        <span class="stat-number">${catalogo.metadata.productosConDescuento}</span>
+                        <span class="stat-label">En Oferta</span>
+                    </div>
+                `;
+            }
+            
+            // Precio promedio
+            const precios = catalogo.productos.map(p => p.precio.actual).filter(p => p > 0);
+            const precioPromedio = precios.length > 0 ? 
+                Math.round(precios.reduce((a, b) => a + b, 0) / precios.length) : 0;
+            
+            html += `
+                <div class="stat-card">
+                    <span class="stat-number">$${(precioPromedio/1000).toFixed(0)}K</span>
+                    <span class="stat-label">Precio Promedio</span>
+                </div>
+            `;
+            
+            html += `</div>`;
+            
+            // Categorías
+            html += `<div style="margin-top: 20px;"><strong>Categorías:</strong><br>`;
+            for (const [categoria, cantidad] of Object.entries(catalogo.metadata.categorias)) {
+                const porcentaje = Math.round((cantidad / catalogo.metadata.totalProductos) * 100);
+                html += `<span style="display: inline-block; background: #3498db; color: white; padding: 5px 10px; margin: 5px; border-radius: 15px; font-size: 0.9em;">
+                    ${categoria}: ${cantidad} (${porcentaje}%)
+                </span>`;
+            }
+            html += `</div>`;
+            
+            statsContent.innerHTML = html;
+            statsDiv.style.display = 'block';
+        }
+
+        function mostrarVistaPreviaImagenes(catalogo) {
+            const contenedor = document.getElementById('vistaPreviaImagenes');
+            const imagenesContainer = document.getElementById('imagenesContainer');
+            
+            // Mostrar solo productos que tienen imagen
+            const productosConImagen = catalogo.productos.filter(p => p.imagen && p.imagen !== '');
+            
+            if (productosConImagen.length === 0) {
+                contenedor.style.display = 'none';
+                return;
+            }
+            
+            let html = `<p>Se encontraron ${productosConImagen.length} productos con imágenes:</p>`;
+            html += `<div class="preview-grid">`;
+            
+            // Mostrar primeras 12 imágenes como vista previa
+            productosConImagen.slice(0, 12).forEach(producto => {
+                html += `
+                    <div class="preview-item">
+                        <img src="${producto.imagen}" alt="${producto.nombre}" class="image-preview" 
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2VuIG5vIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+'">
+                        <div style="font-size: 11px; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${producto.nombre.substring(0, 20)}${producto.nombre.length > 20 ? '...' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            
+            if (productosConImagen.length > 12) {
+                html += `<p style="margin-top: 15px; text-align: center; color: #666;">
+                    ... y ${productosConImagen.length - 12} imágenes más
+                </p>`;
+            }
+            
+            imagenesContainer.innerHTML = html;
+            contenedor.style.display = 'block';
+        }
     </script>
 </body>
 </html>
