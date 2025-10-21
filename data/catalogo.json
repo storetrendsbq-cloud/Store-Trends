@@ -5097,29 +5097,6 @@
       "tipo": "combo"
     },
     {
-      "id": "prod_198",
-      "nombre": "Promo 37 Caballero X3",
-      "imagen": "https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg",
-      "descripcion": "Moschino Toy 2: Toy 2 Eau de parfum by Moschino Beauty. Es un perfume con una radiante mezcla de manzana Granny Smith, peonía y sándalo.Perfumes Réplica 1.1                                                                                                                                                                                                                                                                                                                                                        La duración depende del clima, humor propio de cada persona, hay perfuemes suaves cuya duración es entre 2 y 6 horas y existen otros mas fuertes e intensos cuya duración está entre 6 y 10 horas (incluso mas dependiendo del comportamiento de los factores influyentes)                                                                                                                                                                                                                                                                                                                                                                Garantía:orden incompleta: 2 días (a partir del recibido).Malfunccionamiento: 10 días(a partir del recibido).Producto Roto:1 día  (a partir del recibido).Pedido diferente:2 días (a partir del recibido). Tiempo de entrega: 4 a 8 días hábile( a partir de realizado el pedido).",
-      "categorias": [
-        "combo"
-      ],
-      "precio": {
-        "actual": 189900,
-        "anterior": null,
-        "descuento": 0,
-        "esOportunidad": false
-      },
-      "marca": "Moschino",
-      "tags": [
-        "madera",
-        "frutal"
-      ],
-      "stock": 14,
-      "disponible": true,
-      "tipo": "combo"
-    },
-    {
       "id": "prod_199",
       "nombre": "Promo 326 Caballero X4",
       "imagen": "https://d39ru7awumhhs2.cloudfront.net/colombia/products/1731222/1742833191WhatsApp%20Image%202025-03-24%20at%2011.19.28%20AM.jpeg",
@@ -10575,4 +10552,5 @@
       "tipo": "combo"
     }
   ]
+
 }
