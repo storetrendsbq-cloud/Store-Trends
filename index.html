@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Trends BQ | Perfumes Premium - Fragancias de Lujo en Colombia</title>
+    <title>Store Trends | Perfumes Premium - Fragancias de Lujo en Colombia</title>
     
     <!-- Meta Tags para SEO y Marketing -->
-    <meta name="description" content="Store Trends BQ - Perfumes premium 1:1. Calidad de lujo a precios increíbles. Envíos a toda Colombia. WhatsApp +57 XXX XXX XXXX">
+    <meta name="description" content="Store Trends - Perfumes premium 1:1. Calidad de lujo a precios increíbles. Envíos a toda Colombia. WhatsApp +57 3054813630">
     <meta name="keywords" content="perfumes, fragancias, store trends, Colombia, perfumes réplica, lujo, belleza, cuidado personal">
     <meta name="author" content="Store Trends BQ">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Store Trends BQ | Perfumes Premium Colombia">
+    <meta property="og:title" content="Store Trends| Perfumes Premium Colombia">
     <meta property="og:description" content="Descubre nuestra exclusiva colección de perfumes premium. Envíos a toda Colombia.">
     <meta property="og:image" content="https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg">
     <meta property="og:url" content="https://tusitio.com">
@@ -729,6 +729,180 @@
             }
         }
 
+        /* ===== CHECKOUT MODAL ===== */
+        .checkout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 4000;
+            overflow-y: auto;
+        }
+
+        .checkout-content {
+            background: var(--background);
+            margin: 50px auto;
+            padding: 0;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: modalFadeIn 0.3s ease;
+            color: var(--text);
+        }
+
+        .checkout-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--background-alt);
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checkout-header h2 {
+            margin: 0;
+            color: var(--text);
+            font-size: 1.5rem;
+        }
+
+        .close-checkout {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+        }
+
+        .close-checkout:hover {
+            color: var(--accent);
+        }
+
+        .checkout-body {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .checkout-summary {
+            background: var(--background-alt);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .checkout-summary h3 {
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .summary-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkout-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--background-alt);
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .checkout-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--accent);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .total-row.final {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .checkout-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-body {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* ===== CARRITO ===== */
         .cart-sidebar {
             position: fixed;
@@ -1073,7 +1247,7 @@
                         <img src="https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg" alt="Store Trends">
                     </div>
                     <div class="brand-text">
-                        <h1>Store Trends BQ</h1>
+                        <h1>Store Trends </h1>
                         <p>Perfumes Premium</p>
                     </div>
                 </div>
@@ -1221,7 +1395,7 @@
                 
                 <div class="testimonial-card">
                     <div class="testimonial-content">
-                        "Compré el combo para mi esposa y quedó encantada. La relación calidad-precio es súper. Definitivamente recomendada."
+                        "Compré el combo para mi esposa y quedó encantada. La relación calidad-precio es super. Definitivamente recomendada."
                     </div>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">CL</div>
@@ -1288,6 +1462,110 @@
         </div>
     </div>
 
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-content">
+            <div class="checkout-header">
+                <h2>📋 Finalizar Pedido</h2>
+                <button class="close-checkout" id="closeCheckout">&times;</button>
+            </div>
+            <div class="checkout-body">
+                <div class="checkout-summary">
+                    <h3>Resumen del Pedido</h3>
+                    <div class="summary-items" id="checkoutItems">
+                        <!-- Los items del carrito se cargan aquí -->
+                    </div>
+                    <div class="checkout-total">
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span id="checkoutSubtotal">$0</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Envío:</span>
+                            <span id="checkoutShipping">$0</span>
+                        </div>
+                        <div class="total-row final">
+                            <span>Total:</span>
+                            <span id="checkoutTotal">$0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form class="checkout-form" id="checkoutForm">
+                    <h3 style="color: var(--accent); margin-bottom: 20px;">Datos de Envío</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerName">Nombre y Apellido *</label>
+                            <input type="text" id="customerName" name="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerEmail">Correo Electrónico *</label>
+                            <input type="email" id="customerEmail" name="customerEmail" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerPhone">Celular *</label>
+                            <input type="tel" id="customerPhone" name="customerPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerCity">Ciudad *</label>
+                            <select id="customerCity" name="customerCity" required>
+                                <option value="">Selecciona tu ciudad</option>
+                                <option value="Bogotá">Bogotá</option>
+                                <option value="Medellín">Medellín</option>
+                                <option value="Cali">Cali</option>
+                                <option value="Barranquilla">Barranquilla</option>
+                                <option value="Cartagena">Cartagena</option>
+                                <option value="Bucaramanga">Bucaramanga</option>
+                                <option value="Pereira">Pereira</option>
+                                <option value="Manizales">Manizales</option>
+                                <option value="Armenia">Armenia</option>
+                                <option value="Ibagué">Ibagué</option>
+                                <option value="Villavicencio">Villavicencio</option>
+                                <option value="Neiva">Neiva</option>
+                                <option value="Pasto">Pasto</option>
+                                <option value="Cúcuta">Cúcuta</option>
+                                <option value="Santa Marta">Santa Marta</option>
+                                <option value="Montería">Montería</option>
+                                <option value="Sincelejo">Sincelejo</option>
+                                <option value="Valledupar">Valledupar</option>
+                                <option value="Tunja">Tunja</option>
+                                <option value="Popayán">Popayán</option>
+                                <option value="Riohacha">Riohacha</option>
+                                <option value="Quibdó">Quibdó</option>
+                                <option value="Leticia">Leticia</option>
+                                <option value="San Andrés">San Andrés</option>
+                                <option value="Otra">Otra ciudad</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerAddress">Dirección Completa *</label>
+                        <textarea id="customerAddress" name="customerAddress" placeholder="Incluye barrio, número de casa/apartamento, referencias..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customerNotes">Observaciones (Opcional)</label>
+                        <textarea id="customerNotes" name="customerNotes" placeholder="Instrucciones especiales para la entrega, horarios preferidos, etc."></textarea>
+                    </div>
+                    
+                    <div class="checkout-actions">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            ✅ Confirmar Pedido
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeCheckout()">
+                            ✏️ Modificar Carrito
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Carrito Sidebar -->
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
@@ -1344,7 +1622,7 @@
                 <div class="footer-section">
                     <h3>
                         <img src="https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg" alt="Store Trends BQ" class="footer-logo">
-                        Store Trends 
+                        Store Trends BQ
                     </h3>
                     <p>Tu destino para fragancias de lujo en Colombia. Calidad premium a precios accesibles.</p>
                     <div class="social-links">
@@ -1591,6 +1869,129 @@
             currentModalProductId = null;
         }
 
+        // ===== CHECKOUT FUNCTIONS =====
+        function openCheckout() {
+            if (cart.length === 0) {
+                alert('Tu carrito está vacío');
+                return;
+            }
+
+            // Actualizar resumen del checkout
+            updateCheckoutSummary();
+            
+            // Mostrar modal de checkout
+            document.getElementById('checkoutModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateCheckoutSummary() {
+            const checkoutItems = document.getElementById('checkoutItems');
+            let subtotal = 0;
+
+            checkoutItems.innerHTML = cart.map(item => {
+                const itemTotal = item.precio.actual * item.quantity;
+                subtotal += itemTotal;
+
+                return `
+                    <div class="summary-item">
+                        <div>
+                            <strong>${item.nombre}</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-light);">
+                                Cantidad: ${item.quantity} x ${formatPriceFull(item.precio.actual)}
+                            </div>
+                        </div>
+                        <div style="font-weight: 600; color: var(--accent);">
+                            ${formatPriceFull(itemTotal)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const shipping = subtotal > 150000 ? 0 : 15000;
+            const total = subtotal + shipping;
+
+            document.getElementById('checkoutSubtotal').textContent = formatPriceFull(subtotal);
+            document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'GRATIS' : formatPriceFull(shipping);
+            document.getElementById('checkoutTotal').textContent = formatPriceFull(total);
+        }
+
+        // ===== GOOGLE SHEETS INTEGRATION =====
+        async function submitOrderToSheets(orderData) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzHXlsyYoKdaPFqd1BVnihNFp_yk6OThVpWXeq5X1RKE7Lb1wZBR9uC1x1kwRZ1nqV2gQ/exec';
+            
+            try {
+                const response = await fetch(scriptURL, {
+                    method: 'POST',
+                    body: JSON.stringify(orderData),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    return { success: true, message: 'Pedido registrado exitosamente' };
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+            } catch (error) {
+                console.error('Error enviando pedido a Google Sheets:', error);
+                return { success: false, message: 'Error al registrar pedido: ' + error.message };
+            }
+        }
+
+        function generateOrderData(formData) {
+            const orderNumber = 'STBQ-' + Date.now();
+            const orderDate = new Date().toLocaleString('es-CO');
+            
+            const orderData = {
+                metadata: {
+                    orderNumber: orderNumber,
+                    orderDate: orderDate,
+                    total: calculateOrderTotal()
+                },
+                customer: {
+                    name: formData.get('customerName'),
+                    email: formData.get('customerEmail'),
+                    phone: formData.get('customerPhone'),
+                    address: formData.get('customerAddress'),
+                    city: formData.get('customerCity'),
+                    notes: formData.get('customerNotes') || ''
+                },
+                items: cart.map(item => ({
+                    referencia: item.nombre,
+                    cantidad: item.quantity,
+                    precio: item.precio.actual,
+                    total: item.precio.actual * item.quantity
+                }))
+            };
+
+            return orderData;
+        }
+
+        function calculateOrderTotal() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
+            const shipping = subtotal > 150000 ? 0 : 15000;
+            return subtotal + shipping;
+        }
+
+        function sendOrderConfirmation(orderData) {
+            // Crear mensaje para WhatsApp
+            const itemsText = orderData.items.map(item => 
+                `• ${item.referencia} - ${item.cantidad} x ${formatPriceFull(item.precio)} = ${formatPriceFull(item.total)}`
+            ).join('%0A');
+
+            const message = `¡NUEVO PEDIDO!%0A%0A📦 *Pedido:* ${orderData.metadata.orderNumber}%0A📅 *Fecha:* ${orderData.metadata.orderDate}%0A%0A👤 *Cliente:*%0A${orderData.customer.name}%0A📧 ${orderData.customer.email}%0A📱 ${orderData.customer.phone}%0A🏠 ${orderData.customer.address}%0A📍 ${orderData.customer.city}%0A%0A🛍️ *Productos:*%0A${itemsText}%0A%0A💰 *Total:* ${formatPriceFull(orderData.metadata.total)}%0A%0A📝 *Observaciones:*%0A${orderData.customer.notes || 'Ninguna'}`;
+
+            const whatsappUrl = `https://wa.me/573054813630?text=${message}`;
+            
+            return whatsappUrl;
+        }
+
         // ===== CARRITO =====
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
@@ -1707,23 +2108,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        function openCheckout() {
-            if (cart.length === 0) return;
-            
-            const message = cart.map(item => 
-                `${item.nombre} - ${item.quantity} x ${formatPriceFull(item.precio.actual)}`
-            ).join('%0A');
-            
-            const total = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
-            const shipping = total > 150000 ? 0 : 15000;
-            const finalTotal = total + shipping;
-            
-            const whatsappUrl = `https://wa.me/573054813630?text=Hola!%20Quiero%20comprar:%0A%0A${message}%0A%0ATotal:%20${formatPriceFull(finalTotal)}%0A%0AEnvía%20mis%20datos%20para%20proceder%20con%20la%20compra.`;
-            
-            window.open(whatsappUrl, '_blank');
-            closeCart();
-        }
-
         // ===== ANIMACIONES Y EFECTOS =====
         function showAddToCartAnimation() {
             const btn = document.createElement('div');
@@ -1779,9 +2163,12 @@
         }
 
         function setupEventListeners() {
+            // Carrito
             document.getElementById('openCart').addEventListener('click', openCart);
             document.getElementById('closeCart').addEventListener('click', closeCart);
             document.getElementById('overlay').addEventListener('click', closeCart);
+            
+            // Modales
             document.getElementById('closeModal').addEventListener('click', closeModal);
             document.getElementById('productModal').addEventListener('click', function(event) {
                 if (event.target === this) {
@@ -1789,8 +2176,66 @@
                 }
             });
             
+            document.getElementById('closeCheckout').addEventListener('click', closeCheckout);
+            document.getElementById('checkoutModal').addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeCheckout();
+                }
+            });
+
+            // Formulario de checkout
+            document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(this);
+                const orderData = generateOrderData(formData);
+                
+                // Mostrar loading
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '⏳ Procesando...';
+                submitBtn.disabled = true;
+
+                try {
+                    // 1. Enviar a Google Sheets
+                    const sheetsResult = await submitOrderToSheets(orderData);
+                    
+                    if (sheetsResult.success) {
+                        // 2. Enviar confirmación por WhatsApp
+                        const whatsappUrl = sendOrderConfirmation(orderData);
+                        
+                        // 3. Limpiar carrito
+                        cart = [];
+                        updateCartUI();
+                        localStorage.removeItem('cart');
+                        
+                        // 4. Cerrar modales
+                        closeCheckout();
+                        closeCart();
+                        
+                        // 5. Mostrar éxito y redirigir a WhatsApp
+                        setTimeout(() => {
+                            window.open(whatsappUrl, '_blank');
+                            alert('✅ Pedido registrado exitosamente. Serás redirigido a WhatsApp para confirmar los detalles.');
+                        }, 1000);
+                        
+                    } else {
+                        throw new Error(sheetsResult.message);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error procesando pedido:', error);
+                    alert('❌ Error al procesar el pedido: ' + error.message + '\n\nPor favor contacta directamente por WhatsApp.');
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+            
+            // Scroll
             window.addEventListener('scroll', handleScroll);
             
+            // Prevenir enlaces rotos
             document.querySelectorAll('a[href="#"]').forEach(link => {
                 link.addEventListener('click', e => e.preventDefault());
             });
@@ -1798,6 +2243,7 @@
 
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar animaciones
             const animatedElements = document.querySelectorAll('.fade-in-up');
             animatedElements.forEach(element => {
                 element.style.opacity = '0';
@@ -1805,11 +2251,14 @@
                 element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             });
             
+            // Inicializar la aplicación
             initApp();
             
+            // Trigger inicial de scroll para animaciones
             setTimeout(handleScroll, 100);
         });
 
+        // CSS para animación de fadeInOut
         const style = document.createElement('style');
         style.textContent = `
             @keyframes fadeInOut {
