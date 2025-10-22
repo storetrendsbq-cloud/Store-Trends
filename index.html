@@ -1920,7 +1920,7 @@
                 `;
             }).join('');
 
-            const shipping = subtotal > 150000 ? 0 : 20000;
+            const shipping = subtotal > 150000 ? 0 : 19900;
             const total = subtotal + shipping;
 
             document.getElementById('checkoutSubtotal').textContent = formatPriceFull(subtotal);
@@ -2193,7 +2193,7 @@ function updateCheckoutSummary() {
                 `;
             }).join('');
 
-            const shipping = subtotal > 150000 ? 0 : 15000;
+            const shipping = subtotal > 150000 ? 0 : 19900;
             const total = subtotal + shipping;
 
             document.getElementById('subtotalAmount').textContent = formatPriceFull(subtotal);
@@ -2361,15 +2361,49 @@ alert(
             
             // 5. Mostrar éxito y redirigir a WhatsApp
 setTimeout(() => {
-    // Crear un enlace que el usuario debe hacer clic manualmente
-    const shouldOpen = confirm(
-        '✅ Pedido registrado exitosamente.\n\n' +
-        '¿Quieres abrir WhatsApp para confirmar los detalles del pedido?\n\n' +
-        'Si aparece error, puedes:\n' +
-        '1. Esperar 30 segundos y intentar nuevamente\n' +
-        '2. Contactarnos directamente al: +57 3054813630\n' +
-        '3. Enviarnos un mensaje manualmente por WhatsApp'
+    // Crear enlace que el usuario debe copiar manualmente
+    const whatsappMessage = `
+¡NUEVO PEDIDO!%0A%0A
+📦 *Pedido:* ${orderData.metadata.orderNumber}%0A
+📅 *Fecha:* ${orderData.metadata.orderDate}%0A%0A
+👤 *Cliente:*%0A
+${orderData.customer.name}%0A
+📧 ${orderData.customer.email}%0A
+📱 ${orderData.customer.phone}%0A
+🏠 ${orderData.customer.address}%0A
+📍 ${orderData.customer.city}%0A%0A
+🛍️ *Productos:*%0A
+${orderData.items.map(item => 
+    `• ${item.nombre} - ${item.quantity} x ${formatPriceFull(item.precio.actual)} = ${formatPriceFull(item.precio.actual * item.quantity)}`
+).join('%0A')}%0A%0A
+💰 *Total:* ${formatPriceFull(orderData.metadata.total)}%0A
+💳 *Forma de Pago:* ${orderData.metadata.paymentMethod}%0A%0A
+📝 *Observaciones:*%0A
+${orderData.customer.notes || 'Ninguna'}
+    `.replace(/\n/g, '').replace(/  +/g, '');
+    
+    const whatsappUrl = `https://wa.me/573054813630?text=${whatsappMessage}`;
+    
+    // Mostrar opciones al usuario
+    const userChoice = confirm(
+        '✅ Pedido procesado\n\n' +
+        'Se ha creado tu pedido #' + orderData.metadata.orderNumber + '\n\n' +
+        '¿Quieres abrir WhatsApp para enviar los detalles?\n\n' +
+        'Si sale error HTTP 429, espera 1 minuto y haz clic en "Aceptar" de nuevo.'
     );
+    
+    if (userChoice) {
+        // Intentar abrir WhatsApp
+        window.open(whatsappUrl, '_blank');
+    } else {
+        // Mostrar enlace para copiar manualmente
+        alert(
+            '📋 Copia este enlace manualmente:\n\n' +
+            whatsappUrl + '\n\n' +
+            'O envía un mensaje directo al: +57 3054813630'
+        );
+    }
+}, 1000);
     
     if (shouldOpen) {
         // Abrir en una nueva pestaña
@@ -2459,6 +2493,7 @@ setTimeout(() => {
     </script>
 </body>
 </html>
+
 
 
 
