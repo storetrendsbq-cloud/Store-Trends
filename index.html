@@ -2333,7 +2333,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
         return;
     }
     
-    const orderData = debugOrderData(formData);
+    const orderData = generateOrderData(formData);
     
     // Mostrar loading
     const submitBtn = this.querySelector('button[type="submit"]');
@@ -2457,37 +2457,11 @@ setTimeout(() => {
                 100% { opacity: 0; }
             }
         `;
-        document.head.appendChild(style);
-        // Función temporal para debug - agregar al final de tu script
-function debugOrderData(formData) {
-    const orderData = generateOrderData(formData);
-    console.log('🐛 DEBUG - Estructura de orderData:');
-    console.log('📦 Metadata:', orderData.metadata);
-    console.log('👤 Customer:', orderData.customer);
-    console.log('🛍️ Items:', orderData.items);
-    console.log('📊 JSON completo:', JSON.stringify(orderData, null, 2));
-    
-    // Mostrar en alert para copiar fácilmente
-    const debugInfo = `
-METADATA:
-- Order: ${orderData.metadata.orderNumber}
-- Date: ${orderData.metadata.orderDate}
-- Payment: ${orderData.metadata.paymentMethod}
-
-CUSTOMER:
-- Name: ${orderData.customer.name}
-- Email: ${orderData.customer.email}
-- Phone: ${orderData.customer.phone}
-
-ITEMS: ${orderData.items.length} productos
-    `;
-    
-    console.log(debugInfo);
-    return orderData;
-}
+        
     </script>
 </body>
 </html>
+
 
 
 
