@@ -1930,51 +1930,37 @@
 
         // ===== GOOGLE SHEETS INTEGRATION =====
 async function submitOrderToSheets(orderData) {
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwWiXj09rkVhQ4iI5sjSfl1p6Qwvh6P3REtmCNkgOJYznF8nA5xNZe-NR4LfNIQaKm2iw/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzHXlsyYoKdaPFqd1BVnihNFp_yk6OThVpWXeq5X1RKE7Lb1wZBR9uC1x1kwRZ1nqV2gQ/exec';
     
     try {
-        console.log('📤 Enviando datos a Google Sheets:', orderData);
+        console.log('🔄 Enviando a Google Sheets...');
         
-        // Método 1: Enviar como JSON simple (el más compatible)
-        const payload = {
-            orderData: orderData
-        };
-        
-        console.log('📦 Payload a enviar:', JSON.stringify(payload).substring(0, 500));
-        
+        // ENVIAR DATOS DE FORMA MUY SIMPLE
         const response = await fetch(scriptURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                orderData: orderData
+            })
         });
         
-        console.log('📨 Estado de respuesta:', response.status);
-        console.log('📨 Respuesta OK:', response.ok);
+        console.log('📨 Respuesta status:', response.status);
         
-        const resultText = await response.text();
-        console.log('📨 Respuesta completa:', resultText);
-        
-        let result;
-        try {
-            result = JSON.parse(resultText);
-        } catch (parseError) {
-            console.error('❌ Error parseando respuesta:', parseError);
-            throw new Error('Respuesta no es JSON válido: ' + resultText);
-        }
+        const result = await response.json();
+        console.log('📨 Resultado:', result);
         
         return result;
         
     } catch (error) {
-        console.error('❌ Error enviando pedido a Google Sheets:', error);
+        console.error('❌ Error enviando a Sheets:', error);
         return { 
             success: false, 
-            message: 'Error de conexión: ' + error.message 
+            message: 'No se pudo conectar con Google Sheets: ' + error.message 
         };
     }
 }
-
 function generateOrderData(formData) {
     const orderNumber = 'STBQ-' + Date.now();
     const orderDate = new Date().toLocaleString('es-CO');
@@ -2019,7 +2005,7 @@ function generateOrderData(formData) {
 
 function calculateOrderTotal() {
     const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
-    const shipping = subtotal > 150000 ? 0 : 15000;
+    const shipping = subtotal > 150000 ? 0 : 19900;
     return subtotal + shipping;
 }
 
@@ -2334,6 +2320,18 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     }
     
     const orderData = generateOrderData(formData);
+console.log('🔍 DEBUG - OrderData que se enviará:');
+console.log(JSON.stringify(orderData, null, 2));
+
+// Mostrar alerta con información clave
+alert(
+    'DEBUG - Datos a enviar:\n\n' +
+    'Cliente: ' + orderData.customer.name + '\n' +
+    'Productos: ' + orderData.items.length + '\n' +
+    'Forma pago: ' + orderData.metadata.paymentMethod + '\n' +
+    'Total: ' + orderData.metadata.total + '\n\n' +
+    'Revisa la consola (F12) para ver todos los datos.'
+);
     
     // Mostrar loading
     const submitBtn = this.querySelector('button[type="submit"]');
@@ -2461,6 +2459,7 @@ setTimeout(() => {
     </script>
 </body>
 </html>
+
 
 
 
