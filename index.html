@@ -1552,7 +1552,15 @@
                         <label for="customerNotes">Observaciones (Opcional)</label>
                         <textarea id="customerNotes" name="customerNotes" placeholder="Instrucciones especiales para la entrega, horarios preferidos, etc."></textarea>
                     </div>
-                    
+                    <!-- Forma de Pago -->
+                    <div class="form-group">
+                        <label for="paymentMethod">Forma de Pago *</label>
+                        <select id="paymentMethod" name="paymentMethod" required>
+                        <option value="">Selecciona forma de pago</option>
+                        <option value="En línea">Pago en línea</option>
+                        <option value="Contra entrega">Contra entrega</option>
+                        </select>
+                    </div>
                     <div class="checkout-actions">
                         <button type="submit" class="btn btn-primary" style="flex: 1;">
                             ✅ Confirmar Pedido
@@ -1921,77 +1929,192 @@
         }
 
         // ===== GOOGLE SHEETS INTEGRATION =====
-        async function submitOrderToSheets(orderData) {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzHXlsyYoKdaPFqd1BVnihNFp_yk6OThVpWXeq5X1RKE7Lb1wZBR9uC1x1kwRZ1nqV2gQ/exec';
-            
-            try {
-                const response = await fetch(scriptURL, {
-                    method: 'POST',
-                    body: JSON.stringify(orderData),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    return { success: true, message: 'Pedido registrado exitosamente' };
-                } else {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-            } catch (error) {
-                console.error('Error enviando pedido a Google Sheets:', error);
-                return { success: false, message: 'Error al registrar pedido: ' + error.message };
-            }
+async function submitOrderToSheets(orderData) {
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzHXlsyYoKdaPFqd1BVnihNFp_yk6OThVpWXeq5X1RKE7Lb1wZBR9uC1x1kwRZ1nqV2gQ/exec';
+    
+    try {
+        console.log('📤 Enviando datos a Google Sheets:', orderData);
+        
+        // Preparar datos para enviar
+        const formData = new FormData();
+        formData.append('orderData', JSON.stringify(orderData));
+        
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            body: formData
+        });
+        
+        console.log('📨 Respuesta recibida:', response);
+        
+        if (response.ok) {
+            return { success: true, message: 'Pedido registrado exitosamente' };
+        } else {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
         }
+    } catch (error) {
+        console.error('❌ Error enviando pedido a Google Sheets:', error);
+        return { 
+            success: false, 
+            message: 'Error al registrar pedido: ' + error.message 
+        };
+    }
+}
 
-        function generateOrderData(formData) {
-            const orderNumber = 'STBQ-' + Date.now();
-            const orderDate = new Date().toLocaleString('es-CO');
-            
-            const orderData = {
-                metadata: {
-                    orderNumber: orderNumber,
-                    orderDate: orderDate,
-                    total: calculateOrderTotal()
-                },
-                customer: {
-                    name: formData.get('customerName'),
-                    email: formData.get('customerEmail'),
-                    phone: formData.get('customerPhone'),
-                    address: formData.get('customerAddress'),
-                    city: formData.get('customerCity'),
-                    notes: formData.get('customerNotes') || ''
-                },
-                items: cart.map(item => ({
-                    referencia: item.nombre,
-                    cantidad: item.quantity,
-                    precio: item.precio.actual,
-                    total: item.precio.actual * item.quantity
-                }))
-            };
+function generateOrderData(formData) {
+    const orderNumber = 'STBQ-' + Date.now();
+    const orderDate = new Date().toLocaleString('es-CO');
+    const paymentMethod = formData.get('paymentMethod') || 'No especificada';
+    
+    // Calcular totales
+    const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
+    const shipping = subtotal > 150000 ? 0 : 15000;
+    const total = subtotal + shipping;
+    
+    const orderData = {
+        metadata: {
+            orderNumber: orderNumber,
+            orderDate: orderDate,
+            subtotal: subtotal,
+            shipping: shipping,
+            total: total,
+            paymentMethod: paymentMethod
+        },
+        customer: {
+            name: formData.get('customerName'),
+            email: formData.get('customerEmail'),
+            phone: formData.get('customerPhone'),
+            address: formData.get('customerAddress'),
+            city: formData.get('customerCity'),
+            notes: formData.get('customerNotes') || '',
+            paymentMethod: paymentMethod
+        },
+        items: cart.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            cantidad: item.quantity,
+            precio_unitario: item.precio.actual,
+            precio_total: item.precio.actual * item.quantity,
+            marca: item.marca || 'Premium'
+        }))
+    };
 
-            return orderData;
-        }
+    console.log('📝 Datos del pedido generados:', orderData);
+    return orderData;
+}
 
-        function calculateOrderTotal() {
-            const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
-            const shipping = subtotal > 150000 ? 0 : 15000;
-            return subtotal + shipping;
-        }
+function calculateOrderTotal() {
+    const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
+    const shipping = subtotal > 150000 ? 0 : 15000;
+    return subtotal + shipping;
+}
 
-        function sendOrderConfirmation(orderData) {
-            // Crear mensaje para WhatsApp
-            const itemsText = orderData.items.map(item => 
-                `• ${item.referencia} - ${item.cantidad} x ${formatPriceFull(item.precio)} = ${formatPriceFull(item.total)}`
-            ).join('%0A');
+function sendOrderConfirmation(orderData) {
+    // Crear mensaje para WhatsApp
+    const itemsText = orderData.items.map(item => 
+        `• ${item.nombre} - ${item.cantidad} x ${formatPriceFull(item.precio_unitario)} = ${formatPriceFull(item.precio_total)}`
+    ).join('%0A');
 
-            const message = `¡NUEVO PEDIDO!%0A%0A📦 *Pedido:* ${orderData.metadata.orderNumber}%0A📅 *Fecha:* ${orderData.metadata.orderDate}%0A%0A👤 *Cliente:*%0A${orderData.customer.name}%0A📧 ${orderData.customer.email}%0A📱 ${orderData.customer.phone}%0A🏠 ${orderData.customer.address}%0A📍 ${orderData.customer.city}%0A%0A🛍️ *Productos:*%0A${itemsText}%0A%0A💰 *Total:* ${formatPriceFull(orderData.metadata.total)}%0A%0A📝 *Observaciones:*%0A${orderData.customer.notes || 'Ninguna'}`;
+    const message = `¡NUEVO PEDIDO!%0A%0A📦 *Pedido:* ${orderData.metadata.orderNumber}%0A📅 *Fecha:* ${orderData.metadata.orderDate}%0A%0A👤 *Cliente:*%0A${orderData.customer.name}%0A📧 ${orderData.customer.email}%0A📱 ${orderData.customer.phone}%0A🏠 ${orderData.customer.address}%0A📍 ${orderData.customer.city}%0A%0A🛍️ *Productos:*%0A${itemsText}%0A%0A💰 *Total:* ${formatPriceFull(orderData.metadata.total)}%0A💳 *Forma de Pago:* ${orderData.metadata.paymentMethod}%0A%0A📝 *Observaciones:*%0A${orderData.customer.notes || 'Ninguna'}`;
 
-            const whatsappUrl = `https://wa.me/573054813630?text=${message}`;
-            
-            return whatsappUrl;
-        }
+    const whatsappUrl = `https://wa.me/573054813630?text=${message}`;
+    
+    return whatsappUrl;
+}
 
+// ===== VALIDACIÓN DE FORMULARIO =====
+function validateForm(formData) {
+    const errors = [];
+    
+    // Validar nombre
+    if (!formData.get('customerName')?.trim()) {
+        errors.push('El nombre es obligatorio');
+    }
+    
+    // Validar email
+    const email = formData.get('customerEmail');
+    if (!email) {
+        errors.push('El email es obligatorio');
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+        errors.push('El formato del email no es válido');
+    }
+    
+    // Validar teléfono
+    const phone = formData.get('customerPhone');
+    if (!phone) {
+        errors.push('El teléfono es obligatorio');
+    } else if (!/^[0-9+\-\s()]{10,}$/.test(phone)) {
+        errors.push('El formato del teléfono no es válido');
+    }
+    
+    // Validar ciudad
+    if (!formData.get('customerCity')) {
+        errors.push('La ciudad es obligatoria');
+    }
+    
+    // Validar dirección
+    if (!formData.get('customerAddress')?.trim()) {
+        errors.push('La dirección es obligatoria');
+    }
+    
+    // Validar forma de pago
+    if (!formData.get('paymentMethod')) {
+        errors.push('La forma de pago es obligatoria');
+    }
+    
+    return errors;
+}
+
+// ===== CHECKOUT FUNCTIONS =====
+function openCheckout() {
+    if (cart.length === 0) {
+        alert('Tu carrito está vacío');
+        return;
+    }
+
+    // Actualizar resumen del checkout
+    updateCheckoutSummary();
+    
+    // Mostrar modal de checkout
+    document.getElementById('checkoutModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCheckout() {
+    document.getElementById('checkoutModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function updateCheckoutSummary() {
+    const checkoutItems = document.getElementById('checkoutItems');
+    let subtotal = 0;
+
+    checkoutItems.innerHTML = cart.map(item => {
+        const itemTotal = item.precio.actual * item.quantity;
+        subtotal += itemTotal;
+
+        return `
+            <div class="summary-item">
+                <div>
+                    <strong>${item.nombre}</strong>
+                    <div style="font-size: 0.8rem; color: var(--text-light);">
+                        Cantidad: ${item.quantity} x ${formatPriceFull(item.precio.actual)}
+                    </div>
+                </div>
+                <div style="font-weight: 600; color: var(--accent);">
+                    ${formatPriceFull(itemTotal)}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const shipping = subtotal > 150000 ? 0 : 15000;
+    const total = subtotal + shipping;
+
+    document.getElementById('checkoutSubtotal').textContent = formatPriceFull(subtotal);
+    document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'GRATIS' : formatPriceFull(shipping);
+    document.getElementById('checkoutTotal').textContent = formatPriceFull(total);
+}
         // ===== CARRITO =====
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
@@ -2184,53 +2307,82 @@
             });
 
             // Formulario de checkout
-            document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
-                event.preventDefault();
-                
-                const formData = new FormData(this);
-                const orderData = generateOrderData(formData);
-                
-                // Mostrar loading
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '⏳ Procesando...';
-                submitBtn.disabled = true;
+document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Validar formulario
+    const errors = validateForm(formData);
+    if (errors.length > 0) {
+        alert('❌ Por favor corrige los siguientes errores:\n\n' + errors.join('\n'));
+        return;
+    }
+    
+    const orderData = generateOrderData(formData);
+    
+    // Mostrar loading
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '⏳ Procesando...';
+    submitBtn.disabled = true;
 
-                try {
-                    // 1. Enviar a Google Sheets
-                    const sheetsResult = await submitOrderToSheets(orderData);
-                    
-                    if (sheetsResult.success) {
-                        // 2. Enviar confirmación por WhatsApp
-                        const whatsappUrl = sendOrderConfirmation(orderData);
-                        
-                        // 3. Limpiar carrito
-                        cart = [];
-                        updateCartUI();
-                        localStorage.removeItem('cart');
-                        
-                        // 4. Cerrar modales
-                        closeCheckout();
-                        closeCart();
-                        
-                        // 5. Mostrar éxito y redirigir a WhatsApp
-                        setTimeout(() => {
-                            window.open(whatsappUrl, '_blank');
-                            alert('✅ Pedido registrado exitosamente. Serás redirigido a WhatsApp para confirmar los detalles.');
-                        }, 1000);
-                        
-                    } else {
-                        throw new Error(sheetsResult.message);
-                    }
-                    
-                } catch (error) {
-                    console.error('Error procesando pedido:', error);
-                    alert('❌ Error al procesar el pedido: ' + error.message + '\n\nPor favor contacta directamente por WhatsApp.');
-                } finally {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            });
+    try {
+        // 1. Enviar a Google Sheets
+        console.log('🔄 Enviando pedido a Google Sheets...');
+        const sheetsResult = await submitOrderToSheets(orderData);
+        
+        if (sheetsResult.success) {
+            console.log('✅ Pedido enviado exitosamente a Google Sheets');
+            
+            // 2. Enviar confirmación por WhatsApp
+            const whatsappUrl = sendOrderConfirmation(orderData);
+            
+            // 3. Limpiar carrito
+            cart = [];
+            updateCartUI();
+            localStorage.removeItem('cart');
+            
+            // 4. Cerrar modales
+            closeCheckout();
+            closeCart();
+            
+            // 5. Mostrar éxito y redirigir a WhatsApp
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+                alert('✅ Pedido registrado exitosamente. Serás redirigido a WhatsApp para confirmar los detalles.');
+            }, 1000);
+            
+        } else {
+            throw new Error(sheetsResult.message);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error procesando pedido:', error);
+        
+        // Si falla Google Sheets, aún permitir el pedido por WhatsApp
+        const shouldContinue = confirm(
+            '⚠️ Hubo un problema al registrar el pedido automáticamente.\n\n' +
+            'Error: ' + error.message + '\n\n' +
+            '¿Deseas continuar con el pedido por WhatsApp?'
+        );
+        
+        if (shouldContinue) {
+            const whatsappUrl = sendOrderConfirmation(orderData);
+            window.open(whatsappUrl, '_blank');
+            
+            // Limpiar carrito incluso si falla Google Sheets
+            cart = [];
+            updateCartUI();
+            localStorage.removeItem('cart');
+            closeCheckout();
+            closeCart();
+        }
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
             
             // Scroll
             window.addEventListener('scroll', handleScroll);
@@ -2273,3 +2425,4 @@
     </script>
 </body>
 </html>
+
