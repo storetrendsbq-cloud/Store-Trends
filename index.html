@@ -1930,7 +1930,7 @@
 
         // ===== GOOGLE SHEETS INTEGRATION =====
 async function submitOrderToSheets(orderData) {
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyb1Rqmm-EEcOin4tFeQio_z1YS1lmZldTgtyT-f34BbqPjxPBUkRRagqFpLbTGoA_O0w/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxo7gWG8TNOM7ekqjlu63AIZQtvwdOvfVBKcTAZxho-pWQqRXKKhN9PpaOdbjLf1wnc-Q/exec';
     
     try {
         console.log('📤 Enviando datos a Google Sheets:', orderData);
@@ -2348,10 +2348,32 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
             closeCart();
             
             // 5. Mostrar éxito y redirigir a WhatsApp
-            setTimeout(() => {
-                window.open(whatsappUrl, '_blank');
-                alert('✅ Pedido registrado exitosamente. Serás redirigido a WhatsApp para confirmar los detalles.');
-            }, 1000);
+setTimeout(() => {
+    // Crear un enlace que el usuario debe hacer clic manualmente
+    const shouldOpen = confirm(
+        '✅ Pedido registrado exitosamente.\n\n' +
+        '¿Quieres abrir WhatsApp para confirmar los detalles del pedido?\n\n' +
+        'Si aparece error, puedes:\n' +
+        '1. Esperar 30 segundos y intentar nuevamente\n' +
+        '2. Contactarnos directamente al: +57 3054813630\n' +
+        '3. Enviarnos un mensaje manualmente por WhatsApp'
+    );
+    
+    if (shouldOpen) {
+        // Abrir en una nueva pestaña
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+            newWindow.location = whatsappUrl;
+        } else {
+            // Si bloquea popups, mostrar enlace para copiar
+            alert(
+                'El navegador bloqueó la ventana emergente.\n\n' +
+                'Por favor copia este enlace manualmente:\n\n' +
+                whatsappUrl
+            );
+        }
+    }
+}, 1500);
             
         } else {
             throw new Error(sheetsResult.message);
@@ -2425,5 +2447,6 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     </script>
 </body>
 </html>
+
 
 
