@@ -1338,7 +1338,7 @@
             </div>
             
             <div class="products-grid" id="productsGridHombre">
-                <!-- Los productos se cargan automáticamente -->
+                <!-- Los productos se cargan automáticamente desde JSON -->
             </div>
         </div>
     </section>
@@ -1352,7 +1352,7 @@
             </div>
             
             <div class="products-grid" id="productsGridMujer">
-                <!-- Los productos se cargan automáticamente -->
+                <!-- Los productos se cargan automáticamente desde JSON -->
             </div>
         </div>
     </section>
@@ -1366,7 +1366,7 @@
             </div>
             
             <div class="products-grid" id="productsGridCombos">
-                <!-- Los productos se cargan automáticamente -->
+                <!-- Los productos se cargan automáticamente desde JSON -->
             </div>
         </div>
     </section>
@@ -1552,17 +1552,15 @@
                         <label for="customerNotes">Observaciones (Opcional)</label>
                         <textarea id="customerNotes" name="customerNotes" placeholder="Instrucciones especiales para la entrega, horarios preferidos, etc."></textarea>
                     </div>
-
                     <!-- Forma de Pago -->
-                    <div class="form-group">
-                        <label for="paymentMethod">Forma de Pago *</label>
-                        <select id="paymentMethod" name="paymentMethod" required>
-                            <option value="">Selecciona forma de pago</option>
-                            <option value="En línea">Pago en línea</option>
-                            <option value="Contra entrega">Contra entrega</option>
-                        </select>
-                    </div>
-                    
+<div class="form-group">
+    <label for="paymentMethod">Forma de Pago *</label>
+    <select id="paymentMethod" name="paymentMethod" required>
+        <option value="">Selecciona forma de pago</option>
+        <option value="En línea">Pago en línea</option>
+        <option value="Contra entrega">Contra entrega</option>
+    </select>
+</div>
                     <div class="checkout-actions">
                         <button type="submit" class="btn btn-primary" style="flex: 1;">
                             ✅ Confirmar Pedido
@@ -1694,85 +1692,98 @@
             handleScroll();
         }
 
-        // FUNCIÓN CRÍTICA: Cargar productos integrados (NO necesita archivo externo)
+        // FUNCIÓN CRÍTICA: Cargar productos desde tu JSON
         async function loadProductsFromJSON() {
-            try {
-                // Productos integrados directamente en el código
-                products = [
-                    {
-                        id: "1",
-                        nombre: "Sauvage Elite",
-                        descripcion: "Fragancia masculina de élite, notas amaderadas intensas",
-                        imagen: "https://cdn-icons-png.flaticon.com/512/2972/2972421.png",
-                        precio: { actual: 145000, anterior: 180000, descuento: 19, esOportunidad: true },
-                        categorias: ["hombre"], tipo: "hombre", marca: "Élite", tags: ["élite", "intenso"],
-                        stock: 8, disponible: true
-                    },
-                    {
-                        id: "2", 
-                        nombre: "Chanel Réplica",
-                        descripcion: "Elegante fragancia femenina, esencia floral premium",
-                        imagen: "https://cdn-icons-png.flaticon.com/512/2972/2972425.png",
-                        precio: { actual: 155000, anterior: 190000, descuento: 18, esOportunidad: true },
-                        categorias: ["mujer"], tipo: "mujer", marca: "Deluxe", tags: ["floral", "elegante"],
-                        stock: 6, disponible: true
-                    },
-                    {
-                        id: "3",
-                        nombre: "Combo Premium",
-                        descripcion: "Pack exclusivo para parejas exigentes",
-                        imagen: "https://cdn-icons-png.flaticon.com/512/8901/8901478.png", 
-                        precio: { actual: 265000, anterior: 320000, descuento: 17, esOportunidad: true },
-                        categorias: ["combo"], tipo: "combo", marca: "Store Trends", tags: ["combo", "premium"],
-                        stock: 4, disponible: true
-                    },
-                    {
-                        id: "4",
-                        nombre: "Bleu de Chanel",
-                        descripcion: "Fragancia masculina sofisticada con notas cítricas y amaderadas",
-                        imagen: "https://cdn-icons-png.flaticon.com/512/2972/2972421.png",
-                        precio: { actual: 142000, anterior: 175000, descuento: 19, esOportunidad: true },
-                        categorias: ["hombre"], tipo: "hombre", marca: "Chanel", tags: ["elegante", "citrico"],
-                        stock: 7, disponible: true
-                    },
-                    {
-                        id: "5", 
-                        nombre: "Miss Dior",
-                        descripcion: "Fragancia femenina romántica con esencia de rosa y pachulí",
-                        imagen: "https://cdn-icons-png.flaticon.com/512/2972/2972425.png",
-                        precio: { actual: 148000, anterior: 185000, descuento: 20, esOportunidad: true },
-                        categorias: ["mujer"], tipo: "mujer", marca: "Dior", tags: ["romantico", "floral"],
-                        stock: 5, disponible: true
-                    }
-                ];
-                
-                console.log('✅ Catálogo cargado:', products.length, 'productos');
-                
-                displayProducts();
-                
-                // Ocultar loading screen después de cargar
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').style.display = 'none';
-                }, 1000);
-                
-            } catch (error) {
-                console.error('❌ Error cargando el catálogo:', error);
-                
-                document.getElementById('loadingScreen').innerHTML = `
-                    <div style="text-align: center; color: white;">
-                        <div style="font-size: 3rem;">⚠️</div>
-                        <h2>Error cargando el catálogo</h2>
-                        <p>No se pudo cargar la lista de productos.</p>
-                        <button class="btn btn-primary" onclick="location.reload()">Reintentar</button>
-                    </div>
-                `;
-            }
+    try {
+        console.log('🔄 Cargando catálogo desde JSON...');
+        
+        const response = await fetch('./data/catalogo.json');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
         }
+        
+        const catalogData = await response.json();
+        products = catalogData.productos;
+        
+        console.log('✅ Catálogo cargado:', products.length, 'productos');
+        
+        displayProducts();
+        
+        // Ocultar loading screen después de cargar
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }, 500);
+        
+    } catch (error) {
+        console.error('❌ Error cargando el catálogo:', error);
+        
+        // Intentar cargar de manera alternativa
+        try {
+            const alternativeResponse = await fetch('./data/catalogo.json', { 
+                cache: 'no-cache' 
+            });
+            if (alternativeResponse.ok) {
+                const catalogData = await alternativeResponse.json();
+                products = catalogData.productos;
+                console.log('✅ Catálogo cargado en segundo intento:', products.length, 'productos');
+                displayProducts();
+            } else {
+                throw new Error('Segundo intento fallido');
+            }
+        } catch (secondError) {
+            console.error('❌ Error en segundo intento:', secondError);
+            
+            // Mostrar error pero ocultar loading
+            document.getElementById('loadingScreen').innerHTML = `
+                <div style="text-align: center; color: white;">
+                    <div style="font-size: 3rem;">⚠️</div>
+                    <h2>Error cargando el catálogo</h2>
+                    <p>No se pudo cargar la lista de productos.</p>
+                    <button class="btn btn-primary" onclick="location.reload()">Reintentar</button>
+                    <br><br>
+                    <button class="btn btn-secondary" onclick="loadBasicProducts()">Cargar productos básicos</button>
+                </div>
+            `;
+            return;
+        }
+        
+        // Ocultar loading screen incluso con error del primer intento
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }, 1000);
+    }
+}
+
+// Función de respaldo
+function loadBasicProducts() {
+    products = [
+        {
+            id: "emergency-1",
+            nombre: "Perfume Store Trends",
+            descripcion: "Producto de alta calidad - cargando catálogo completo...",
+            imagen: "https://cdn-icons-png.flaticon.com/512/2972/2972421.png",
+            precio: { actual: 100000, anterior: 120000, descuento: 17, esOportunidad: true },
+            categorias: ["hombre"],
+            tipo: "hombre",
+            marca: "Store Trends",
+            tags: ["básico"],
+            stock: 10,
+            disponible: true
+        }
+    ];
+    displayProducts();
+    document.getElementById('loadingScreen').style.display = 'none';
+}
 
         function displayProducts() {
             displayProductSection('hombre');
             displayProductSection('mujer');
             displayProductSection('combos');
+            
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+            }, 1000);
         }
 
         function displayProductSection(section) {
@@ -1815,7 +1826,7 @@
                         `<div class="product-badge badge-oferta">🔥 OFERTA</div>` : ''}
                     
                     <div class="product-image" onclick="openProductModal('${product.id}')">
-                        <img src="${product.imagen}" 
+                        <img src="${product.imagen || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='}" 
                              alt="${product.nombre}" 
                              onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='">
                         <div class="product-overlay">
@@ -1870,7 +1881,7 @@
             currentModalProductId = productId;
 
             document.getElementById('modalProductName').textContent = product.nombre;
-            document.getElementById('modalProductImage').src = product.imagen;
+            document.getElementById('modalProductImage').src = product.imagen || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4=';
             document.getElementById('modalProductDescription').textContent = product.descripcion || 'No hay descripción disponible.';
 
             document.getElementById('modalProductCurrentPrice').textContent = formatPriceFull(product.precio.actual);
@@ -1972,77 +1983,81 @@
 
         // ===== GOOGLE SHEETS INTEGRATION =====
         async function submitOrderToSheets(orderData) {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzPg-93INlFb54B95nbjR51K-DQe7qJLaDO6sjhcahw7V4tzhq0cMBjIxonOxQ3Khz4-Q/exec';
-            
-            try {
-                console.log('📤 Enviando datos a Google Sheets:', orderData);
-                
-                // ENVIAR DATOS DE FORMA MUY SIMPLE
-                const response = await fetch(scriptURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        orderData: orderData
-                    })
-                });
-                
-                console.log('📨 Respuesta status:', response.status);
-                
-                const result = await response.json();
-                console.log('📨 Resultado:', result);
-                
-                return result;
-                
-            } catch (error) {
-                console.error('❌ Error enviando a Sheets:', error);
-                return { 
-                    success: false, 
-                    message: 'No se pudo conectar con Google Sheets: ' + error.message 
-                };
-            }
-        }
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyq2ABSmRLHe8Pf2m2a2dUBhOZiyM9FuKAC6hiRHZNhQpxm3lEmwyxqdG7ModpVcpzrlw/exec';
+    
+    try {
+        console.log('📤 Enviando datos a Google Sheets...');
+        
+        // ENVIAR DATOS DE FORMA COMPATIBLE
+        const payload = {
+            orderData: orderData
+        };
+        
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        console.log('📨 Estado de respuesta:', response.status);
+        
+        const result = await response.json();
+        console.log('📨 Resultado:', result);
+        
+        return result;
+        
+    } catch (error) {
+        console.error('❌ Error enviando a Sheets:', error);
+        return { 
+            success: false, 
+            message: 'No se pudo conectar con Google Sheets: ' + error.message 
+        };
+    }
+}
 
         function generateOrderData(formData) {
-            const orderNumber = 'STBQ-' + Date.now();
-            const orderDate = new Date().toLocaleString('es-CO');
-            const paymentMethod = formData.get('paymentMethod') || 'No especificada';
-            
-            // Calcular totales
-            const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
-            const shipping = subtotal > 150000 ? 0 : 15000;
-            const total = subtotal + shipping;
-            
-            const orderData = {
-                metadata: {
-                    orderNumber: orderNumber,
-                    orderDate: orderDate,
-                    subtotal: subtotal,
-                    shipping: shipping,
-                    total: total,
-                    paymentMethod: paymentMethod
-                },
-                customer: {
-                    name: formData.get('customerName'),
-                    email: formData.get('customerEmail'),
-                    phone: formData.get('customerPhone'),
-                    address: formData.get('customerAddress'),
-                    city: formData.get('customerCity'),
-                    notes: formData.get('customerNotes') || '',
-                    paymentMethod: paymentMethod
-                },
-                items: cart.map(item => ({
-                    id: item.id,
-                    nombre: item.nombre,
-                    cantidad: item.quantity,
-                    precio_unitario: item.precio.actual,
-                    precio_total: item.precio.actual * item.quantity,
-                    marca: item.marca || 'Premium'
-                }))
-            };
+    const orderNumber = 'STBQ-' + Date.now();
+    const orderDate = new Date().toLocaleString('es-CO');
+    const paymentMethod = formData.get('paymentMethod') || 'No especificada';
+    
+    // Calcular totales
+    const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
+    const shipping = subtotal > 150000 ? 0 : 15000;
+    const total = subtotal + shipping;
+    
+    const orderData = {
+        metadata: {
+            orderNumber: orderNumber,
+            orderDate: orderDate,
+            subtotal: subtotal,
+            shipping: shipping,
+            total: total,
+            paymentMethod: paymentMethod
+        },
+        customer: {
+            name: formData.get('customerName'),
+            email: formData.get('customerEmail'),
+            phone: formData.get('customerPhone'),
+            address: formData.get('customerAddress'),
+            city: formData.get('customerCity'),
+            notes: formData.get('customerNotes') || '',
+            paymentMethod: paymentMethod
+        },
+        items: cart.map(item => ({
+            id: item.id,
+            nombre: item.nombre,
+            cantidad: item.quantity,
+            precio_unitario: item.precio.actual,
+            precio_total: item.precio.actual * item.quantity,
+            marca: item.marca || 'Premium'
+        }))
+    };
 
-            console.log('📝 Datos del pedido generados:', orderData);
+    console.log('📝 Datos del pedido generados:', orderData);
+    return orderData;
+}
             return orderData;
         }
 
@@ -2055,57 +2070,14 @@
         function sendOrderConfirmation(orderData) {
             // Crear mensaje para WhatsApp
             const itemsText = orderData.items.map(item => 
-                `• ${item.nombre} - ${item.cantidad} x ${formatPriceFull(item.precio_unitario)} = ${formatPriceFull(item.precio_total)}`
+                `• ${item.referencia} - ${item.cantidad} x ${formatPriceFull(item.precio)} = ${formatPriceFull(item.total)}`
             ).join('%0A');
 
-            const message = `¡NUEVO PEDIDO!%0A%0A📦 *Pedido:* ${orderData.metadata.orderNumber}%0A📅 *Fecha:* ${orderData.metadata.orderDate}%0A%0A👤 *Cliente:*%0A${orderData.customer.name}%0A📧 ${orderData.customer.email}%0A📱 ${orderData.customer.phone}%0A🏠 ${orderData.customer.address}%0A📍 ${orderData.customer.city}%0A%0A🛍️ *Productos:*%0A${itemsText}%0A%0A💰 *Total:* ${formatPriceFull(orderData.metadata.total)}%0A💳 *Forma de Pago:* ${orderData.metadata.paymentMethod}%0A%0A📝 *Observaciones:*%0A${orderData.customer.notes || 'Ninguna'}`;
+            const message = `¡NUEVO PEDIDO!%0A%0A📦 *Pedido:* ${orderData.metadata.orderNumber}%0A📅 *Fecha:* ${orderData.metadata.orderDate}%0A%0A👤 *Cliente:*%0A${orderData.customer.name}%0A📧 ${orderData.customer.email}%0A📱 ${orderData.customer.phone}%0A🏠 ${orderData.customer.address}%0A📍 ${orderData.customer.city}%0A%0A🛍️ *Productos:*%0A${itemsText}%0A%0A💰 *Total:* ${formatPriceFull(orderData.metadata.total)}%0A%0A📝 *Observaciones:*%0A${orderData.customer.notes || 'Ninguna'}`;
 
             const whatsappUrl = `https://wa.me/573054813630?text=${message}`;
             
             return whatsappUrl;
-        }
-
-        // ===== VALIDACIÓN DE FORMULARIO =====
-        function validateForm(formData) {
-            const errors = [];
-            
-            // Validar nombre
-            if (!formData.get('customerName')?.trim()) {
-                errors.push('El nombre es obligatorio');
-            }
-            
-            // Validar email
-            const email = formData.get('customerEmail');
-            if (!email) {
-                errors.push('El email es obligatorio');
-            } else if (!/\S+@\S+\.\S+/.test(email)) {
-                errors.push('El formato del email no es válido');
-            }
-            
-            // Validar teléfono
-            const phone = formData.get('customerPhone');
-            if (!phone) {
-                errors.push('El teléfono es obligatorio');
-            } else if (!/^[0-9+\-\s()]{10,}$/.test(phone)) {
-                errors.push('El formato del teléfono no es válido');
-            }
-            
-            // Validar ciudad
-            if (!formData.get('customerCity')) {
-                errors.push('La ciudad es obligatoria');
-            }
-            
-            // Validar dirección
-            if (!formData.get('customerAddress')?.trim()) {
-                errors.push('La dirección es obligatoria');
-            }
-            
-            // Validar forma de pago
-            if (!formData.get('paymentMethod')) {
-                errors.push('La forma de pago es obligatoria');
-            }
-            
-            return errors;
         }
 
         // ===== CARRITO =====
@@ -2169,7 +2141,7 @@
                 return `
                     <div class="cart-item">
                         <div class="cart-item-image">
-                            <img src="${item.imagen}" 
+                            <img src="${item.imagen || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjRmNGY0Ii8+PHRleHQgeD0iNDAiIHk9IjQwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5TaW4gaW1nPC90ZXh0Pjwvc3ZnPg=='}" 
                                  alt="${item.nombre}">
                         </div>
                         <div class="cart-item-details">
@@ -2304,14 +2276,6 @@
                 event.preventDefault();
                 
                 const formData = new FormData(this);
-                
-                // Validar formulario
-                const errors = validateForm(formData);
-                if (errors.length > 0) {
-                    alert('❌ Por favor corrige los siguientes errores:\n\n' + errors.join('\n'));
-                    return;
-                }
-                
                 const orderData = generateOrderData(formData);
                 
                 // Mostrar loading
@@ -2322,12 +2286,9 @@
 
                 try {
                     // 1. Enviar a Google Sheets
-                    console.log('🔄 Enviando pedido a Google Sheets...');
                     const sheetsResult = await submitOrderToSheets(orderData);
                     
                     if (sheetsResult.success) {
-                        console.log('✅ Pedido enviado exitosamente a Google Sheets');
-                        
                         // 2. Enviar confirmación por WhatsApp
                         const whatsappUrl = sendOrderConfirmation(orderData);
                         
@@ -2341,53 +2302,31 @@
                         closeCart();
                         
                         // 5. Mostrar éxito y redirigir a WhatsApp
-                        setTimeout(() => {
-                            // Crear enlace que el usuario debe copiar manualmente
-                            const userChoice = confirm(
-                                '✅ Pedido procesado\n\n' +
-                                'Se ha creado tu pedido #' + orderData.metadata.orderNumber + '\n\n' +
-                                '¿Quieres abrir WhatsApp para enviar los detalles?\n\n' +
-                                'Si sale error HTTP 429, espera 1 minuto y haz clic en "Aceptar" de nuevo.'
-                            );
-                            
-                            if (userChoice) {
-                                // Intentar abrir WhatsApp
-                                window.open(whatsappUrl, '_blank');
-                            } else {
-                                // Mostrar enlace para copiar manualmente
-                                alert(
-                                    '📋 Copia este enlace manualmente:\n\n' +
-                                    whatsappUrl + '\n\n' +
-                                    'O envía un mensaje directo al: +57 3054813630'
-                                );
-                            }
-                        }, 1000);
-                        
-                    } else {
-                        throw new Error(sheetsResult.message);
-                    }
+setTimeout(() => {
+    // Crear enlace que el usuario debe copiar manualmente
+    const userChoice = confirm(
+        '✅ Pedido procesado\n\n' +
+        'Se ha creado tu pedido #' + orderData.metadata.orderNumber + '\n\n' +
+        '¿Quieres abrir WhatsApp para enviar los detalles?\n\n' +
+        'Si sale error HTTP 429, espera 1 minuto y haz clic en "Aceptar" de nuevo.'
+    );
+    
+    if (userChoice) {
+        // Intentar abrir WhatsApp
+        window.open(whatsappUrl, '_blank');
+    } else {
+        // Mostrar enlace para copiar manualmente
+        alert(
+            '📋 Copia este enlace manualmente:\n\n' +
+            whatsappUrl + '\n\n' +
+            'O envía un mensaje directo al: +57 3054813630'
+        );
+    }
+}, 1000);
                     
                 } catch (error) {
-                    console.error('❌ Error procesando pedido:', error);
-                    
-                    // Si falla Google Sheets, aún permitir el pedido por WhatsApp
-                    const shouldContinue = confirm(
-                        '⚠️ Hubo un problema al registrar el pedido automáticamente.\n\n' +
-                        'Error: ' + error.message + '\n\n' +
-                        '¿Deseas continuar con el pedido por WhatsApp?'
-                    );
-                    
-                    if (shouldContinue) {
-                        const whatsappUrl = sendOrderConfirmation(orderData);
-                        window.open(whatsappUrl, '_blank');
-                        
-                        // Limpiar carrito incluso si falla Google Sheets
-                        cart = [];
-                        updateCartUI();
-                        localStorage.removeItem('cart');
-                        closeCheckout();
-                        closeCart();
-                    }
+                    console.error('Error procesando pedido:', error);
+                    alert('❌ Error al procesar el pedido: ' + error.message + '\n\nPor favor contacta directamente por WhatsApp.');
                 } finally {
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
