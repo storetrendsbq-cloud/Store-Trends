@@ -1935,28 +1935,42 @@ async function submitOrderToSheets(orderData) {
     try {
         console.log('📤 Enviando datos a Google Sheets:', orderData);
         
-        // Preparar datos para enviar
-        const formData = new FormData();
-        formData.append('orderData', JSON.stringify(orderData));
+        // Método 1: Enviar como JSON simple (el más compatible)
+        const payload = {
+            orderData: orderData
+        };
+        
+        console.log('📦 Payload a enviar:', JSON.stringify(payload).substring(0, 500));
         
         const response = await fetch(scriptURL, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
         });
         
-        console.log('📨 Respuesta recibida:', response);
+        console.log('📨 Estado de respuesta:', response.status);
+        console.log('📨 Respuesta OK:', response.ok);
         
-        if (response.ok) {
-            return { success: true, message: 'Pedido registrado exitosamente' };
-        } else {
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText}`);
+        const resultText = await response.text();
+        console.log('📨 Respuesta completa:', resultText);
+        
+        let result;
+        try {
+            result = JSON.parse(resultText);
+        } catch (parseError) {
+            console.error('❌ Error parseando respuesta:', parseError);
+            throw new Error('Respuesta no es JSON válido: ' + resultText);
         }
+        
+        return result;
+        
     } catch (error) {
         console.error('❌ Error enviando pedido a Google Sheets:', error);
         return { 
             success: false, 
-            message: 'Error al registrar pedido: ' + error.message 
+            message: 'Error de conexión: ' + error.message 
         };
     }
 }
@@ -2447,6 +2461,7 @@ setTimeout(() => {
     </script>
 </body>
 </html>
+
 
 
 
