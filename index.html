@@ -1694,12 +1694,102 @@
 
         // FUNCIÓN CRÍTICA: Cargar productos desde tu JSON
         async function loadProductsFromJSON() {
-            try {
-                const response = await fetch('./data/catalogo.json');
-                
-                if (!response.ok) {
-                    throw new Error(`Error cargando catálogo: ${response.status}`);
-                }
+    try {
+        console.log('🔄 Cargando catálogo...');
+        
+        const response = await fetch('./data/catalogo.json');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const catalogData = await response.json();
+        products = catalogData.productos;
+        
+        console.log('✅ Catálogo cargado:', products.length, 'productos');
+        
+        displayProducts();
+        
+        // Ocultar loading screen después de cargar
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            console.log('🏁 Carga completada');
+        }, 500);
+        
+    } catch (error) {
+        console.error('❌ Error cargando el catálogo:', error);
+        
+        // Mostrar productos de emergencia si falla la carga
+        products = getEmergencyProducts();
+        displayProducts();
+        
+        // Ocultar loading screen incluso con error
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            alert('⚠️ Catálogo cargado en modo de emergencia. Algunas imágenes pueden no mostrarse.');
+        }, 1000);
+    }
+}
+
+// Función de productos de emergencia si falla el JSON
+function getEmergencyProducts() {
+    return [
+        {
+            id: "emergency-1",
+            nombre: "Perfume Masculino Premium",
+            descripcion: "Fragancia elegante para caballero - calidad garantizada",
+            imagen": "https://cdn-icons-png.flaticon.com/512/2972/2972421.png",
+            precio: {
+                actual: 120000,
+                anterior: 150000,
+                descuento: 20,
+                esOportunidad: true
+            },
+            categorias: ["hombre"],
+            tipo: "hombre",
+            marca: "Store Trends",
+            tags: ["emergencia", "hombre"],
+            stock: 10,
+            disponible: true
+        },
+        {
+            id: "emergency-2",
+            nombre: "Perfume Femenino Exclusive",
+            descripcion: "Esencia femenina sofisticada - entrega inmediata",
+            imagen": "https://cdn-icons-png.flaticon.com/512/2972/2972425.png",
+            precio: {
+                actual: 125000,
+                anterior: 155000,
+                descuento: 19,
+                esOportunidad: true
+            },
+            categorias: ["mujer"],
+            tipo: "mujer",
+            marca: "Store Trends", 
+            tags: ["emergencia", "mujer"],
+            stock: 10,
+            disponible: true
+        },
+        {
+            id: "emergency-3",
+            nombre: "Combo Especial Store Trends",
+            descripcion: "Pack especial para parejas - ahorra 25%",
+            imagen": "https://cdn-icons-png.flaticon.com/512/8901/8901478.png",
+            precio: {
+                actual: 220000,
+                anterior: 280000,
+                descuento: 21,
+                esOportunidad: true
+            },
+            categorias: ["combo"],
+            tipo: "combo",
+            marca: "Store Trends",
+            tags: ["emergencia", "combo"],
+            stock: 5,
+            disponible: true
+        }
+    ];
+}
                 
                 const catalogData = await response.json();
                 products = catalogData.productos;
@@ -2493,6 +2583,7 @@ ${orderData.customer.notes || 'Ninguna'}
     </script>
 </body>
 </html>
+
 
 
 
