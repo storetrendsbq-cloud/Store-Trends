@@ -1920,7 +1920,7 @@
                 `;
             }).join('');
 
-            const shipping = subtotal > 150000 ? 0 : 15000;
+            const shipping = subtotal > 150000 ? 0 : 20000;
             const total = subtotal + shipping;
 
             document.getElementById('checkoutSubtotal').textContent = formatPriceFull(subtotal);
@@ -2461,6 +2461,7 @@ setTimeout(() => {
     </script>
 </body>
 </html>
+
 
 
 
