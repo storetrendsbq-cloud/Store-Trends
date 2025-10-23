@@ -2014,61 +2014,83 @@
         }
 
         // ===== GOOGLE SHEETS INTEGRATION =====
-        async function submitOrderToSheets(orderData) {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyq2ABSmRLHe8Pf2m2a2dUBhOZiyM9FuKAC6hiRHZNhQpxm3lEmwyxqdG7ModpVcpzrlw/exec';
-            
-            try {
-                const response = await fetch(scriptURL, {
-                    method: 'POST',
-                    body: JSON.stringify(orderData),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    return { success: true, message: 'Pedido registrado exitosamente' };
-                } else {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-            } catch (error) {
-                console.error('Error enviando pedido a Google Sheets:', error);
-                return { success: false, message: 'Error al registrar pedido: ' + error.message };
+async function submitOrderToSheets(orderData) {
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyq2ABSmRLHe8Pf2m2a2dUBhOZiyM9FuKAC6hiRHZNhQpxm3lEmwyxqdG7ModpVcpzrlw/exec';
+    
+    try {
+        console.log('📤 Enviando pedido a Google Sheets...', orderData);
+        
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify(orderData),
+            headers: {
+                'Content-Type': 'application/json'
             }
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Respuesta de Google Sheets:', result);
+            return result;
+        } else {
+            throw new Error(`Error HTTP: ${response.status}`);
         }
+        
+    } catch (error) {
+        console.error('❌ Error enviando pedido a Google Sheets:', error);
+        return { 
+            success: false, 
+            message: 'Error al registrar pedido: ' + error.message 
+        };
+    }
+}
 
         function generateOrderData(formData) {
-            const orderNumber = 'STBQ-' + Date.now();
-            const orderDate = new Date().toLocaleString('es-CO');
-            const paymentMethod = formData.get('paymentMethod') || 'No especificada';
-            
-            const orderData = {
-                metadata: {
-                    orderNumber: orderNumber,
-                    orderDate: orderDate,
-                    total: calculateOrderTotal(),
-                    paymentMethod: paymentMethod
-                },
-                customer: {
-                    name: formData.get('customerName'),
-                    email: formData.get('customerEmail'),
-                    phone: formData.get('customerPhone'),
-                    address: formData.get('customerAddress'),
-                    city: formData.get('customerCity'),
-                    notes: formData.get('customerNotes') || '',
-                    paymentMethod: paymentMethod
-                },
-                items: cart.map(item => ({
-                    referencia: item.nombre,
-                    cantidad: item.quantity,
-                    precio: item.precio.actual,
-                    total: item.precio.actual * item.quantity
-                }))
-            };
+    const orderNumber = 'STBQ-' + Date.now();
+    const orderDate = new Date().toLocaleString('es-CO', {
+        timeZone: 'America/Bogota',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const paymentMethod = formData.get('paymentMethod') || 'No especificada';
+    const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
+    const shipping = subtotal > 150000 ? 0 : 19900;
+    const total = subtotal + shipping;
 
-            return orderData;
-        }
+    // FORMATO QUE TU SCRIPT ESPERA
+    const orderData = {
+        metadata: {
+            orderNumber: orderNumber,
+            orderDate: orderDate,
+            paymentMethod: paymentMethod,
+            subtotal: subtotal,
+            shipping: shipping,
+            total: total
+        },
+        customer: {
+            name: formData.get('customerName'),
+            email: formData.get('customerEmail'),
+            phone: formData.get('customerPhone'),
+            address: formData.get('customerAddress'),
+            city: formData.get('customerCity'),
+            notes: formData.get('customerNotes') || ''
+        },
+        items: cart.map(item => ({
+            nombre: item.nombre,
+            cantidad: item.quantity,
+            precio_unitario: item.precio.actual,
+            precio_total: item.precio.actual * item.quantity,
+            marca: item.marca || 'Store Trends'
+        }))
+    };
 
+    console.log('📋 Datos del pedido (formato corregido):', orderData);
+    return orderData;
+}
         function calculateOrderTotal() {
             const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
             const shipping = subtotal > 150000 ? 0 : 19900;
@@ -2095,7 +2117,10 @@
                 console.error('Producto no encontrado:', productId);
                 return;
             }
-
+     // Asegurar que el producto tenga marca
+            if (!product.marca) {
+                product.marca = 'Store Trends';
+    }
             if (product.disponible === false) {
                 alert('Este producto está actualmente agotado');
                 return;
@@ -2379,5 +2404,6 @@
     </script>
 </body>
 </html>
+
 
 
