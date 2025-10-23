@@ -2013,57 +2013,60 @@
             document.getElementById('checkoutTotal').textContent = formatPriceFull(total);
         }
 
-        // ===== GOOGLE SHEETS INTEGRATION =====
-async function submitOrderToSheets(orderData) {
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyBA1IWG2UJcV0jaza3Mb0sJghh-wku-YSkeWgiUmUScj696xF1FxInOI82ygOPEPaQJQ/exec';
-    
-    try {
-        console.log('📤 Enviando pedido a Google Sheets...', orderData);
+       // ===== GOOGLE SHEETS INTEGRATION - SOLUCIÓN CORS =====
+function submitOrderToSheets(orderData) {
+    return new Promise((resolve) => {
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyBA1IWG2UJcV0jaza3Mb0sJghh-wku-YSkeWgiUmUScj696xF1FxInOI82ygOPEPaQJQ/exec';
+                console.log('📤 Enviando pedido a Google Sheets...', orderData);
+
+        // Crear un formulario y enviarlo - método que evita CORS
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = scriptURL;
+        form.target = 'sheetsIframe'; // Usaremos un iframe oculto
         
-        // Método 1: Intentar con fetch normal primero
-        try {
-            const response = await fetch(scriptURL, {
-                method: 'POST',
-                body: JSON.stringify({orderData: orderData}),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+        // Agregar los datos como campo oculto
+        const dataInput = document.createElement('input');
+        dataInput.type = 'hidden';
+        dataInput.name = 'orderData';
+        dataInput.value = JSON.stringify(orderData);
+        form.appendChild(dataInput);
+        
+        // Crear iframe para recibir la respuesta
+        let iframe = document.getElementById('sheetsIframe');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.name = 'sheetsIframe';
+            iframe.id = 'sheetsIframe';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+        
+        // Manejar la carga del iframe (respuesta)
+        iframe.onload = function() {
+            console.log('✅ Pedido enviado a Sheets (método iframe)');
+            resolve({ 
+                success: true, 
+                message: 'Pedido registrado exitosamente' 
             });
             
-            if (response.ok) {
-                const result = await response.json();
-                console.log('✅ Respuesta de Google Sheets:', result);
-                return result;
-            }
-        } catch (fetchError) {
-            console.log('⚠️ Fetch normal falló, intentando método alternativo...');
-        }
-        
-        // Método 2: Usar FormData (menos problemas con CORS)
-        const formData = new FormData();
-        formData.append('orderData', JSON.stringify(orderData));
-        
-        const response2 = await fetch(scriptURL, {
-            method: 'POST',
-            body: formData
-            // No headers para FormData - el navegador los establece automáticamente
-        });
-        
-        if (response2.ok) {
-            const result = await response2.json();
-            console.log('✅ Respuesta de Google Sheets (método FormData):', result);
-            return result;
-        } else {
-            throw new Error(`Error HTTP: ${response2.status}`);
-        }
-        
-    } catch (error) {
-        console.error('❌ Error enviando pedido a Google Sheets:', error);
-        return { 
-            success: false, 
-            message: 'Error de conexión: ' + error.message 
+            // Limpiar el formulario
+            document.body.removeChild(form);
         };
-    }
+        
+        iframe.onerror = function() {
+            console.log('❌ Error enviando a Sheets');
+            resolve({ 
+                success: false, 
+                message: 'Error de conexión' 
+            });
+            document.body.removeChild(form);
+        };
+        
+        // Enviar formulario
+        document.body.appendChild(form);
+        form.submit();
+    });
 }
        function generateOrderData(formData) {
     const orderNumber = 'STBQ-' + Date.now();
@@ -2424,6 +2427,7 @@ async function submitOrderToSheets(orderData) {
     </script>
 </body>
 </html>
+
 
 
 
