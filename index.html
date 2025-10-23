@@ -8,7 +8,7 @@
     <!-- Meta Tags para SEO y Marketing -->
     <meta name="description" content="Store Trends - Perfumes premium 1:1. Calidad de lujo a precios increíbles. Envíos a toda Colombia. WhatsApp +57 3054813630">
     <meta name="keywords" content="perfumes, fragancias, store trends, Colombia, perfumes réplica, lujo, belleza, cuidado personal">
-    <meta name="author" content="Store Trends BQ">
+    <meta name="author" content="Store Trends">
     
     <!-- Open Graph -->
     <meta property="og:title" content="Store Trends| Perfumes Premium Colombia">
@@ -2005,7 +2005,7 @@
                 `;
             }).join('');
 
-            const shipping = subtotal > 150000 ? 0 : 15000;
+            const shipping = subtotal > 150000 ? 0 : 19900;
             const total = subtotal + shipping;
 
             document.getElementById('checkoutSubtotal').textContent = formatPriceFull(subtotal);
@@ -2071,7 +2071,7 @@
 
         function calculateOrderTotal() {
             const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
-            const shipping = subtotal > 150000 ? 0 : 15000;
+            const shipping = subtotal > 150000 ? 0 : 19900;
             return subtotal + shipping;
         }
 
@@ -2166,7 +2166,7 @@
                 `;
             }).join('');
 
-            const shipping = subtotal > 150000 ? 0 : 15000;
+            const shipping = subtotal > 150000 ? 0 : 19900;
             const total = subtotal + shipping;
 
             document.getElementById('subtotalAmount').textContent = formatPriceFull(subtotal);
@@ -2379,3 +2379,4 @@
     </script>
 </body>
 </html>
+
