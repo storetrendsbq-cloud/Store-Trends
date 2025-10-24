@@ -2725,14 +2725,37 @@
                     </div>
 
                     <!-- Forma de Pago -->
-                    <div class="form-group">
-                        <label for="paymentMethod">Forma de Pago *</label>
-                        <select id="paymentMethod" name="paymentMethod" required>
-                            <option value="">Selecciona forma de pago</option>
-                            <option value="En línea">Pago en línea</option>
-                            <option value="Contra entrega">Contra entrega</option>
-                        </select>
-                    </div>
+<div class="form-group">
+    <label for="paymentMethod">Forma de Pago *</label>
+    <select id="paymentMethod" name="paymentMethod" required>
+        <option value="">Selecciona forma de pago</option>
+        <option value="En línea">Pago en línea</option>
+        <option value="Contra entrega">Contra entrega</option>
+    </select>
+</div>
+
+<!-- Información de Transferencia (se muestra solo para pago en línea) -->
+<div id="transferInfo" style="display: none; margin-top: 20px; padding: 20px; background: var(--background-alt); border-radius: 10px; border: 2px solid var(--accent);">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h4 style="color: var(--accent); margin-bottom: 10px;">💳 Transferencia Bancaria</h4>
+        <p style="color: var(--text-light); font-size: 0.9rem;">
+            Realiza tu transferencia a una de nuestras cuentas y envía el comprobante por WhatsApp
+        </p>
+    </div>
+    
+    <div style="text-align: center;">
+        <img src="https://drive.google.com/uc?export=view&id=1Mm-PtLBE2HZTuxgNWpGdfZ-qBWFj7Ece" 
+             alt="Números de cuenta para transferencia"
+             style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+        
+        <div style="margin-top: 15px; padding: 12px; background: rgba(212, 175, 55, 0.1); border-radius: 8px;">
+            <p style="margin: 5px 0; color: var(--text); font-size: 0.9rem;">
+                <strong>📱 Envía tu comprobante a:</strong><br>
+                WhatsApp +57 3054813630
+            </p>
+        </div>
+    </div>
+</div>
                     
                     <div class="checkout-actions">
                         <button type="submit" class="btn btn-primary" style="flex: 1;">
@@ -2791,7 +2814,7 @@
     <div class="overlay" id="overlay"></div>
 
     <!-- Botón de WhatsApp -->
-    <a href="https://wa.me/573054813630?text=Hola%20Store%20Trends%20BQ,%20me%20interesa%20saber%20más%20sobre%20sus%20perfumes" 
+    <a href="https://wa.me/573054813630?text=Hola%20Store%20Trends,%20me%20interesa%20saber%20más%20sobre%20sus%20perfumes" 
        class="btn btn-whatsapp" target="_blank">
        💬 WhatsApp
     </a>
@@ -2803,7 +2826,7 @@
                 <div class="footer-section">
                     <h3>
                         <img src="https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg" alt="Store Trends BQ" class="footer-logo">
-                        Store Trends BQ
+                        Store Trends 
                     </h3>
                     <p>Tu destino para fragancias de lujo en Colombia. Calidad premium a precios accesibles.</p>
                     <div class="social-links">
@@ -3293,18 +3316,24 @@ function openCheckout() {
 
         // ===== CHECKOUT FUNCTIONS =====
         function openCheckout() {
-            if (cart.length === 0) {
-                alert('Tu carrito está vacío');
-                return;
-            }
+    if (cart.length === 0) {
+        alert('Tu carrito está vacío');
+        return;
+    }
 
-            // Actualizar resumen del checkout
-            updateCheckoutSummary();
-            
-            // Mostrar modal de checkout
-            document.getElementById('checkoutModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
+    // Actualizar resumen del checkout
+    updateCheckoutSummary();
+    
+    // 🔥 RESETEAR FORMA DE PAGO CADA VEZ QUE SE ABRE
+    resetPaymentMethod();
+    
+    // Mostrar modal de checkout
+    document.getElementById('checkoutModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Reiniciar búsqueda de ciudades
+    setTimeout(resetCitySearch, 100);
+}
 
         function closeCheckout() {
             document.getElementById('checkoutModal').style.display = 'none';
@@ -3762,7 +3791,49 @@ function submitOrderToSheets(orderData) {
                 link.addEventListener('click', e => e.preventDefault());
             });
         }
+// ===== MANEJO DE FORMA DE PAGO =====
+function setupPaymentMethodHandler() {
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const transferInfo = document.getElementById('transferInfo');
+    
+    if (!paymentMethodSelect || !transferInfo) {
+        console.log('❌ Elementos de pago no encontrados, reintentando...');
+        setTimeout(setupPaymentMethodHandler, 500);
+        return;
+    }
+    
+    paymentMethodSelect.addEventListener('change', function() {
+        if (this.value === 'En línea') {
+            // Mostrar información de transferencia
+            transferInfo.style.display = 'block';
+            
+            // Scroll suave a la información de transferencia
+            setTimeout(() => {
+                transferInfo.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }, 300);
+            
+        } else {
+            // Ocultar información de transferencia
+            transferInfo.style.display = 'none';
+        }
+    });
+    
+    console.log('✅ Manejador de forma de pago configurado');
+}
 
+// Función para resetear la forma de pago cuando se abre el checkout
+function resetPaymentMethod() {
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const transferInfo = document.getElementById('transferInfo');
+    
+    if (paymentMethodSelect && transferInfo) {
+        paymentMethodSelect.value = '';
+        transferInfo.style.display = 'none';
+    }
+}
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
             // 🔥 INICIALIZAR BÚSQUEDA DE CIUDADES
@@ -3794,9 +3865,61 @@ setTimeout(enhanceCitySearch, 1000);
             }
         `;
         document.head.appendChild(style);
+        // ===== CONFIGURACIÓN DE PAGO - SOLUCIÓN SIMPLIFICADA =====
+
+// 1. Agregar estas funciones NUEVAS
+function setupPaymentMethodHandler() {
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const transferInfo = document.getElementById('transferInfo');
+    
+    if (!paymentMethodSelect || !transferInfo) {
+        console.log('⏳ Elementos de pago no cargados, reintentando...');
+        setTimeout(setupPaymentMethodHandler, 1000);
+        return;
+    }
+    
+    paymentMethodSelect.addEventListener('change', function() {
+        if (this.value === 'En línea') {
+            transferInfo.style.display = 'block';
+            setTimeout(() => {
+                transferInfo.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }, 300);
+        } else {
+            transferInfo.style.display = 'none';
+        }
+    });
+    
+    console.log('✅ Manejador de forma de pago configurado');
+}
+
+function resetPaymentMethod() {
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const transferInfo = document.getElementById('transferInfo');
+    
+    if (paymentMethodSelect && transferInfo) {
+        paymentMethodSelect.value = '';
+        transferInfo.style.display = 'none';
+    }
+}
+
+// 2. Modificar openCheckout (BUSCA esta función y AGREGALE una línea)
+// Busca: function openCheckout() { ... }
+// Y dentro de esa función, agrega: resetPaymentMethod();
+
+// 3. Inicializar el manejador de pago cuando la página cargue
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(setupPaymentMethodHandler, 2000); // Esperar 2 segundos
+});
+
+// O si tienes initApp(), agrega ahí:
+// setupPaymentMethodHandler();
     </script>
 </body>
 </html>
+
 
 
 
