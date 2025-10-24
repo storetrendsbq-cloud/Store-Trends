@@ -2013,74 +2013,64 @@
             document.getElementById('checkoutTotal').textContent = formatPriceFull(total);
         }
 
-      // ===== GOOGLE SHEETS INTEGRATION =====
+      // ===== GOOGLE SHEETS INTEGRATION - SOLUCIÓN JSONP =====
 function submitOrderToSheets(orderData) {
     return new Promise((resolve) => {
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwIqMYThM-o7XJE7PJHgh5SvPnXs9g_Ux0IMKijlNgLGpagE54jHQofMfzwVnDQIeAd1A/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
         
-        console.log('📤 Enviando pedido a Google Sheets...', orderData);
-
-        // Usar XMLHttpRequest que funciona mejor con FormData
-        const xhr = new XMLHttpRequest();
-        const formData = new FormData();
-        formData.append('orderData', JSON.stringify(orderData));
+        console.log('📤 Enviando pedido a Google Sheets via JSONP...', orderData);
         
-        xhr.open('POST', scriptURL, true);
+        // Crear un script tag para JSONP (evita CORS)
+        const callbackName = 'sheetsCallback_' + Date.now();
+        const script = document.createElement('script');
         
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                console.log('📨 Estado HTTP:', xhr.status);
-                if (xhr.status === 200 || xhr.status === 0) {
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        console.log('✅ Respuesta de Sheets:', response);
-                        resolve(response);
-                    } catch (e) {
-                        console.log('✅ Pedido enviado (respuesta no JSON)');
-                        resolve({ 
-                            success: true, 
-                            message: 'Pedido registrado exitosamente' 
-                        });
-                    }
-                } else {
-                    console.log('⚠️ Estado HTTP inesperado:', xhr.status);
-                    resolve({ 
-                        success: true, // Asumimos éxito para no bloquear el flujo
-                        message: 'Pedido procesado (verificar en Sheets)' 
-                    });
-                }
-            }
+        // Configurar la URL con parámetros
+        const url = new URL(scriptURL);
+        url.searchParams.append('callback', callbackName);
+        url.searchParams.append('orderData', JSON.stringify(orderData));
+        
+        script.src = url.toString();
+        
+        // Crear función de callback global
+        window[callbackName] = function(response) {
+            console.log('📨 Respuesta JSONP de Sheets:', response);
+            
+            // Limpiar
+            delete window[callbackName];
+            document.head.removeChild(script);
+            
+            resolve(response);
         };
         
-        xhr.onerror = function() {
-            console.log('❌ Error de red en XHR');
+        // Manejar errores
+        script.onerror = function() {
+            console.log('❌ Error cargando script JSONP');
+            delete window[callbackName];
+            document.head.removeChild(script);
+            
             resolve({ 
                 success: false, 
-                message: 'Error de conexión' 
+                message: 'Error de conexión JSONP' 
             });
         };
+        
+        // Agregar script al documento
+        document.head.appendChild(script);
         
         // Timeout de seguridad
         setTimeout(() => {
-            if (xhr.readyState !== 4) {
-                console.log('⏰ Timeout, asumiendo éxito');
+            if (window[callbackName]) {
+                console.log('⏰ Timeout JSONP');
+                delete window[callbackName];
+                if (script.parentNode) {
+                    document.head.removeChild(script);
+                }
                 resolve({ 
-                    success: true, 
-                    message: 'Pedido enviado (verificación pendiente)' 
+                    success: false, 
+                    message: 'Timeout en conexión' 
                 });
             }
         }, 15000);
-        
-        // Enviar
-        try {
-            xhr.send(formData);
-        } catch (error) {
-            console.log('❌ Error enviando XHR:', error);
-            resolve({ 
-                success: false, 
-                message: 'Error: ' + error.message 
-            });
-        }
     });
 }
        function generateOrderData(formData) {
@@ -2442,6 +2432,7 @@ function submitOrderToSheets(orderData) {
     </script>
 </body>
 </html>
+
 
 
 
