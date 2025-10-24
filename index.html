@@ -3792,38 +3792,61 @@ function submitOrderToSheets(orderData) {
             });
         }
 // ===== MANEJO DE FORMA DE PAGO =====
-function setupPaymentMethodHandler() {
-    const paymentMethodSelect = document.getElementById('paymentMethod');
-    const transferInfo = document.getElementById('transferInfo');
-    
-    if (!paymentMethodSelect || !transferInfo) {
-        console.log('❌ Elementos de pago no encontrados, reintentando...');
-        setTimeout(setupPaymentMethodHandler, 500);
-        return;
-    }
-    
-    paymentMethodSelect.addEventListener('change', function() {
-        if (this.value === 'En línea') {
-            // Mostrar información de transferencia
-            transferInfo.style.display = 'block';
-            
-            // Scroll suave a la información de transferencia
-            setTimeout(() => {
-                transferInfo.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }, 300);
-            
-        } else {
-            // Ocultar información de transferencia
-            transferInfo.style.display = 'none';
-        }
-    });
-    
-    console.log('✅ Manejador de forma de pago configurado');
-}
+<!-- Forma de Pago -->
+<div class="form-group">
+    <label for="paymentMethod">Forma de Pago *</label>
+    <select id="paymentMethod" name="paymentMethod" required>
+        <option value="">Selecciona forma de pago</option>
+        <option value="En línea">Pago en línea</option>
+        <option value="Contra entrega">Contra entrega</option>
+    </select>
+</div>
 
+<!-- Información de Transferencia (se muestra solo para pago en línea) -->
+<div id="transferInfo" style="display: none; margin-top: 20px; padding: 25px; background: var(--background-alt); border-radius: 12px; border: 2px solid var(--accent);">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 2rem; margin-bottom: 10px;">💳</div>
+        <h4 style="color: var(--accent); margin-bottom: 8px;">Transferencia Bancaria</h4>
+        <p style="color: var(--text-light); font-size: 0.9rem; line-height: 1.4;">
+            Realiza tu transferencia a una de nuestras cuentas y envía el comprobante por WhatsApp
+        </p>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <!-- 🔥 AQUÍ ESTÁ TU IMAGEN REAL -->
+        <img src="https://drive.google.com/uc?export=view&id=1Mm-PtLBE2HZTuxgNWpGdfZ-qBWFj7Ece" 
+             alt="Números de cuenta para transferencia - Store Trends"
+             style="max-width: 100%; max-height: 400px; height: auto; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); border: 2px solid rgba(212, 175, 55, 0.3);">
+    </div>
+    
+    <div style="background: rgba(212, 175, 55, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 1.2rem;">📱</span>
+            <div>
+                <strong style="color: var(--accent);">Envía tu comprobante</strong>
+                <p style="margin: 5px 0 0 0; color: var(--text); font-size: 0.95rem;">
+                    WhatsApp: <strong>+57 3054813630</strong>
+                </p>
+            </div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.2rem;">⏱️</span>
+            <div>
+                <strong style="color: var(--accent);">Procesamiento rápido</strong>
+                <p style="margin: 5px 0 0 0; color: var(--text); font-size: 0.95rem;">
+                    Tu pedido se procesa en 1-2 horas después del pago
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">
+        <p style="margin: 0; color: var(--text-light); font-size: 0.8rem; text-align: center;">
+            💡 <strong>Consejo:</strong> Toma una captura de pantalla del comprobante para enviarlo más fácilmente
+        </p>
+    </div>
+</div>
 // Función para resetear la forma de pago cuando se abre el checkout
 function resetPaymentMethod() {
     const paymentMethodSelect = document.getElementById('paymentMethod');
@@ -3919,6 +3942,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
