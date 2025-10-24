@@ -2126,17 +2126,51 @@ function submitOrderToSheets(orderData) {
         }
 
         function sendOrderConfirmation(orderData) {
-            // Crear mensaje para WhatsApp
-            const itemsText = orderData.items.map(item => 
-                `• ${item.referencia} - ${item.cantidad} x ${formatPriceFull(item.precio)} = ${formatPriceFull(item.total)}`
-            ).join('%0A');
+    try {
+        // Calcular resumen si no viene en metadata
+        const subtotal = orderData.metadata?.subtotal || 
+            (orderData.items || []).reduce((sum, item) => 
+                sum + ((item.precio_unitario || 0) * (item.cantidad || 1)), 0);
+        
+        const shipping = orderData.metadata?.shipping || 
+            (subtotal > 150000 ? 0 : 19900);
+        
+        const total = orderData.metadata?.total || (subtotal + shipping);
 
-            const message = `¡NUEVO PEDIDO!%0A%0A📦 *Pedido:* ${orderData.metadata.orderNumber}%0A📅 *Fecha:* ${orderData.metadata.orderDate}%0A%0A👤 *Cliente:*%0A${orderData.customer.name}%0A📧 ${orderData.customer.email}%0A📱 ${orderData.customer.phone}%0A🏠 ${orderData.customer.address}%0A📍 ${orderData.customer.city}%0A%0A🛍️ *Productos:*%0A${itemsText}%0A%0A💰 *Total:* ${formatPriceFull(orderData.metadata.total)}%0A💳 *Forma de Pago:* ${orderData.metadata.paymentMethod}%0A%0A📝 *Observaciones:*%0A${orderData.customer.notes || 'Ninguna'}`;
-
-            const whatsappUrl = `https://wa.me/573054813630?text=${message}`;
+        const itemsText = (orderData.items || []).map((item, index) => {
+            const nombre = item.nombre || `Producto ${index + 1}`;
+            const cantidad = item.cantidad || item.quantity || 1;
+            const precio = item.precio_unitario || item.precio || 0;
+            const totalItem = precio * cantidad;
+            const marca = item.marca ? ` (${item.marca})` : '';
             
-            return whatsappUrl;
-        }
+            return `• ${nombre}${marca} - ${cantidad} x ${formatPriceFull(precio)} = ${formatPriceFull(totalItem)}`;
+        }).join('%0A');
+
+        const message = 
+            `¡NUEVO PEDIDO STORE TRENDS! 🛍️%0A%0A` +
+            `📦 *Número de Pedido:*%0A${orderData.metadata?.orderNumber || 'STBQ-' + Date.now()}%0A%0A` +
+            `👤 *Información del Cliente:*%0A` +
+            `🏷️ Nombre: ${orderData.customer?.name || 'No proporcionado'}%0A` +
+            `📧 Email: ${orderData.customer?.email || 'No proporcionado'}%0A` +
+            `📱 Teléfono: ${orderData.customer?.phone || 'No proporcionado'}%0A` +
+            `📍 Dirección: ${orderData.customer?.address || 'No proporcionada'}%0A` +
+            `🏙️ Ciudad: ${orderData.customer?.city || 'No proporcionada'}%0A%0A` +
+            `🛍️ *Productos del Pedido:*%0A${itemsText || 'No hay productos'}%0A%0A` +
+            `💰 *Resumen de Pago:*%0A` +
+            `📊 Subtotal: ${formatPriceFull(subtotal)}%0A` +
+            `🚚 Envío: ${shipping === 0 ? 'GRATIS 🎉' : formatPriceFull(shipping)}%0A` +
+            `💵 *TOTAL: ${formatPriceFull(total)}*%0A%0A` +
+            `💳 *Forma de Pago:* ${orderData.metadata?.paymentMethod || 'No especificada'}%0A` +
+            `📝 *Observaciones del Cliente:*%0A${orderData.customer?.notes || 'Ninguna'}`;
+
+        return `https://wa.me/573054813630?text=${message}`;
+        
+    } catch (error) {
+        console.error('Error en mensaje WhatsApp:', error);
+        return `https://wa.me/573054813630?text=¡NUEVO PEDIDO!%20Ver%20detalles%20en%20Google%20Sheets`;
+    }
+}
 
         // ===== CARRITO =====
         function addToCart(productId) {
@@ -2432,6 +2466,7 @@ function submitOrderToSheets(orderData) {
     </script>
 </body>
 </html>
+
 
 
 
