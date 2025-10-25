@@ -2960,7 +2960,7 @@
             });
         }
 
-       // 🔥 VERSIÓN ALTERNATIVA - Iniciar pago con Wompi
+      // 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
 async function initiateWompiPayment() {
     try {
         console.log('🔄 Iniciando pago Wompi...');
@@ -2977,31 +2977,46 @@ async function initiateWompiPayment() {
         
         console.log('📋 Datos del pedido:', orderData);
 
-        // 3. Crear referencia única para Wompi
+        // 3. Cargar Wompi si no está cargado
+        console.log('📥 Cargando widget de Wompi...');
+        await loadWompiScript();
+        console.log('✅ Widget de Wompi cargado correctamente');
+
+        // 4. Crear referencia única para Wompi
         const wompiReference = WOMPI_REFERENCE_PREFIX + Date.now();
         
-        // 4. Obtener y formatear teléfono
-        const phone = (orderData.customer.phone || '573000000000').replace(/\D/g, '');
-        const formattedPhone = phone.startsWith('57') ? phone : `57${phone}`;
+        // 5. Obtener y formatear teléfono CORRECTAMENTE
+        const phone = formData.get('customerPhone') || '3000000000';
+        const cleanPhone = phone.replace(/\D/g, ''); // Solo números
+        const formattedPhone = cleanPhone.startsWith('57') ? cleanPhone.substring(2) : cleanPhone;
         
-        // 5. Configurar transacción Wompi
+        // 6. Configurar transacción Wompi con TODOS los parámetros obligatorios
         const transactionData = {
             amountInCents: Math.round(orderData.metadata.total * 100),
             currency: WOMPI_CURRENCY,
             reference: wompiReference,
             publicKey: WOMPI_PUBLIC_KEY,
-            redirectUrl: `${window.location.origin}/thank-you.html`,
+            redirectUrl: `${window.location.origin}/thank-you.html?order=${orderData.metadata.orderNumber}`,
             customerData: {
                 email: orderData.customer.email,
                 fullName: orderData.customer.name,
-                phoneNumber: formattedPhone
+                phoneNumber: formattedPhone, // Solo el número sin prefijo
+                phoneNumberPrefix: "+57",    // Prefijo por separado
+                legalId: "1234567890",
+                legalIdType: "CC"
+            },
+            shippingAddress: {
+                addressLine1: orderData.customer.address,
+                city: orderData.customer.city,
+                region: "Bogotá",
+                country: "CO"
             }
         };
 
         console.log('📦 Datos de transacción Wompi:', transactionData);
 
-        // 6. Abrir checkout de Wompi - FORMA MÁS SIMPLE
-        const checkout = new WidgetCheckout(transactionData);
+        // 7. Abrir checkout de Wompi
+        const widget = new WidgetCheckout(transactionData);
         
     } catch (error) {
         console.error('❌ Error iniciando pago Wompi:', error);
@@ -3565,64 +3580,58 @@ async function initiateWompiPayment() {
         }
 
         function generateOrderData(formData) {
-            const orderNumber = 'STBQ-' + Date.now();
-            const orderDate = new Date().toLocaleString('es-CO', {
-                timeZone: 'America/Bogota'
-            });
-            
-            let paymentMethod = formData.get('paymentMethod') || 'No especificada';
-            if (paymentMethod === 'wompi') {
-                paymentMethod = 'Pago en línea (Wompi)';
-            } else if (paymentMethod === 'transferencia') {
-                paymentMethod = 'Transferencia bancaria';
-            } else if (paymentMethod === 'contra_entrega') {
-                paymentMethod = 'Contra entrega';
-            }
-            
-            const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
-            const shipping = subtotal > 150000 ? 0 : 19900;
-            const total = subtotal + shipping;
+    const orderNumber = 'STBQ-' + Date.now();
+    const orderDate = new Date().toLocaleString('es-CO', {
+        timeZone: 'America/Bogota'
+    });
+    
+    let paymentMethod = formData.get('paymentMethod') || 'No especificada';
+    if (paymentMethod === 'wompi') {
+        paymentMethod = 'Pago en línea (Wompi)';
+    } else if (paymentMethod === 'transferencia') {
+        paymentMethod = 'Transferencia bancaria';
+    } else if (paymentMethod === 'contra_entrega') {
+        paymentMethod = 'Contra entrega';
+    }
+    
+    const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
+    const shipping = subtotal > 150000 ? 0 : 19900;
+    const total = subtotal + shipping;
 
-            const cartWithBrands = cart.map(item => ({
-                ...item,
-                marca: item.marca || 'Store Trends'
-            }));
+    const cartWithBrands = cart.map(item => ({
+        ...item,
+        marca: item.marca || 'Store Trends'
+    }));
 
-            // ✅ Formatear teléfono para Wompi
-            const phone = formData.get('customerPhone') || '3000000000';
-            const cleanPhone = phone.replace(/\D/g, ''); // Solo números
-            const formattedPhone = cleanPhone.startsWith('57') ? cleanPhone : `57${cleanPhone}`;
+    const orderData = {
+        metadata: {
+            orderNumber: orderNumber,
+            orderDate: orderDate,
+            paymentMethod: paymentMethod,
+            subtotal: subtotal,
+            shipping: shipping,
+            total: total
+        },
+        customer: {
+            name: formData.get('customerName'),
+            email: formData.get('customerEmail'),
+            phone: formData.get('customerPhone'), // Usar directamente del formulario
+            address: formData.get('customerAddress'),
+            city: formData.get('customerCity'),
+            notes: formData.get('customerNotes') || ''
+        },
+        items: cartWithBrands.map(item => ({
+            nombre: item.nombre,
+            cantidad: item.quantity,
+            precio_unitario: item.precio.actual,
+            precio_total: item.precio.actual * item.quantity,
+            marca: item.marca
+        }))
+    };
 
-            const orderData = {
-                metadata: {
-                    orderNumber: orderNumber,
-                    orderDate: orderDate,
-                    paymentMethod: paymentMethod,
-                    subtotal: subtotal,
-                    shipping: shipping,
-                    total: total
-                },
-                customer: {
-                    name: formData.get('customerName'),
-                    email: formData.get('customerEmail'),
-                    phone: formattedPhone, // ✅ TELÉFONO FORMATEADO
-                    address: formData.get('customerAddress'),
-                    city: formData.get('customerCity'),
-                    notes: formData.get('customerNotes') || ''
-                },
-                items: cartWithBrands.map(item => ({
-                    nombre: item.nombre,
-                    cantidad: item.quantity,
-                    precio_unitario: item.precio.actual,
-                    precio_total: item.precio.actual * item.quantity,
-                    marca: item.marca
-                }))
-            };
-
-            console.log('📋 Datos del pedido:', orderData);
-            return orderData;
-        }
-
+    console.log('📋 Datos del pedido:', orderData);
+    return orderData;
+}
         function calculateOrderTotal() {
             const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
             const shipping = subtotal > 150000 ? 0 : 19900;
@@ -4068,6 +4077,7 @@ async function initiateWompiPayment() {
     </script>
 </body>
 </html>
+
 
 
 
