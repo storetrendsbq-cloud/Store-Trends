@@ -3031,20 +3031,48 @@ async function initiateWompiPayment() {
         console.log('🚀 Abriendo widget de Wompi...');
         const widget = new WidgetCheckout(transactionData);
         
-       widget.open((result) => {
-    console.log('🔍 DEBUG - Callback de Wompi ejecutado:', result);
+      widget.open((result) => {
+    console.log('🔔 Resultado de Wompi:', result);
     
     // Restaurar botón
     wompiButton.innerHTML = originalText;
     wompiButton.disabled = false;
 
     if (result.transaction && result.transaction.status === 'APPROVED') {
-        console.log('🔍 DEBUG - Pago aprobado, llamando handleSuccessfulPayment');
-        // ✅ PAGO EXITOSO - usar la nueva función
-        handleSuccessfulPayment(orderData, wompiReference, result);
+        console.log('✅ Pago aprobado por Wompi');
+        
+        // 🔥 GUARDAR DATOS EN localStorage ANTES DE REDIRIGIR
+        const orderDataToSave = {
+            ...orderData,
+            metadata: {
+                ...orderData.metadata,
+                wompiReference: wompiReference,
+                transactionId: result.transaction.id,
+                paymentMethod: `Wompi - ${result.transaction.paymentMethodType || 'Tarjeta'}`,
+                paymentStatus: 'approved',
+                paymentDate: new Date().toISOString()
+            }
+        };
+
+        // Guardar en localStorage para que gracias.html lo procese
+        localStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
+        localStorage.setItem('lastWompiReference', wompiReference);
+        
+        console.log('💾 Datos guardados en localStorage:', orderDataToSave);
+        
+        // También limpiar el carrito inmediatamente
+        cart = [];
+        updateCartUI();
+        localStorage.removeItem('cart');
+        closeCheckout();
+        closeCart();
+        
+        // Redirigir a página de gracias
+        console.log('🔄 Redirigiendo a página de gracias...');
+        window.location.href = `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}&wompi=success&reference=${wompiReference}`;
+        
     } else {
-        console.log('🔍 DEBUG - Pago fallido, llamando handleFailedPayment');
-        // ❌ PAGO FALLIDO - usar la nueva función
+        console.log('❌ Pago fallido en Wompi');
         handleFailedPayment(result);
     }
 });
@@ -4219,6 +4247,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
