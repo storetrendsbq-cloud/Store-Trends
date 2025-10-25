@@ -2724,20 +2724,21 @@
                         <textarea id="customerNotes" name="customerNotes" placeholder="Instrucciones especiales para la entrega, horarios preferidos, etc."></textarea>
                     </div>
 
-                   <!-- Forma de Pago -->
+           <!-- Forma de Pago -->
 <div class="form-group">
     <label for="paymentMethod">Forma de Pago *</label>
     <select id="paymentMethod" name="paymentMethod" required>
         <option value="">Selecciona forma de pago</option>
-        <option value="En línea">Pago en línea</option>
-        <option value="Contra entrega">Contra entrega</option>
+        <option value="wompi">💳 Pago en línea (Tarjeta/PSE)</option>
+        <option value="transferencia">🏦 Transferencia bancaria</option>
+        <option value="contra_entrega">📦 Contra entrega</option>
     </select>
 </div>
 
-<!-- Información de Transferencia (se muestra solo para pago en línea) -->
+<!-- Información de Transferencia (se muestra solo para transferencia) -->
 <div id="transferInfo" style="display: none; margin-top: 20px; padding: 25px; background: var(--background-alt); border-radius: 12px; border: 2px solid var(--accent);">
     <div style="text-align: center; margin-bottom: 20px;">
-        <div style="font-size: 2rem; margin-bottom: 10px;">💳</div>
+        <div style="font-size: 2rem; margin-bottom: 10px;">🏦</div>
         <h4 style="color: var(--accent); margin-bottom: 8px;">Transferencia Bancaria</h4>
         <p style="color: var(--text-light); font-size: 0.9rem; line-height: 1.4;">
             Realiza tu transferencia a una de nuestras cuentas y envía el comprobante por WhatsApp
@@ -2745,7 +2746,6 @@
     </div>
     
     <div style="text-align: center; margin-bottom: 20px;">
-        <!-- 🔥 AQUÍ ESTÁ TU IMAGEN REAL -->
         <img src="https://static.wixstatic.com/media/25cde0_1f7641c259334345b4446f4c1ba0f809~mv2.png" 
              alt="Números de cuenta para transferencia - Store Trends"
              style="max-width: 100%; max-height: 400px; height: auto; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.4); border: 2px solid rgba(212, 175, 55, 0.3);">
@@ -2777,6 +2777,28 @@
         <p style="margin: 0; color: var(--text-light); font-size: 0.8rem; text-align: center;">
             💡 <strong>Consejo:</strong> Toma una captura de pantalla del comprobante para enviarlo más fácilmente
         </p>
+    </div>
+</div>
+
+<!-- Botón de Pago Wompi (se muestra solo para pago en línea) -->
+<div id="wompiInfo" style="display: none; margin-top: 20px; text-align: center;">
+    <div style="background: var(--background-alt); padding: 25px; border-radius: 12px; border: 2px solid var(--accent);">
+        <div style="font-size: 2rem; margin-bottom: 15px;">💳</div>
+        <h4 style="color: var(--accent); margin-bottom: 10px;">Pago Seguro con Wompi</h4>
+        <p style="color: var(--text-light); margin-bottom: 20px;">
+            Paga con tarjeta de crédito, débito o PSE de forma 100% segura
+        </p>
+        <button id="wompiButton" class="btn btn-primary" style="font-size: 1.1rem; padding: 15px 30px;">
+            🛒 Pagar con Wompi
+        </button>
+        <div style="margin-top: 15px;">
+            <img src="https://wompi.co/wp-content/themes/wompi/assets/images/logo-wompi.svg" 
+                 alt="Wompi" 
+                 style="height: 30px; opacity: 0.7;">
+            <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 10px;">
+                Transacciones seguras • Tarjetas • PSE • Datafícil
+            </p>
+        </div>
     </div>
 </div>
                     
@@ -2902,6 +2924,12 @@
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let products = [];
         let currentModalProductId = null;
+
+        // ===== WOMPI INTEGRATION =====
+        // 🔒 REEMPLAZA CON TUS CREDENCIALES REALES DE WOMPI
+        const WOMPI_PUBLIC_KEY = 'pub_prod_rKIapkP42MQd4DslOTlPY7rShrkhOHr1'; // Tu llave pública de Wompi
+        const WOMPI_CURRENCY = 'COP';
+        const WOMPI_REFERENCE_PREFIX = 'STBQ-';
 
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
@@ -3074,7 +3102,7 @@
                     <div class="product-image" onclick="openProductModal('${product.id}')">
                         <img src="${product.imagen || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='}" 
                              alt="${product.nombre}" 
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='">
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVct wdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmNGY0ZjQiLz48dGV4dCB4PSIxNTAiIHk9IjE1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+SW1hZ2VuIG5vIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+'">
                         <div class="product-overlay">
                             <button class="btn btn-primary" onclick="event.stopPropagation(); openProductModal('${product.id}')">
                                 👁️ Ver Detalles
@@ -3271,6 +3299,9 @@ function openCheckout() {
     // Actualizar resumen del checkout
     updateCheckoutSummary();
     
+    // 🔥 RESETEAR FORMA DE PAGO CADA VEZ QUE SE ABRE
+    resetPaymentMethod();
+    
     // Mostrar modal de checkout
     document.getElementById('checkoutModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -3278,6 +3309,7 @@ function openCheckout() {
     // 🔥 REINICIAR BÚSQUEDA DE CIUDADES CADA VEZ QUE SE ABRE EL CHECKOUT
     setTimeout(resetCitySearch, 100);
 }
+
     // ===== MODAL DE DETALLES =====
         function openProductModal(productId) {
             const product = products.find(p => p.id === productId);
@@ -3454,13 +3486,23 @@ function submitOrderToSheets(orderData) {
         }, 15000);
     });
 }
+
        function generateOrderData(formData) {
     const orderNumber = 'STBQ-' + Date.now();
     const orderDate = new Date().toLocaleString('es-CO', {
         timeZone: 'America/Bogota'
     });
     
-    const paymentMethod = formData.get('paymentMethod') || 'No especificada';
+    let paymentMethod = formData.get('paymentMethod') || 'No especificada';
+    // Mapear los valores a textos más descriptivos
+    if (paymentMethod === 'wompi') {
+        paymentMethod = 'Pago en línea (Wompi)';
+    } else if (paymentMethod === 'transferencia') {
+        paymentMethod = 'Transferencia bancaria';
+    } else if (paymentMethod === 'contra_entrega') {
+        paymentMethod = 'Contra entrega';
+    }
+    
     const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
     const shipping = subtotal > 150000 ? 0 : 19900;
     const total = subtotal + shipping;
@@ -3500,6 +3542,7 @@ function submitOrderToSheets(orderData) {
     console.log('📋 Datos del pedido:', orderData);
     return orderData;
 }
+
         function calculateOrderTotal() {
             const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
             const shipping = subtotal > 150000 ? 0 : 19900;
@@ -3726,6 +3769,222 @@ function submitOrderToSheets(orderData) {
             });
         }
 
+        // ===== WOMPI FUNCTIONS =====
+        function setupWompiIntegration() {
+            const wompiButton = document.getElementById('wompiButton');
+            if (!wompiButton) {
+                console.log('⏳ Botón de Wompi no cargado, reintentando...');
+                setTimeout(setupWompiIntegration, 1000);
+                return;
+            }
+
+            wompiButton.addEventListener('click', initiateWompiPayment);
+            console.log('✅ Integración Wompi configurada');
+        }
+
+        // Iniciar pago con Wompi
+        async function initiateWompiPayment() {
+            try {
+                // Validar que el formulario esté completo
+                if (!validateCheckoutForm()) {
+                    alert('Por favor completa todos los campos obligatorios antes de pagar.');
+                    return;
+                }
+
+                // Obtener datos del formulario
+                const formData = new FormData(document.getElementById('checkoutForm'));
+                const orderData = generateOrderData(formData);
+                
+                console.log('🔄 Iniciando pago Wompi...', orderData);
+
+                // Crear referencia única para Wompi
+                const wompiReference = WOMPI_REFERENCE_PREFIX + Date.now();
+                
+                // Configurar transacción Wompi
+                const transactionData = {
+                    publicKey: WOMPI_PUBLIC_KEY,
+                    currency: WOMPI_CURRENCY,
+                    amountInCents: Math.round(orderData.metadata.total * 100), // Wompi usa centavos
+                    reference: wompiReference,
+                    customerData: {
+                        email: orderData.customer.email,
+                        fullName: orderData.customer.name,
+                        phoneNumber: orderData.customer.phone
+                    },
+                    shippingAddress: {
+                        addressLine1: orderData.customer.address,
+                        city: orderData.customer.city,
+                        country: 'CO'
+                    },
+                    paymentMethod: {
+                        type: 'CARD' // También puedes permitir PSE
+                    }
+                };
+
+                console.log('📦 Datos de transacción Wompi:', transactionData);
+
+                // Abrir checkout de Wompi
+                const wompiCheckout = new WidgetCheckout(transactionData);
+                
+                wompiCheckout.open((result) => {
+                    handleWompiResponse(result, orderData, wompiReference);
+                });
+
+            } catch (error) {
+                console.error('❌ Error iniciando pago Wompi:', error);
+                alert('Error al iniciar el pago. Por favor intenta nuevamente.');
+            }
+        }
+
+        // Manejar respuesta de Wompi
+        async function handleWompiResponse(result, orderData, wompiReference) {
+            console.log('📨 Respuesta de Wompi:', result);
+            
+            try {
+                if (result.transaction && result.transaction.status === 'APPROVED') {
+                    // ✅ Pago exitoso
+                    await processSuccessfulWompiPayment(result, orderData, wompiReference);
+                } else {
+                    // ❌ Pago fallido
+                    handleFailedWompiPayment(result);
+                }
+            } catch (error) {
+                console.error('❌ Error procesando respuesta Wompi:', error);
+                alert('Error procesando el pago. Contacta a soporte.');
+            }
+        }
+
+        // Procesar pago exitoso
+        async function processSuccessfulWompiPayment(result, orderData, wompiReference) {
+            // Actualizar datos del pedido con referencia de Wompi
+            orderData.metadata.paymentMethod = `Wompi (${result.transaction.paymentMethod.type})`;
+            orderData.metadata.wompiReference = wompiReference;
+            orderData.metadata.transactionId = result.transaction.id;
+            orderData.metadata.paymentStatus = 'approved';
+
+            console.log('✅ Pago Wompi exitoso, registrando pedido...');
+
+            // Registrar pedido en Google Sheets
+            const sheetsResult = await submitOrderToSheets(orderData);
+            
+            if (sheetsResult.success) {
+                // Limpiar carrito y mostrar éxito
+                cart = [];
+                updateCartUI();
+                localStorage.removeItem('cart');
+                closeCheckout();
+                closeCart();
+                
+                // Mostrar mensaje de éxito
+                setTimeout(() => {
+                    alert(`🎉 ¡Pago exitoso! 
+                    
+📦 Número de pedido: ${orderData.metadata.orderNumber}
+💳 Referencia Wompi: ${wompiReference}
+💰 Total pagado: ${formatPriceFull(orderData.metadata.total)}
+
+Recibirás un correo de confirmación pronto.`);
+                }, 1000);
+                
+            } else {
+                throw new Error('Error registrando pedido después de pago exitoso');
+            }
+        }
+
+        // Manejar pago fallido
+        function handleFailedWompiPayment(result) {
+            let errorMessage = 'El pago no pudo ser procesado. ';
+            
+            if (result.transaction) {
+                switch (result.transaction.status) {
+                    case 'DECLINED':
+                        errorMessage += 'Tu entidad financiera declinó la transacción.';
+                        break;
+                    case 'ERROR':
+                        errorMessage += 'Ocurrió un error durante la transacción.';
+                        break;
+                    case 'VOIDED':
+                        errorMessage += 'La transacción fue cancelada.';
+                        break;
+                    default:
+                        errorMessage += `Estado: ${result.transaction.status}`;
+                }
+            } else {
+                errorMessage += 'Por favor intenta nuevamente.';
+            }
+            
+            alert(`❌ ${errorMessage}`);
+        }
+
+        // Validar formulario antes de pagar
+        function validateCheckoutForm() {
+            const form = document.getElementById('checkoutForm');
+            const requiredFields = form.querySelectorAll('[required]');
+            
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    field.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // ===== MANEJO DE FORMA DE PAGO =====
+        function setupPaymentMethodHandler() {
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            const transferInfo = document.getElementById('transferInfo');
+            const wompiInfo = document.getElementById('wompiInfo');
+            
+            if (!paymentMethodSelect || !transferInfo || !wompiInfo) {
+                console.log('⏳ Elementos de pago no cargados, reintentando...');
+                setTimeout(setupPaymentMethodHandler, 500);
+                return;
+            }
+            
+            paymentMethodSelect.addEventListener('change', function() {
+                const selectedMethod = this.value;
+                
+                // Ocultar todo primero
+                transferInfo.style.display = 'none';
+                wompiInfo.style.display = 'none';
+                
+                // Mostrar según selección
+                if (selectedMethod === 'transferencia') {
+                    transferInfo.style.display = 'block';
+                    setTimeout(() => {
+                        transferInfo.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                    }, 300);
+                } else if (selectedMethod === 'wompi') {
+                    wompiInfo.style.display = 'block';
+                    setTimeout(() => {
+                        wompiInfo.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                    }, 300);
+                }
+            });
+            
+            console.log('✅ Manejador de forma de pago configurado');
+        }
+
+        function resetPaymentMethod() {
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            const transferInfo = document.getElementById('transferInfo');
+            const wompiInfo = document.getElementById('wompiInfo');
+            
+            if (paymentMethodSelect && transferInfo && wompiInfo) {
+                paymentMethodSelect.value = '';
+                transferInfo.style.display = 'none';
+                wompiInfo.style.display = 'none';
+            }
+        }
+
         function setupEventListeners() {
             // Carrito
             document.getElementById('openCart').addEventListener('click', openCart);
@@ -3747,10 +4006,24 @@ function submitOrderToSheets(orderData) {
                 }
             });
 
+            // 🔥 CONFIGURAR MANEJADOR DE FORMA DE PAGO
+            setupPaymentMethodHandler();
+            
+            // 🔥 CONFIGURAR INTEGRACIÓN WOMPI
+            setupWompiIntegration();
+            
             // Formulario de checkout
             document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
                 event.preventDefault();
                 
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                
+                // Si el método de pago es Wompi, no procesamos el formulario aquí
+                if (paymentMethod === 'wompi') {
+                    alert('Por favor haz clic en el botón "Pagar con Wompi" para continuar.');
+                    return;
+                }
+
                 const formData = new FormData(this);
                 const orderData = generateOrderData(formData);
                 
@@ -3814,53 +4087,11 @@ function submitOrderToSheets(orderData) {
                 link.addEventListener('click', e => e.preventDefault());
             });
         }
-// ===== MANEJO DE FORMA DE PAGO =====
-function setupPaymentMethodHandler() {
-    const paymentMethodSelect = document.getElementById('paymentMethod');
-    const transferInfo = document.getElementById('transferInfo');
-    
-    if (!paymentMethodSelect || !transferInfo) {
-        console.log('❌ Elementos de pago no encontrados, reintentando...');
-        setTimeout(setupPaymentMethodHandler, 500);
-        return;
-    }
-    
-    paymentMethodSelect.addEventListener('change', function() {
-        if (this.value === 'En línea') {
-            // Mostrar información de transferencia
-            transferInfo.style.display = 'block';
-            
-            // Scroll suave a la información de transferencia
-            setTimeout(() => {
-                transferInfo.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }, 300);
-            
-        } else {
-            // Ocultar información de transferencia
-            transferInfo.style.display = 'none';
-        }
-    });
-    
-    console.log('✅ Manejador de forma de pago configurado');
-}
 
-// Función para resetear la forma de pago cuando se abre el checkout
-function resetPaymentMethod() {
-    const paymentMethodSelect = document.getElementById('paymentMethod');
-    const transferInfo = document.getElementById('transferInfo');
-    
-    if (paymentMethodSelect && transferInfo) {
-        paymentMethodSelect.value = '';
-        transferInfo.style.display = 'none';
-    }
-}
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
             // 🔥 INICIALIZAR BÚSQUEDA DE CIUDADES
-setTimeout(enhanceCitySearch, 1000);
+            setTimeout(enhanceCitySearch, 1000);
             // Inicializar animaciones
             const animatedElements = document.querySelectorAll('.fade-in-up');
             animatedElements.forEach(element => {
@@ -3888,71 +4119,6 @@ setTimeout(enhanceCitySearch, 1000);
             }
         `;
         document.head.appendChild(style);
-        // ===== CONFIGURACIÓN DE PAGO - SOLUCIÓN SIMPLIFICADA =====
-
-// 1. Agregar estas funciones NUEVAS
-function setupPaymentMethodHandler() {
-    const paymentMethodSelect = document.getElementById('paymentMethod');
-    const transferInfo = document.getElementById('transferInfo');
-    
-    if (!paymentMethodSelect || !transferInfo) {
-        console.log('⏳ Elementos de pago no cargados, reintentando...');
-        setTimeout(setupPaymentMethodHandler, 1000);
-        return;
-    }
-    
-    paymentMethodSelect.addEventListener('change', function() {
-        if (this.value === 'En línea') {
-            transferInfo.style.display = 'block';
-            setTimeout(() => {
-                transferInfo.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-            }, 300);
-        } else {
-            transferInfo.style.display = 'none';
-        }
-    });
-    
-    console.log('✅ Manejador de forma de pago configurado');
-}
-
-function resetPaymentMethod() {
-    const paymentMethodSelect = document.getElementById('paymentMethod');
-    const transferInfo = document.getElementById('transferInfo');
-    
-    if (paymentMethodSelect && transferInfo) {
-        paymentMethodSelect.value = '';
-        transferInfo.style.display = 'none';
-    }
-}
-
-// 2. Modificar openCheckout (BUSCA esta función y AGREGALE una línea)
-// Busca: function openCheckout() { ... }
-// Y dentro de esa función, agrega: resetPaymentMethod();
-
-// 3. Inicializar el manejador de pago cuando la página cargue
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(setupPaymentMethodHandler, 2000); // Esperar 2 segundos
-});
-
-// O si tienes initApp(), agrega ahí:
-// setupPaymentMethodHandler();
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
