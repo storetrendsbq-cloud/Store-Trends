@@ -3052,6 +3052,18 @@ async function initiateWompiPayment() {
         alert('Error al iniciar el pago: ' + error.message);
     }
 }
+            // 🔧 FUNCIÓN PARA OBTENER LA URL BASE CORRECTA
+function getBaseUrl() {
+    // Si estás en GitHub Pages, ajusta la ruta
+    if (window.location.hostname.includes('github.io')) {
+        const path = window.location.pathname.split('/')[1]; // Obtener nombre del repositorio
+        return window.location.origin + (path ? '/' + path : '');
+    }
+    return window.location.origin;
+}
+
+// Y en tu transactionData:
+redirectUrl: `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}`,
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -4107,6 +4119,7 @@ async function initiateWompiPayment() {
     </script>
 </body>
 </html>
+
 
 
 
