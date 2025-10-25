@@ -3488,7 +3488,7 @@ function submitOrderToSheets(orderData) {
     });
 }
 
-     function generateOrderData(formData) {
+       function generateOrderData(formData) {
     const orderNumber = 'STBQ-' + Date.now();
     const orderDate = new Date().toLocaleString('es-CO', {
         timeZone: 'America/Bogota'
@@ -3512,6 +3512,9 @@ function submitOrderToSheets(orderData) {
         marca: item.marca || 'Store Trends'
     }));
 
+    // ✅ OBTENER DATOS ADICIONALES DEL CLIENTE
+    const additionalData = getCustomerAdditionalData(formData);
+
     const orderData = {
         metadata: {
             orderNumber: orderNumber,
@@ -3524,10 +3527,12 @@ function submitOrderToSheets(orderData) {
         customer: {
             name: formData.get('customerName'),
             email: formData.get('customerEmail'),
-            phone: formData.get('customerPhone') || '573000000000', // Teléfono por defecto
+            phone: additionalData.phone, // ✅ AHORA INCLUYE EL TELÉFONO FORMATEADO
             address: formData.get('customerAddress'),
             city: formData.get('customerCity'),
-            notes: formData.get('customerNotes') || ''
+            notes: formData.get('customerNotes') || '',
+            legalId: additionalData.legalId, // ✅ DATOS ADICIONALES
+            legalIdType: additionalData.legalIdType
         },
         items: cartWithBrands.map(item => ({
             nombre: item.nombre,
@@ -3779,96 +3784,7 @@ function submitOrderToSheets(orderData) {
             wompiButton.addEventListener('click', initiateWompiPayment);
             console.log('✅ Integración Wompi configurada');
         }
-        // ===== WOMPI INTEGRATION =====
-// 🔒 REEMPLAZA CON TUS CREDENCIALES REALES DE WOMPI
-const WOMPI_PUBLIC_KEY = 'pub_prod_rKIapkP42MQd4DslOTlPY7rShrkhOHr1'; // Tu llave pública de Wompi
-const WOMPI_CURRENCY = 'COP';
-const WOMPI_REFERENCE_PREFIX = 'STBQ-';
 
-// ✅ FUNCIÓN PARA CARGAR WOMPI - AGREGAR ESTA
-function loadWompiScript() {
-    return new Promise((resolve, reject) => {
-        // Si ya está cargado, resolver inmediatamente
-        if (typeof WidgetCheckout !== 'undefined') {
-            resolve();
-            return;
-        }
-
-        // Si no está cargado, cargar el script
-        const script = document.createElement('script');
-        script.src = 'https://checkout.wompi.co/widget.js';
-        script.onload = () => {
-            console.log('✅ Script de Wompi cargado');
-            // Dar tiempo a que WidgetCheckout se inicialice
-            setTimeout(() => {
-                if (typeof WidgetCheckout !== 'undefined') {
-                    resolve();
-                } else {
-                    reject(new Error('WidgetCheckout no se inicializó'));
-                }
-            }, 500);
-        };
-        script.onerror = () => reject(new Error('No se pudo cargar el script de Wompi'));
-        document.head.appendChild(script);
-    });
-}
-
-// 🔥 VERSIÓN SIMPLIFICADA Y FUNCIONAL - Iniciar pago con Wompi
-async function initiateWompiPayment() {
-    try {
-        console.log('🔄 Iniciando pago Wompi...');
-
-        // 1. Validar formulario
-        if (!validateCheckoutForm()) {
-            alert('Por favor completa todos los campos obligatorios antes de pagar.');
-            return;
-        }
-
-        // 2. Obtener datos del formulario
-        const formData = new FormData(document.getElementById('checkoutForm'));
-        const orderData = generateOrderData(formData);
-        
-        console.log('📋 Datos del pedido:', orderData);
-
-        // 3. Cargar Wompi si no está cargado
-        console.log('📥 Cargando widget de Wompi...');
-        await loadWompiScript();
-        console.log('✅ Widget de Wompi cargado correctamente');
-
-        // 4. Crear referencia única para Wompi
-        const wompiReference = WOMPI_REFERENCE_PREFIX + Date.now();
-        
-        // 5. Obtener y formatear teléfono
-        const phone = orderData.customer.phone.replace(/\D/g, ''); // Solo números
-        const formattedPhone = phone.startsWith('57') ? phone : `57${phone}`;
-        
-        // 6. Configurar transacción Wompi con todos los parámetros obligatorios
-        const transactionData = {
-            amountInCents: Math.round(orderData.metadata.total * 100),
-            currency: WOMPI_CURRENCY,
-            reference: wompiReference,
-            publicKey: WOMPI_PUBLIC_KEY,
-            redirectUrl: `${window.location.origin}/thank-you.html?order=${orderData.metadata.orderNumber}`,
-            customerData: {
-                email: orderData.customer.email,
-                fullName: orderData.customer.name,
-                phoneNumber: formattedPhone,
-                phoneNumberPrefix: "+57",
-                legalId: "1234567890", // Valor por defecto
-                legalIdType: "CC"
-            }
-        };
-
-        console.log('📦 Datos de transacción Wompi:', transactionData);
-
-        // 7. Abrir checkout de Wompi
-        WidgetCheckout(transactionData);
-        
-    } catch (error) {
-        console.error('❌ Error iniciando pago Wompi:', error);
-        alert('Error al iniciar el pago: ' + error.message);
-    }
-}
         // 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
 async function initiateWompiPayment() {
     try {
@@ -4228,6 +4144,5 @@ Recibirás un correo de confirmación pronto.`);
     </script>
 </body>
 </html>
-
 
 
