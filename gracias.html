@@ -146,6 +146,29 @@
     </div>
 
     <script>
+        // ===== DEBUG: VERIFICAR LOCALSTORAGE =====
+function debugLocalStorage() {
+    console.log('🔍 DEBUG - Contenido completo de localStorage:');
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        console.log(`📦 ${key}:`, value);
+    }
+    
+    const pendingOrder = localStorage.getItem('pendingWompiOrder');
+    const lastReference = localStorage.getItem('lastWompiReference');
+    
+    console.log('🔍 DEBUG - pendingWompiOrder:', pendingOrder);
+    console.log('🔍 DEBUG - lastWompiReference:', lastReference);
+    
+    return { pendingOrder, lastReference };
+}
+
+// Luego en tu DOMContentLoaded, llama a esta función:
+document.addEventListener('DOMContentLoaded', async function() {
+    // DEBUG: Verificar localStorage
+    debugLocalStorage();
+    
         // ===== FUNCIÓN PARA ENVIAR A GOOGLE SHEETS =====
         function submitOrderToSheets(orderData) {
             return new Promise((resolve) => {
