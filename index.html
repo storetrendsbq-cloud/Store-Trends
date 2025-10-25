@@ -2962,6 +2962,7 @@
         }
 
      // 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
+// 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
 async function initiateWompiPayment() {
     try {
         console.log('🔄 Iniciando pago Wompi...');
@@ -2978,37 +2979,42 @@ async function initiateWompiPayment() {
         
         console.log('📋 Datos del pedido:', orderData);
 
-        // 3. Asegurarnos de que Wompi esté cargado
+        // 3. Mostrar loading
+        const wompiButton = document.getElementById('wompiButton');
+        const originalText = wompiButton.innerHTML;
+        wompiButton.innerHTML = '⏳ Cargando...';
+        wompiButton.disabled = true;
+
+        // 4. Asegurarnos de que Wompi esté cargado
         if (typeof WidgetCheckout === 'undefined') {
             console.log('📥 Cargando widget de Wompi...');
             await new Promise((resolve, reject) => {
                 const script = document.createElement('script');
                 script.src = 'https://checkout.wompi.co/widget.js';
                 script.onload = resolve;
-                script.onerror = reject;
+                script.onerror = () => reject(new Error('Error cargando Wompi'));
                 document.head.appendChild(script);
             });
-            // Esperar a que WidgetCheckout esté disponible
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
         }
 
         console.log('✅ Widget de Wompi cargado correctamente');
 
-        // 4. Crear referencia única para Wompi
+        // 5. Crear referencia única para Wompi
         const wompiReference = WOMPI_REFERENCE_PREFIX + Date.now();
         
-        // 5. Obtener teléfono del formulario y formatear correctamente
+        // 6. Obtener teléfono del formulario
         const customerPhone = formData.get('customerPhone') || '3000000000';
-        const cleanPhone = customerPhone.replace(/\D/g, ''); // Solo números
+        const cleanPhone = customerPhone.replace(/\D/g, '');
         const phoneNumber = cleanPhone.startsWith('57') ? cleanPhone.substring(2) : cleanPhone;
         
-        // 6. CONFIGURACIÓN SIMPLIFICADA Y CORRECTA - Sin shipping address problemático
+        // 7. Configuración para Wompi
         const transactionData = {
             currency: WOMPI_CURRENCY,
             amountInCents: Math.round(orderData.metadata.total * 100).toString(),
             reference: wompiReference,
             publicKey: WOMPI_PUBLIC_KEY,
-            redirectUrl: `${window.location.origin}/gracias.html?order=${orderData.metadata.orderNumber}`,
+            redirectUrl: `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}`,
             customer: {
                 email: orderData.customer.email,
                 fullName: orderData.customer.name,
@@ -3017,38 +3023,40 @@ async function initiateWompiPayment() {
                 legalId: '1234567890',
                 legalIdType: 'CC'
             }
-            // 🔥 ELIMINAMOS shippingAddress temporalmente para evitar errores
         };
 
         console.log('📦 Datos de transacción Wompi:', transactionData);
 
-        // 7. Abrir checkout de Wompi - VERSIÓN SIMPLIFICADA
+        // 8. Abrir checkout de Wompi
         console.log('🚀 Abriendo widget de Wompi...');
         const widget = new WidgetCheckout(transactionData);
+        
         widget.open((result) => {
             console.log('🔔 Resultado de Wompi:', result);
+            
+            // Restaurar botón
+            wompiButton.innerHTML = originalText;
+            wompiButton.disabled = false;
+
             if (result.transaction && result.transaction.status === 'APPROVED') {
-                alert('✅ ¡Pago exitoso! Tu pedido está siendo procesado.');
-                // Limpiar carrito
-                cart = [];
-                updateCartUI();
-                localStorage.removeItem('cart');
-                closeCheckout();
-                closeCart();
-                
-                // Opcional: Redirigir a página de gracias
-                setTimeout(() => {
-                    window.location.href = `${window.location.origin}/gracias.html?order=${orderData.metadata.orderNumber}`;
-                }, 2000);
-            } else if (result.transaction) {
-                alert(`❌ El pago no pudo ser procesado. Estado: ${result.transaction.status}`);
+                // ✅ PAGO EXITOSO - usar la nueva función
+                handleSuccessfulPayment(orderData, wompiReference, result);
             } else {
-                alert('❌ El pago fue cancelado o hubo un error.');
+                // ❌ PAGO FALLIDO - usar la nueva función
+                handleFailedPayment(result);
             }
         });
         
     } catch (error) {
         console.error('❌ Error iniciando pago Wompi:', error);
+        
+        // Restaurar botón en caso de error
+        const wompiButton = document.getElementById('wompiButton');
+        if (wompiButton) {
+            wompiButton.innerHTML = '🛒 Pagar con Wompi';
+            wompiButton.disabled = false;
+        }
+        
         alert('Error al iniciar el pago: ' + error.message);
     }
 }
@@ -3900,7 +3908,98 @@ async function initiateWompiPayment() {
             wompiButton.addEventListener('click', initiateWompiPayment);
             console.log('✅ Integración Wompi configurada');
         }
+         // 🔧 FUNCIÓN PARA OBTENER LA URL BASE CORRECTA
+function getBaseUrl() {
+    // Si estás en GitHub Pages, ajusta la ruta
+    if (window.location.hostname.includes('github.io')) {
+        const pathSegments = window.location.pathname.split('/').filter(segment => segment);
+        if (pathSegments.length > 1) {
+            // Tiene estructura: /usuario/repositorio
+            return window.location.origin + '/' + pathSegments[0] + '/' + pathSegments[1];
+        }
+    }
+    return window.location.origin;
+}   
+        // 🔧 FUNCIÓN PARA MANEJAR PAGO EXITOSO DE WOMPI
+async function handleSuccessfulPayment(orderData, wompiReference, result) {
+    try {
+        // Actualizar datos del pedido con info de Wompi
+        orderData.metadata.wompiReference = wompiReference;
+        orderData.metadata.transactionId = result.transaction.id;
+        orderData.metadata.paymentMethod = `Wompi - ${result.transaction.paymentMethodType || 'Tarjeta'}`;
+        orderData.metadata.paymentStatus = 'approved';
 
+        console.log('💰 Pago exitoso, registrando pedido en Google Sheets...', orderData);
+
+        // 1. Registrar en Google Sheets
+        const sheetsResult = await submitOrderToSheets(orderData);
+        
+        if (sheetsResult.success) {
+            console.log('✅ Pedido registrado en Google Sheets');
+            
+            // 2. Limpiar carrito
+            cart = [];
+            updateCartUI();
+            localStorage.removeItem('cart');
+            
+            // 3. Cerrar modales
+            closeCheckout();
+            closeCart();
+            
+            // 4. Mostrar confirmación
+            alert(`🎉 ¡Pago exitoso! 
+            
+📦 Pedido: ${orderData.metadata.orderNumber}
+💳 Referencia Wompi: ${wompiReference}
+💰 Total: ${formatPriceFull(orderData.metadata.total)}
+
+Tu pedido ha sido registrado correctamente.`);
+
+            // 5. Redirigir a página de gracias
+            setTimeout(() => {
+                window.location.href = `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}`;
+            }, 2000);
+            
+        } else {
+            throw new Error(sheetsResult.message || 'Error registrando en Google Sheets');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error procesando pago exitoso:', error);
+        alert('✅ Pago exitoso pero hubo un error registrando el pedido. Por favor contáctanos con tu referencia: ' + wompiReference);
+        
+        // Intentar enviar por WhatsApp como respaldo
+        const whatsappUrl = sendOrderConfirmation(orderData);
+        setTimeout(() => {
+            window.open(whatsappUrl, '_blank');
+        }, 1000);
+    }
+}
+
+// 🔧 FUNCIÓN PARA MANEJAR PAGO FALLIDO DE WOMPI
+function handleFailedPayment(result) {
+    let errorMessage = 'El pago no pudo ser procesado. ';
+    
+    if (result.transaction) {
+        switch (result.transaction.status) {
+            case 'DECLINED':
+                errorMessage = '❌ Tu entidad financiera declinó la transacción.';
+                break;
+            case 'VOIDED':
+                errorMessage = '❌ La transacción fue cancelada.';
+                break;
+            case 'ERROR':
+                errorMessage = '❌ Ocurrió un error durante la transacción.';
+                break;
+            default:
+                errorMessage = `❌ Estado del pago: ${result.transaction.status}`;
+        }
+    } else {
+        errorMessage = '❌ El pago fue cancelado.';
+    }
+    
+    alert(errorMessage + '\n\nPor favor intenta con otro método de pago.');
+}
         // Validar formulario antes de pagar
         function validateCheckoutForm() {
             const form = document.getElementById('checkoutForm');
@@ -4107,6 +4206,7 @@ async function initiateWompiPayment() {
     </script>
 </body>
 </html>
+
 
 
 
