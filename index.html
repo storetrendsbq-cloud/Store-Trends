@@ -3495,7 +3495,6 @@ function submitOrderToSheets(orderData) {
     });
     
     let paymentMethod = formData.get('paymentMethod') || 'No especificada';
-    // Mapear los valores a textos más descriptivos
     if (paymentMethod === 'wompi') {
         paymentMethod = 'Pago en línea (Wompi)';
     } else if (paymentMethod === 'transferencia') {
@@ -3508,11 +3507,13 @@ function submitOrderToSheets(orderData) {
     const shipping = subtotal > 150000 ? 0 : 19900;
     const total = subtotal + shipping;
 
-    // Asegurar que cada producto tenga marca
     const cartWithBrands = cart.map(item => ({
         ...item,
         marca: item.marca || 'Store Trends'
     }));
+
+    // ✅ OBTENER DATOS ADICIONALES DEL CLIENTE
+    const additionalData = getCustomerAdditionalData(formData);
 
     const orderData = {
         metadata: {
@@ -3526,10 +3527,12 @@ function submitOrderToSheets(orderData) {
         customer: {
             name: formData.get('customerName'),
             email: formData.get('customerEmail'),
-            phone: formData.get('customerPhone'),
+            phone: additionalData.phone, // ✅ AHORA INCLUYE EL TELÉFONO FORMATEADO
             address: formData.get('customerAddress'),
             city: formData.get('customerCity'),
-            notes: formData.get('customerNotes') || ''
+            notes: formData.get('customerNotes') || '',
+            legalId: additionalData.legalId, // ✅ DATOS ADICIONALES
+            legalIdType: additionalData.legalIdType
         },
         items: cartWithBrands.map(item => ({
             nombre: item.nombre,
@@ -3543,7 +3546,6 @@ function submitOrderToSheets(orderData) {
     console.log('📋 Datos del pedido:', orderData);
     return orderData;
 }
-
         function calculateOrderTotal() {
             const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
             const shipping = subtotal > 150000 ? 0 : 19900;
@@ -3783,60 +3785,65 @@ function submitOrderToSheets(orderData) {
             console.log('✅ Integración Wompi configurada');
         }
 
-        // Iniciar pago con Wompi
-        async function initiateWompiPayment() {
-            try {
-                // Validar que el formulario esté completo
-                if (!validateCheckoutForm()) {
-                    alert('Por favor completa todos los campos obligatorios antes de pagar.');
-                    return;
-                }
+        // 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
+async function initiateWompiPayment() {
+    try {
+        console.log('🔄 Iniciando pago Wompi...');
 
-                // Obtener datos del formulario
-                const formData = new FormData(document.getElementById('checkoutForm'));
-                const orderData = generateOrderData(formData);
-                
-                console.log('🔄 Iniciando pago Wompi...', orderData);
-
-                // Crear referencia única para Wompi
-                const wompiReference = WOMPI_REFERENCE_PREFIX + Date.now();
-                
-                // Configurar transacción Wompi
-                const transactionData = {
-                    publicKey: WOMPI_PUBLIC_KEY,
-                    currency: WOMPI_CURRENCY,
-                    amountInCents: Math.round(orderData.metadata.total * 100), // Wompi usa centavos
-                    reference: wompiReference,
-                    customerData: {
-                        email: orderData.customer.email,
-                        fullName: orderData.customer.name,
-                        phoneNumber: orderData.customer.phone
-                    },
-                    shippingAddress: {
-                        addressLine1: orderData.customer.address,
-                        city: orderData.customer.city,
-                        country: 'CO'
-                    },
-                    paymentMethod: {
-                        type: 'CARD' // También puedes permitir PSE
-                    }
-                };
-
-                console.log('📦 Datos de transacción Wompi:', transactionData);
-
-                // Abrir checkout de Wompi
-                const wompiCheckout = new WidgetCheckout(transactionData);
-                
-                wompiCheckout.open((result) => {
-                    handleWompiResponse(result, orderData, wompiReference);
-                });
-
-            } catch (error) {
-                console.error('❌ Error iniciando pago Wompi:', error);
-                alert('Error al iniciar el pago. Por favor intenta nuevamente.');
-            }
+        // 1. Validar formulario
+        if (!validateCheckoutForm()) {
+            alert('Por favor completa todos los campos obligatorios antes de pagar.');
+            return;
         }
 
+        // 2. Obtener datos del formulario
+        const formData = new FormData(document.getElementById('checkoutForm'));
+        const orderData = generateOrderData(formData);
+        
+        console.log('📋 Datos del pedido:', orderData);
+
+        // 3. Cargar Wompi si no está cargado
+        console.log('📥 Cargando widget de Wompi...');
+        await loadWompiScript();
+        console.log('✅ Widget de Wompi cargado correctamente');
+
+        // 4. Crear referencia única para Wompi
+        const wompiReference = WOMPI_REFERENCE_PREFIX + Date.now();
+        
+        // 5. Configurar transacción Wompi CON TODOS LOS PARÁMETROS OBLIGATORIOS
+        const transactionData = {
+            amountInCents: Math.round(orderData.metadata.total * 100), // Wompi usa centavos
+            currency: WOMPI_CURRENCY,
+            reference: wompiReference,
+            publicKey: WOMPI_PUBLIC_KEY,
+            redirectUrl: `${window.location.origin}/order-confirmation.html?order=${orderData.metadata.orderNumber}`,
+            customerData: {
+                email: orderData.customer.email,
+                fullName: orderData.customer.name,
+                phoneNumber: orderData.customer.phone, // ✅ AGREGADO - PARÁMETRO OBLIGATORIO
+                phoneNumberPrefix: "+57", // ✅ AGREGADO - PREFIJO PARA COLOMBIA
+                legalId: "123456789", // ✅ AGREGADO - ID legal (puede ser cédula)
+                legalIdType: "CC" // ✅ AGREGADO - Tipo de documento (Cédula de Ciudadanía)
+            },
+            shippingAddress: {
+                addressLine1: orderData.customer.address,
+                city: orderData.customer.city,
+                region: "Bogotá", // ✅ AGREGADO - Región/Departamento
+                country: "CO",
+                phoneNumber: orderData.customer.phone // ✅ AGREGADO - Teléfono para envío
+            }
+        };
+
+        console.log('📦 Datos de transacción Wompi:', transactionData);
+
+        // 6. Abrir checkout de Wompi
+        WidgetCheckout(transactionData);
+        
+    } catch (error) {
+        console.error('❌ Error iniciando pago Wompi:', error);
+        alert('Error al iniciar el pago: ' + error.message + '\n\nPor favor recarga la página e intenta nuevamente.');
+    }
+}
         // Manejar respuesta de Wompi
         async function handleWompiResponse(result, orderData, wompiReference) {
             console.log('📨 Respuesta de Wompi:', result);
@@ -3854,6 +3861,20 @@ function submitOrderToSheets(orderData) {
                 alert('Error procesando el pago. Contacta a soporte.');
             }
         }
+        // Función para obtener datos adicionales del cliente
+function getCustomerAdditionalData(formData) {
+    const phone = formData.get('customerPhone') || '3000000000';
+    
+    // Limpiar y formatear el teléfono
+    const cleanPhone = phone.replace(/\D/g, ''); // Remover caracteres no numéricos
+    const formattedPhone = cleanPhone.startsWith('57') ? cleanPhone : `57${cleanPhone}`;
+    
+    return {
+        phone: formattedPhone,
+        legalId: "123456789", // Puedes obtener esto de un campo adicional en el formulario
+        legalIdType: "CC"
+    };
+}
 
         // Procesar pago exitoso
         async function processSuccessfulWompiPayment(result, orderData, wompiReference) {
@@ -4123,5 +4144,6 @@ Recibirás un correo de confirmación pronto.`);
     </script>
 </body>
 </html>
+
 
 
