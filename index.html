@@ -2961,8 +2961,7 @@
             });
         }
 
-     // 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
-// 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
+    // 🔥 VERSIÓN COMPLETAMENTE CORREGIDA - Iniciar pago con Wompi
 async function initiateWompiPayment() {
     try {
         console.log('🔄 Iniciando pago Wompi...');
@@ -3014,7 +3013,7 @@ async function initiateWompiPayment() {
             amountInCents: Math.round(orderData.metadata.total * 100).toString(),
             reference: wompiReference,
             publicKey: WOMPI_PUBLIC_KEY,
-            redirectUrl: `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}`,
+            redirectUrl: `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}&wompi=success&reference=${wompiReference}`,
             customer: {
                 email: orderData.customer.email,
                 fullName: orderData.customer.name,
@@ -3027,55 +3026,47 @@ async function initiateWompiPayment() {
 
         console.log('📦 Datos de transacción Wompi:', transactionData);
 
-        // 8. Abrir checkout de Wompi
-        console.log('🚀 Abriendo widget de Wompi...');
-        const widget = new WidgetCheckout(transactionData);
+        // 8. 🔥 GUARDAR EN LOCALSTORAGE ANTES DE ABRIR WOMPI
+        console.log('💾 Guardando pedido en localStorage ANTES de abrir Wompi...');
         
-      widget.open((result) => {
-    console.log('🔔 Resultado de Wompi:', result);
-    
-    // Restaurar botón
-    wompiButton.innerHTML = originalText;
-    wompiButton.disabled = false;
-
-    if (result.transaction && result.transaction.status === 'APPROVED') {
-        console.log('✅ Pago aprobado por Wompi');
-        
-        // 🔥 GUARDAR DATOS EN localStorage ANTES DE REDIRIGIR
         const orderDataToSave = {
             ...orderData,
             metadata: {
                 ...orderData.metadata,
                 wompiReference: wompiReference,
-                transactionId: result.transaction.id,
-                paymentMethod: `Wompi - ${result.transaction.paymentMethodType || 'Tarjeta'}`,
-                paymentStatus: 'approved',
-                paymentDate: new Date().toISOString()
+                paymentMethod: 'Wompi - Pago en línea',
+                paymentStatus: 'pending'
             }
         };
 
-        // Guardar en localStorage para que gracias.html lo procese
         localStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
         localStorage.setItem('lastWompiReference', wompiReference);
         
-        console.log('💾 Datos guardados en localStorage:', orderDataToSave);
+        console.log('✅ Pedido guardado en localStorage:', orderDataToSave);
+
+        // 9. Abrir checkout de Wompi
+        console.log('🚀 Abriendo widget de Wompi...');
+        const widget = new WidgetCheckout(transactionData);
         
-        // También limpiar el carrito inmediatamente
-        cart = [];
-        updateCartUI();
-        localStorage.removeItem('cart');
-        closeCheckout();
-        closeCart();
-        
-        // Redirigir a página de gracias
-        console.log('🔄 Redirigiendo a página de gracias...');
-        window.location.href = `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}&wompi=success&reference=${wompiReference}`;
-        
-    } else {
-        console.log('❌ Pago fallido en Wompi');
-        handleFailedPayment(result);
-    }
-});
+        // 10. 🔥 CALLBACK SIMPLIFICADO - Solo manejar fallos, el éxito lo maneja la redirección
+        widget.open((result) => {
+            console.log('🔔 Resultado de Wompi en callback:', result);
+            
+            // Solo restaurar botón, no hacer nada más porque el éxito se maneja por redirección
+            wompiButton.innerHTML = originalText;
+            wompiButton.disabled = false;
+
+            // Solo manejar errores explícitos
+            if (result.transaction && result.transaction.status !== 'APPROVED') {
+                console.log('❌ Pago fallido en callback de Wompi');
+                handleFailedPayment(result);
+                
+                // Limpiar localStorage en caso de fallo
+                localStorage.removeItem('pendingWompiOrder');
+                localStorage.removeItem('lastWompiReference');
+            }
+            // Si es APPROVED, no hacemos nada porque Wompi redirige automáticamente
+        });
         
     } catch (error) {
         console.error('❌ Error iniciando pago Wompi:', error);
@@ -3086,6 +3077,10 @@ async function initiateWompiPayment() {
             wompiButton.innerHTML = '🛒 Pagar con Wompi';
             wompiButton.disabled = false;
         }
+        
+        // Limpiar localStorage en caso de error
+        localStorage.removeItem('pendingWompiOrder');
+        localStorage.removeItem('lastWompiReference');
         
         alert('Error al iniciar el pago: ' + error.message);
     }
@@ -3944,20 +3939,23 @@ function submitOrderToSheets(orderData) {
             wompiButton.addEventListener('click', initiateWompiPayment);
             console.log('✅ Integración Wompi configurada');
         }
-         // 🔧 FUNCIÓN MEJORADA PARA OBTENER LA URL BASE CORRECTA
+         
+// 🔧 FUNCIÓN PARA OBTENER LA URL BASE CORRECTA
 function getBaseUrl() {
     const currentUrl = window.location.href;
     
     // Si estamos en GitHub Pages
     if (currentUrl.includes('github.io')) {
         const urlParts = currentUrl.split('/');
-        // La URL debería ser: https://usuario.github.io/repositorio/
-        if (urlParts.length > 4) {
-            return urlParts[0] + '//' + urlParts[2] + '/' + urlParts[3];
+        // La estructura es: https://usuario.github.io/repositorio/
+        if (urlParts.length >= 5) {
+            const user = urlParts[3];
+            const repo = urlParts[4];
+            return `${urlParts[0]}//${urlParts[2]}/${user}/${repo}`;
         }
     }
     
-    // Para desarrollo local o otros hosting
+    // Para desarrollo local
     return window.location.origin;
 }
         // 🔧 FUNCIÓN PARA MANEJAR PAGO EXITOSO DE WOMPI
@@ -4251,6 +4249,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
