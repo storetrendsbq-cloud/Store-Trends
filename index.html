@@ -3944,18 +3944,22 @@ function submitOrderToSheets(orderData) {
             wompiButton.addEventListener('click', initiateWompiPayment);
             console.log('✅ Integración Wompi configurada');
         }
-         // 🔧 FUNCIÓN PARA OBTENER LA URL BASE CORRECTA
+         // 🔧 FUNCIÓN MEJORADA PARA OBTENER LA URL BASE CORRECTA
 function getBaseUrl() {
-    // Si estás en GitHub Pages, ajusta la ruta
-    if (window.location.hostname.includes('github.io')) {
-        const pathSegments = window.location.pathname.split('/').filter(segment => segment);
-        if (pathSegments.length > 1) {
-            // Tiene estructura: /usuario/repositorio
-            return window.location.origin + '/' + pathSegments[0] + '/' + pathSegments[1];
+    const currentUrl = window.location.href;
+    
+    // Si estamos en GitHub Pages
+    if (currentUrl.includes('github.io')) {
+        const urlParts = currentUrl.split('/');
+        // La URL debería ser: https://usuario.github.io/repositorio/
+        if (urlParts.length > 4) {
+            return urlParts[0] + '//' + urlParts[2] + '/' + urlParts[3];
         }
     }
+    
+    // Para desarrollo local o otros hosting
     return window.location.origin;
-}   
+}
         // 🔧 FUNCIÓN PARA MANEJAR PAGO EXITOSO DE WOMPI
 async function handleSuccessfulPayment(orderData, wompiReference, result) {
     try {
@@ -4247,6 +4251,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
