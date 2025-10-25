@@ -1512,6 +1512,19 @@
                             <input type="tel" id="customerPhone" name="customerPhone" required>
                         </div>
                         <div class="form-group">
+    <label for="customerAddress">Dirección de Envío *</label>
+    <input type="text" id="customerAddress" name="customerAddress" required 
+           placeholder="Ej: Calle 123 # 45-67, Barrio...">
+</div>
+
+<div class="form-group">
+    <label for="customerCity">Ciudad/Municipio *</label>
+    <select id="customerCity" name="customerCity" required>
+        <option value="">Selecciona tu ciudad</option>
+        <!-- Tus opciones de ciudades aquí -->
+    </select>
+</div>
+                        <div class="form-group">
     <label for="customerCity">Ciudad *</label>
     <select id="customerCity" name="customerCity" required>
         <option value="">Selecciona tu municipio/ciudad</option>
@@ -2960,7 +2973,7 @@
             });
         }
 
-      // 🔥 VERSIÓN CORREGIDA PARA ERROR 422 - Iniciar pago con Wompi
+      // 🔥 VERSIÓN CORREGIDA - Iniciar pago con Wompi
 async function initiateWompiPayment() {
     try {
         console.log('🔄 Iniciando pago Wompi...');
@@ -2988,7 +3001,7 @@ async function initiateWompiPayment() {
                 document.head.appendChild(script);
             });
             // Esperar a que WidgetCheckout esté disponible
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         console.log('✅ Widget de Wompi cargado correctamente');
@@ -3001,10 +3014,10 @@ async function initiateWompiPayment() {
         const cleanPhone = customerPhone.replace(/\D/g, ''); // Solo números
         const phoneNumber = cleanPhone.startsWith('57') ? cleanPhone.substring(2) : cleanPhone;
         
-        // 6. CONFIGURACIÓN CORREGIDA - Según documentación oficial de Wompi
+        // 6. CONFIGURACIÓN SIMPLIFICADA Y CORRECTA - Sin shipping address problemático
         const transactionData = {
             currency: WOMPI_CURRENCY,
-            amountInCents: Math.round(orderData.metadata.total * 100).toString(), // Asegurar que sea string
+            amountInCents: Math.round(orderData.metadata.total * 100).toString(),
             reference: wompiReference,
             publicKey: WOMPI_PUBLIC_KEY,
             redirectUrl: `${window.location.origin}/gracias.html?order=${orderData.metadata.orderNumber}`,
@@ -3015,39 +3028,15 @@ async function initiateWompiPayment() {
                 phoneNumberPrefix: '+57',
                 legalId: '1234567890',
                 legalIdType: 'CC'
-            },
-            shippingAddress: {
-                addressLine1: orderData.customer.address || 'Calle 123',
-                city: orderData.customer.city || 'Bogotá',
-                phoneNumber: phoneNumber,
-                phoneNumberPrefix: '+57',
-                region: 'Bogotá',
-                country: 'CO'
             }
+            // 🔥 ELIMINAMOS shippingAddress temporalmente para evitar errores
         };
 
         console.log('📦 Datos de transacción Wompi:', transactionData);
 
-        // 7. VERIFICAR que todos los campos requeridos estén presentes
-        const requiredFields = [
-            'currency', 'amountInCents', 'reference', 'publicKey', 
-            'redirectUrl', 'customer.email', 'customer.fullName',
-            'customer.phoneNumber', 'customer.phoneNumberPrefix'
-        ];
-
-        for (const field of requiredFields) {
-            const value = field.split('.').reduce((obj, key) => obj && obj[key], transactionData);
-            if (!value) {
-                console.error(`❌ Campo requerido faltante: ${field}`);
-                throw new Error(`Campo requerido faltante: ${field}`);
-            }
-        }
-
-        // 8. Abrir checkout de Wompi
+        // 7. Abrir checkout de Wompi - VERSIÓN SIMPLIFICADA
         console.log('🚀 Abriendo widget de Wompi...');
         const widget = new WidgetCheckout(transactionData);
-        
-        // Opcional: manejar el resultado
         widget.open((result) => {
             console.log('🔔 Resultado de Wompi:', result);
             if (result.transaction && result.transaction.status === 'APPROVED') {
@@ -3058,8 +3047,15 @@ async function initiateWompiPayment() {
                 localStorage.removeItem('cart');
                 closeCheckout();
                 closeCart();
+                
+                // Opcional: Redirigir a página de gracias
+                setTimeout(() => {
+                    window.location.href = `${window.location.origin}/gracias.html?order=${orderData.metadata.orderNumber}`;
+                }, 2000);
             } else if (result.transaction) {
                 alert(`❌ El pago no pudo ser procesado. Estado: ${result.transaction.status}`);
+            } else {
+                alert('❌ El pago fue cancelado o hubo un error.');
             }
         });
         
@@ -4123,6 +4119,7 @@ async function initiateWompiPayment() {
     </script>
 </body>
 </html>
+
 
 
 
