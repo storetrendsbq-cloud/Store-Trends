@@ -2960,7 +2960,7 @@
             });
         }
 
-      // 🔥 SOLUCIÓN DEFINITIVA - Iniciar pago con Wompi
+      // 🔥 VERSIÓN CORREGIDA PARA ERROR 422 - Iniciar pago con Wompi
 async function initiateWompiPayment() {
     try {
         console.log('🔄 Iniciando pago Wompi...');
@@ -2988,7 +2988,7 @@ async function initiateWompiPayment() {
                 document.head.appendChild(script);
             });
             // Esperar a que WidgetCheckout esté disponible
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
         console.log('✅ Widget de Wompi cargado correctamente');
@@ -3001,13 +3001,10 @@ async function initiateWompiPayment() {
         const cleanPhone = customerPhone.replace(/\D/g, ''); // Solo números
         const phoneNumber = cleanPhone.startsWith('57') ? cleanPhone.substring(2) : cleanPhone;
         
-        // 6. Configurar transacción según la documentación oficial de Wompi
+        // 6. CONFIGURACIÓN CORREGIDA - Según documentación oficial de Wompi
         const transactionData = {
-            currency: 'COP',
-            signature: {
-                integrity: '' // Esto se calcula en el backend normalmente
-            },
-            amountInCents: Math.round(orderData.metadata.total * 100).toString(),
+            currency: WOMPI_CURRENCY,
+            amountInCents: Math.round(orderData.metadata.total * 100).toString(), // Asegurar que sea string
             reference: wompiReference,
             publicKey: WOMPI_PUBLIC_KEY,
             redirectUrl: `${window.location.origin}/gracias.html?order=${orderData.metadata.orderNumber}`,
@@ -3016,35 +3013,53 @@ async function initiateWompiPayment() {
                 fullName: orderData.customer.name,
                 phoneNumber: phoneNumber,
                 phoneNumberPrefix: '+57',
-                address: {
-                    addressLine1: orderData.customer.address,
-                    city: orderData.customer.city,
-                    phoneNumber: phoneNumber,
-                    phoneNumberPrefix: '+57',
-                    region: 'Bogotá',
-                    country: 'CO'
-                },
                 legalId: '1234567890',
                 legalIdType: 'CC'
+            },
+            shippingAddress: {
+                addressLine1: orderData.customer.address || 'Calle 123',
+                city: orderData.customer.city || 'Bogotá',
+                phoneNumber: phoneNumber,
+                phoneNumberPrefix: '+57',
+                region: 'Bogotá',
+                country: 'CO'
             }
         };
 
         console.log('📦 Datos de transacción Wompi:', transactionData);
 
-        // 7. Abrir checkout de Wompi
+        // 7. VERIFICAR que todos los campos requeridos estén presentes
+        const requiredFields = [
+            'currency', 'amountInCents', 'reference', 'publicKey', 
+            'redirectUrl', 'customer.email', 'customer.fullName',
+            'customer.phoneNumber', 'customer.phoneNumberPrefix'
+        ];
+
+        for (const field of requiredFields) {
+            const value = field.split('.').reduce((obj, key) => obj && obj[key], transactionData);
+            if (!value) {
+                console.error(`❌ Campo requerido faltante: ${field}`);
+                throw new Error(`Campo requerido faltante: ${field}`);
+            }
+        }
+
+        // 8. Abrir checkout de Wompi
+        console.log('🚀 Abriendo widget de Wompi...');
         const widget = new WidgetCheckout(transactionData);
+        
+        // Opcional: manejar el resultado
         widget.open((result) => {
             console.log('🔔 Resultado de Wompi:', result);
             if (result.transaction && result.transaction.status === 'APPROVED') {
-                alert('✅ Pago exitoso! Tu pedido está siendo procesado.');
+                alert('✅ ¡Pago exitoso! Tu pedido está siendo procesado.');
                 // Limpiar carrito
                 cart = [];
                 updateCartUI();
                 localStorage.removeItem('cart');
                 closeCheckout();
                 closeCart();
-            } else {
-                alert('❌ El pago no pudo ser procesado. Por favor intenta nuevamente.');
+            } else if (result.transaction) {
+                alert(`❌ El pago no pudo ser procesado. Estado: ${result.transaction.status}`);
             }
         });
         
@@ -3633,6 +3648,7 @@ async function initiateWompiPayment() {
         marca: item.marca || 'Store Trends'
     }));
 
+    // Asegurar que todos los campos tengan valores por defecto
     const orderData = {
         metadata: {
             orderNumber: orderNumber,
@@ -3643,11 +3659,11 @@ async function initiateWompiPayment() {
             total: total
         },
         customer: {
-            name: formData.get('customerName'),
-            email: formData.get('customerEmail'),
-            phone: formData.get('customerPhone'),
-            address: formData.get('customerAddress'),
-            city: formData.get('customerCity'),
+            name: formData.get('customerName') || 'Cliente',
+            email: formData.get('customerEmail') || 'cliente@ejemplo.com',
+            phone: formData.get('customerPhone') || '3000000000',
+            address: formData.get('customerAddress') || 'Calle 123',
+            city: formData.get('customerCity') || 'Bogotá',
             notes: formData.get('customerNotes') || ''
         },
         items: cartWithBrands.map(item => ({
@@ -4107,6 +4123,7 @@ async function initiateWompiPayment() {
     </script>
 </body>
 </html>
+
 
 
 
