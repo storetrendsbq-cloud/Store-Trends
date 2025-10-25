@@ -92,6 +92,20 @@
             background: #25D366;
             color: white;
         }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #d4af37;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -102,16 +116,28 @@
         
         <div class="order-info">
             <p><strong>Número de pedido:</strong> <span id="orderNumber">Cargando...</span></p>
-            <p><strong>Estado:</strong> <span style="color: #4CAF50;">✅ Confirmado</span></p>
+            <p><strong>Referencia Wompi:</strong> <span id="wompiReference">Cargando...</span></p>
+            <p><strong>Estado:</strong> <span id="status">Procesando...</span></p>
         </div>
         
-        <p>Hemos recibido tu pago y estamos preparando tu pedido.</p>
-        <p>Recibirás un correo de confirmación con los detalles de envío.</p>
+        <div id="processingMessage">
+            <p>🔄 Registrando tu pedido en nuestro sistema...</p>
+            <div class="loading" style="margin: 10px auto;"></div>
+        </div>
+
+        <div id="successMessage" style="display: none;">
+            <p>✅ Tu pedido ha sido registrado correctamente.</p>
+            <p>Recibirás un correo de confirmación con los detalles de envío.</p>
+        </div>
+
+        <div id="errorMessage" style="display: none;">
+            <p>❌ Hubo un error registrando tu pedido automáticamente.</p>
+            <p>Por favor contáctanos para confirmar los detalles.</p>
+        </div>
         
         <div style="margin-top: 30px;">
             <a href="index.html" class="btn">🏠 Volver a la tienda</a>
-            <a href="https://wa.me/573054813630?text=Hola%20Store%20Trends,%20acabo%20de%20realizar%20un%20pedido%20y%20quiero%20confirmar%20los%20detalles." 
-               class="btn whatsapp-btn" target="_blank">💬 Confirmar por WhatsApp</a>
+            <a href="#" id="whatsappBtn" class="btn whatsapp-btn" target="_blank">💬 Confirmar por WhatsApp</a>
         </div>
         
         <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7;">
@@ -120,23 +146,113 @@
     </div>
 
     <script>
-        // Obtener el número de pedido de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const orderNumber = urlParams.get('order');
-        
-        if (orderNumber) {
-            document.getElementById('orderNumber').textContent = orderNumber;
+        // ===== FUNCIÓN PARA ENVIAR A GOOGLE SHEETS =====
+        function submitOrderToSheets(orderData) {
+            return new Promise((resolve) => {
+                console.log('📤 Enviando pedido a Google Sheets desde gracias.html...');
+                
+                const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
+                const callbackName = 'sheetsCallback_' + Date.now();
+                const script = document.createElement('script');
+                
+                const url = new URL(scriptURL);
+                url.searchParams.append('callback', callbackName);
+                url.searchParams.append('orderData', JSON.stringify(orderData));
+                
+                script.src = url.toString();
+                
+                window[callbackName] = function(response) {
+                    console.log('📨 Respuesta de Google Sheets:', response);
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                    resolve(response);
+                };
+                
+                script.onerror = function() {
+                    console.log('❌ Error cargando script JSONP');
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                    resolve({ success: false, message: 'Error de conexión' });
+                };
+                
+                document.head.appendChild(script);
+                
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        if (script.parentNode) {
+                            document.head.removeChild(script);
+                        }
+                        resolve({ success: false, message: 'Timeout' });
+                    }
+                }, 15000);
+            });
+        }
+
+        // ===== PROCESAR PEDIDO CUANDO LA PÁGINA CARGA =====
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order');
+            const wompiRef = urlParams.get('reference');
             
-            // Opcional: Guardar en localStorage para seguimiento
-            localStorage.setItem('lastOrder', orderNumber);
-        } else {
-            document.getElementById('orderNumber').textContent = 'No disponible';
-        }
-        
-        // Mostrar mensaje si viene de Wompi
-        if (document.referrer.includes('wompi.co')) {
-            console.log('Redirección exitosa desde Wompi');
-        }
+            // Actualizar la UI con la información del pedido
+            document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
+            document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
+            
+            // Configurar WhatsApp button
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, acabo de realizar un pedido (${orderNumber}) y quiero confirmar los detalles.`;
+            whatsappBtn.href = whatsappUrl;
+
+            // Intentar obtener y procesar el pedido pendiente
+            try {
+                const pendingOrder = localStorage.getItem('pendingWompiOrder');
+                
+                if (pendingOrder) {
+                    console.log('📦 Pedido pendiente encontrado:', pendingOrder);
+                    const orderData = JSON.parse(pendingOrder);
+                    
+                    // Enviar a Google Sheets
+                    const sheetsResult = await submitOrderToSheets(orderData);
+                    
+                    if (sheetsResult.success) {
+                        // ✅ ÉXITO
+                        console.log('✅ Pedido registrado en Google Sheets');
+                        document.getElementById('status').textContent = '✅ Confirmado';
+                        document.getElementById('status').style.color = '#4CAF50';
+                        document.getElementById('processingMessage').style.display = 'none';
+                        document.getElementById('successMessage').style.display = 'block';
+                        
+                        // Limpiar localStorage
+                        localStorage.removeItem('pendingWompiOrder');
+                        localStorage.removeItem('lastWompiReference');
+                        
+                    } else {
+                        throw new Error(sheetsResult.message);
+                    }
+                    
+                } else {
+                    console.log('ℹ️ No hay pedidos pendientes en localStorage');
+                    document.getElementById('status').textContent = '✅ Confirmado (pendiente de registro)';
+                    document.getElementById('processingMessage').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('❌ Error procesando pedido:', error);
+                document.getElementById('status').textContent = '❌ Error en registro';
+                document.getElementById('status').style.color = '#f44336';
+                document.getElementById('processingMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                
+                // Mostrar mensaje de error con referencia
+                const wompiRef = localStorage.getItem('lastWompiReference');
+                if (wompiRef) {
+                    document.getElementById('errorMessage').innerHTML += 
+                        `<p><strong>Referencia Wompi:</strong> ${wompiRef}</p>`;
+                }
+            }
+        });
     </script>
 </body>
 </html>
