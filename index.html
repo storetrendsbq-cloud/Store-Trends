@@ -2961,7 +2961,7 @@
             });
         }
 
-    // 🔥 VERSIÓN COMPLETAMENTE CORREGIDA - Iniciar pago con Wompi
+    // 🔥 VERSIÓN MEJORADA - Iniciar pago con Wompi
 async function initiateWompiPayment() {
     try {
         console.log('🔄 Iniciando pago Wompi...');
@@ -3007,13 +3007,29 @@ async function initiateWompiPayment() {
         const cleanPhone = customerPhone.replace(/\D/g, '');
         const phoneNumber = cleanPhone.startsWith('57') ? cleanPhone.substring(2) : cleanPhone;
         
-        // 7. Configuración para Wompi
+        // 7. 🔥 GUARDAR DATOS COMPLETOS EN SESSIONSTORAGE (más confiable)
+        const orderDataToSave = {
+            ...orderData,
+            metadata: {
+                ...orderData.metadata,
+                wompiReference: wompiReference,
+                paymentMethod: 'Wompi - Pago en línea',
+                paymentStatus: 'pending',
+                timestamp: Date.now()
+            }
+        };
+
+        // Usar sessionStorage que es más confiable para redirecciones
+        sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
+        console.log('💾 Datos guardados en sessionStorage:', orderDataToSave);
+
+        // 8. Configuración para Wompi con URL más simple
         const transactionData = {
             currency: WOMPI_CURRENCY,
             amountInCents: Math.round(orderData.metadata.total * 100).toString(),
             reference: wompiReference,
             publicKey: WOMPI_PUBLIC_KEY,
-            redirectUrl: `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}&wompi=success&reference=${wompiReference}`,
+            redirectUrl: `${getBaseUrl()}/gracias.html?wompi_success=true&order=${orderData.metadata.orderNumber}&ref=${wompiReference}`,
             customer: {
                 email: orderData.customer.email,
                 fullName: orderData.customer.name,
@@ -3026,61 +3042,43 @@ async function initiateWompiPayment() {
 
         console.log('📦 Datos de transacción Wompi:', transactionData);
 
-        // 8. 🔥 GUARDAR EN LOCALSTORAGE ANTES DE ABRIR WOMPI
-        console.log('💾 Guardando pedido en localStorage ANTES de abrir Wompi...');
-        
-        const orderDataToSave = {
-            ...orderData,
-            metadata: {
-                ...orderData.metadata,
-                wompiReference: wompiReference,
-                paymentMethod: 'Wompi - Pago en línea',
-                paymentStatus: 'pending'
-            }
-        };
-
-        localStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
-        localStorage.setItem('lastWompiReference', wompiReference);
-        
-        console.log('✅ Pedido guardado en localStorage:', orderDataToSave);
-
         // 9. Abrir checkout de Wompi
         console.log('🚀 Abriendo widget de Wompi...');
         const widget = new WidgetCheckout(transactionData);
         
-        // 10. 🔥 CALLBACK SIMPLIFICADO - Solo manejar fallos, el éxito lo maneja la redirección
         widget.open((result) => {
             console.log('🔔 Resultado de Wompi en callback:', result);
             
-            // Solo restaurar botón, no hacer nada más porque el éxito se maneja por redirección
+            // Restaurar botón
             wompiButton.innerHTML = originalText;
             wompiButton.disabled = false;
 
-            // Solo manejar errores explícitos
             if (result.transaction && result.transaction.status !== 'APPROVED') {
                 console.log('❌ Pago fallido en callback de Wompi');
-                handleFailedPayment(result);
+                // Limpiar sessionStorage en caso de fallo
+                sessionStorage.removeItem('pendingWompiOrder');
                 
-                // Limpiar localStorage en caso de fallo
-                localStorage.removeItem('pendingWompiOrder');
-                localStorage.removeItem('lastWompiReference');
+                let errorMessage = 'El pago no pudo ser procesado. ';
+                if (result.transaction.status === 'DECLINED') {
+                    errorMessage = '❌ Tu entidad financiera declinó la transacción.';
+                } else if (result.transaction.status === 'VOIDED') {
+                    errorMessage = '❌ La transacción fue cancelada.';
+                }
+                alert(errorMessage);
             }
-            // Si es APPROVED, no hacemos nada porque Wompi redirige automáticamente
+            // Si es APPROVED, Wompi redirigirá automáticamente
         });
         
     } catch (error) {
         console.error('❌ Error iniciando pago Wompi:', error);
         
-        // Restaurar botón en caso de error
+        // Restaurar botón y limpiar sessionStorage en caso de error
         const wompiButton = document.getElementById('wompiButton');
         if (wompiButton) {
             wompiButton.innerHTML = '🛒 Pagar con Wompi';
             wompiButton.disabled = false;
         }
-        
-        // Limpiar localStorage en caso de error
-        localStorage.removeItem('pendingWompiOrder');
-        localStorage.removeItem('lastWompiReference');
+        sessionStorage.removeItem('pendingWompiOrder');
         
         alert('Error al iniciar el pago: ' + error.message);
     }
@@ -4249,6 +4247,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
