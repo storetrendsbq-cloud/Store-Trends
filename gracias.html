@@ -358,44 +358,49 @@
             }
         }
 
-        async function processApprovedOrder(orderNumber, wompiRef) {
-            try {
-                console.log('✅ Procesando pedido APROBADO');
-                
-                let orderData = null;
-                const pendingOrder = sessionStorage.getItem('pendingWompiOrder');
-                
-                if (pendingOrder) {
-                    orderData = JSON.parse(pendingOrder);
-                    console.log('✅ Datos encontrados en sessionStorage');
-                } else {
-                    orderData = createBasicOrderData(orderNumber, wompiRef, 'approved');
-                    console.log('ℹ️ Datos creados desde URL');
-                }
-
-                // Actualizar metadata
-                orderData.metadata.paymentStatus = 'approved';
-                orderData.metadata.wompiReference = wompiRef;
-
-                console.log('📦 Enviando pedido APROBADO a Google Sheets');
-                
-                // Enviar a Google Sheets
-                const sheetsResult = await submitOrderToSheets(orderData);
-                
-                if (sheetsResult.success) {
-                    console.log('✅ Pedido registrado en Google Sheets');
-                    showSuccess();
-                    // Limpiar sessionStorage
-                    sessionStorage.removeItem('pendingWompiOrder');
-                } else {
-                    throw new Error(sheetsResult.message || 'Error en Google Sheets');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error procesando pedido aprobado:', error);
-                showError('Pedido aprobado pero error registrando: ' + error.message);
-            }
+       async function processApprovedOrder(orderNumber, wompiRef) {
+    try {
+        console.log('✅ Procesando pedido APROBADO');
+        
+        let orderData = null;
+        const pendingOrder = sessionStorage.getItem('pendingWompiOrder');
+        
+        if (pendingOrder) {
+            orderData = JSON.parse(pendingOrder);
+            console.log('✅ Datos encontrados en sessionStorage');
+        } else {
+            console.log('ℹ️ No hay datos en sessionStorage, creando datos básicos');
+            orderData = createBasicOrderData(orderNumber, wompiRef, 'approved');
         }
+
+        // Actualizar metadata
+        orderData.metadata.paymentStatus = 'approved';
+        orderData.metadata.wompiReference = wompiRef;
+
+        console.log('📦 Enviando pedido APROBADO a Google Sheets');
+        
+        // Enviar a Google Sheets
+        const sheetsResult = await submitOrderToSheets(orderData);
+        
+        if (sheetsResult && sheetsResult.success) {
+            console.log('✅ Pedido registrado en Google Sheets');
+            showSuccess();
+            // Limpiar sessionStorage
+            sessionStorage.removeItem('pendingWompiOrder');
+        } else {
+            const errorMsg = sheetsResult ? sheetsResult.message : 'Sin respuesta';
+            console.error('❌ Error de Google Sheets:', errorMsg);
+            throw new Error(errorMsg);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error procesando pedido aprobado:', error);
+        showSuccessWithWarning('Pedido aprobado pero no se pudo registrar automáticamente. Nos contactaremos contigo.');
+        
+        // Limpiar sessionStorage en caso de error
+        sessionStorage.removeItem('pendingWompiOrder');
+    }
+}
 
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', async function() {
