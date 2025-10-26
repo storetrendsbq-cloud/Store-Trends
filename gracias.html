@@ -271,6 +271,18 @@
             document.getElementById('errorMessage').classList.add('hidden');
             document.getElementById('declinedMessage').classList.add('hidden');
         }
+        function showSuccessWithWarning(message) {
+    hideAllMessages();
+    document.getElementById('status').textContent = '⚠️ Confirmado con observaciones';
+    document.getElementById('status').style.color = '#FF9800';
+    
+    const successDiv = document.getElementById('successMessage');
+    successDiv.classList.remove('hidden');
+    successDiv.innerHTML = `
+        <p>⚠️ ${message}</p>
+        <p>Nos contactaremos contigo para confirmar los detalles.</p>
+    `;
+}
 
         function getStatusText(status) {
             const statusMap = {
@@ -317,50 +329,58 @@
             };
         }
 
-        // ===== VERIFICAR Y PROCESAR PEDIDO =====
         async function verifyAndProcessOrder(orderNumber, wompiRef, transactionId) {
-            try {
-                console.log('🔍 Verificando estado del pedido...');
-                
-                let transactionStatus = 'UNKNOWN';
-                
-                // 1. Primero intentar detectar por URL
-                transactionStatus = detectStatusFromURL();
-                console.log('🔍 Estado detectado por URL:', transactionStatus);
-                
-                // 2. Si no está claro por URL, verificar sessionStorage
-                if (transactionStatus === 'UNKNOWN') {
-                    const pendingOrder = sessionStorage.getItem('pendingWompiOrder');
-                    if (pendingOrder) {
-                        const orderData = JSON.parse(pendingOrder);
-                        // Si tenemos datos en sessionStorage, asumimos que fue exitoso
-                        transactionStatus = 'APPROVED';
-                        console.log('✅ Estado inferido de sessionStorage:', transactionStatus);
-                    }
-                }
-                
-                console.log('🎯 Estado final de transacción:', transactionStatus);
-                
-                // Procesar según el estado
-                if (transactionStatus === 'APPROVED') {
-                    await processApprovedOrder(orderNumber, wompiRef);
-                } else if (transactionStatus === 'DECLINED') {
-                    showDeclined('DECLINED', wompiRef);
-                    // Limpiar sessionStorage para pedidos declinados
-                    sessionStorage.removeItem('pendingWompiOrder');
-                } else {
-                    showUnknown();
-                }
-                
-            } catch (error) {
-                console.error('❌ Error verificando orden:', error);
-                showUnknown();
+    try {
+        console.log('🔍 Verificando estado real del pedido...');
+        
+        let transactionStatus = 'UNKNOWN';
+        
+        // 1. Verificar localStorage para el estado real
+        const lastStatus = localStorage.getItem('lastWompiStatus');
+        const lastTransaction = localStorage.getItem('lastWompiTransaction');
+        
+        if (lastStatus && lastTransaction) {
+            console.log('✅ Estado encontrado en localStorage:', lastStatus);
+            transactionStatus = lastStatus;
+            
+            // Limpiar localStorage después de usar
+            localStorage.removeItem('lastWompiStatus');
+            localStorage.removeItem('lastWompiTransaction');
+        }
+        // 2. Si no hay en localStorage, verificar por URL
+        else if (window.location.search.includes('wompi_success=true')) {
+            console.log('🔍 Estado inferido de URL: APPROVED');
+            transactionStatus = 'APPROVED';
+        }
+        // 3. Verificar sessionStorage como último recurso
+        else {
+            const pendingOrder = sessionStorage.getItem('pendingWompiOrder');
+            if (pendingOrder) {
+                console.log('✅ Estado inferido de sessionStorage: APPROVED');
+                transactionStatus = 'APPROVED';
             }
         }
-
-       async function processApprovedOrder(orderNumber, wompiRef) {
+        
+        console.log('🎯 Estado final de transacción:', transactionStatus);
+        
+        // Procesar según el estado real
+        if (transactionStatus === 'APPROVED') {
+            await processApprovedOrder(orderNumber, wompiRef);
+        } else {
+            console.log('❌ Transacción no aprobada, estado:', transactionStatus);
+            showDeclined(transactionStatus, wompiRef);
+            // Limpiar sessionStorage
+            sessionStorage.removeItem('pendingWompiOrder');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error verificando orden:', error);
+        showUnknown();
+    }
+}
+       async function processApprovedOrder(orderNumber, wompiRef, attempt = 1) {
     try {
-        console.log('✅ Procesando pedido APROBADO');
+        console.log(`✅ Procesando pedido APROBADO (intento ${attempt})`);
         
         let orderData = null;
         const pendingOrder = sessionStorage.getItem('pendingWompiOrder');
@@ -369,7 +389,7 @@
             orderData = JSON.parse(pendingOrder);
             console.log('✅ Datos encontrados en sessionStorage');
         } else {
-            console.log('ℹ️ No hay datos en sessionStorage, creando datos básicos');
+            console.log('ℹ️ Creando datos básicos desde URL');
             orderData = createBasicOrderData(orderNumber, wompiRef, 'approved');
         }
 
@@ -377,7 +397,7 @@
         orderData.metadata.paymentStatus = 'approved';
         orderData.metadata.wompiReference = wompiRef;
 
-        console.log('📦 Enviando pedido APROBADO a Google Sheets');
+        console.log('📦 Enviando pedido APROBADO a Google Sheets...');
         
         // Enviar a Google Sheets
         const sheetsResult = await submitOrderToSheets(orderData);
@@ -388,20 +408,25 @@
             // Limpiar sessionStorage
             sessionStorage.removeItem('pendingWompiOrder');
         } else {
-            const errorMsg = sheetsResult ? sheetsResult.message : 'Sin respuesta';
-            console.error('❌ Error de Google Sheets:', errorMsg);
-            throw new Error(errorMsg);
+            // Reintentar una vez más si falla
+            if (attempt < 2) {
+                console.log('🔄 Reintentando envío a Google Sheets...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                return processApprovedOrder(orderNumber, wompiRef, attempt + 1);
+            } else {
+                const errorMsg = sheetsResult ? sheetsResult.message : 'Error desconocido';
+                throw new Error(errorMsg);
+            }
         }
         
     } catch (error) {
         console.error('❌ Error procesando pedido aprobado:', error);
-        showSuccessWithWarning('Pedido aprobado pero no se pudo registrar automáticamente. Nos contactaremos contigo.');
+        showSuccessWithWarning('Pedido aprobado pero no se pudo registrar automáticamente. Contacta soporte con tu número de pedido: ' + orderNumber);
         
-        // Limpiar sessionStorage en caso de error
+        // Limpiar sessionStorage en caso de error después de reintentos
         sessionStorage.removeItem('pendingWompiOrder');
     }
 }
-
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🔄 Página de gracias cargada');
