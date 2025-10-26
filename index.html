@@ -3009,17 +3009,15 @@ async function initiateWompiPayment() {
         
         // 7. 🔥 GUARDAR DATOS COMPLETOS EN SESSIONSTORAGE (más confiable)
         const orderDataToSave = {
-    ...orderData,
-    metadata: {
-        ...orderData.metadata,
-        wompiReference: wompiReference,
-        paymentMethod: 'Wompi - Pago en línea',
-        paymentStatus: 'pending'
-    }
-};
-
-sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
-console.log('💾 Datos guardados en sessionStorage');
+            ...orderData,
+            metadata: {
+                ...orderData.metadata,
+                wompiReference: wompiReference,
+                paymentMethod: 'Wompi - Pago en línea',
+                paymentStatus: 'pending',
+                timestamp: Date.now()
+            }
+        };
 
         // Usar sessionStorage que es más confiable para redirecciones
         sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
@@ -3049,29 +3047,42 @@ console.log('💾 Datos guardados en sessionStorage');
         const widget = new WidgetCheckout(transactionData);
         
         widget.open((result) => {
-    console.log('🔔 Resultado de Wompi en callback:', result);
-    
-    // Restaurar botón
-    wompiButton.innerHTML = originalText;
-    wompiButton.disabled = false;
-
-    if (result.transaction) {
-        if (result.transaction.status === 'APPROVED') {
-            console.log('✅ Pago APROBADO por Wompi');
-            // Guardar estado en localStorage como respaldo
-            localStorage.setItem('lastWompiStatus', 'APPROVED');
-            localStorage.setItem('lastWompiTransaction', JSON.stringify(result.transaction));
-        } else {
-            console.log('❌ Pago RECHAZADO por Wompi:', result.transaction.status);
-            // Guardar estado de error
-            localStorage.setItem('lastWompiStatus', result.transaction.status);
-            localStorage.setItem('lastWompiTransaction', JSON.stringify(result.transaction));
+            console.log('🔔 Resultado de Wompi en callback:', result);
             
-            // Limpiar sessionStorage para evitar procesamiento
-            sessionStorage.removeItem('pendingWompiOrder');
+            // Restaurar botón
+            wompiButton.innerHTML = originalText;
+            wompiButton.disabled = false;
+
+            if (result.transaction && result.transaction.status !== 'APPROVED') {
+                console.log('❌ Pago fallido en callback de Wompi');
+                // Limpiar sessionStorage en caso de fallo
+                sessionStorage.removeItem('pendingWompiOrder');
+                
+                let errorMessage = 'El pago no pudo ser procesado. ';
+                if (result.transaction.status === 'DECLINED') {
+                    errorMessage = '❌ Tu entidad financiera declinó la transacción.';
+                } else if (result.transaction.status === 'VOIDED') {
+                    errorMessage = '❌ La transacción fue cancelada.';
+                }
+                alert(errorMessage);
+            }
+            // Si es APPROVED, Wompi redirigirá automáticamente
+        });
+        
+    } catch (error) {
+        console.error('❌ Error iniciando pago Wompi:', error);
+        
+        // Restaurar botón y limpiar sessionStorage en caso de error
+        const wompiButton = document.getElementById('wompiButton');
+        if (wompiButton) {
+            wompiButton.innerHTML = '🛒 Pagar con Wompi';
+            wompiButton.disabled = false;
         }
+        sessionStorage.removeItem('pendingWompiOrder');
+        
+        alert('Error al iniciar el pago: ' + error.message);
     }
-});
+}
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -3567,73 +3578,73 @@ console.log('💾 Datos guardados en sessionStorage');
             document.getElementById('checkoutTotal').textContent = formatPriceFull(total);
         }
 
-                // ===== GOOGLE SHEETS INTEGRATION - SOLUCIÓN JSONP =====
-// ===== FUNCIÓN MEJORADA PARA GOOGLE SHEETS =====
+        // ===== GOOGLE SHEETS INTEGRATION - SOLUCIÓN JSONP =====
+        // ===== GOOGLE SHEETS INTEGRATION - SOLUCIÓN JSONP =====
 function submitOrderToSheets(orderData) {
     return new Promise((resolve) => {
-        console.log('📤 Intentando enviar a Google Sheets...');
+        console.log('🔍 DEBUG submitOrderToSheets: INICIANDO...');
+        console.log('🔍 DEBUG - Datos a enviar:', orderData);
         
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
         
-        // Verificar conectividad primero
-        fetch(scriptURL, { method: 'HEAD', mode: 'no-cors' })
-            .then(() => {
-                console.log('✅ Google Apps Script está accesible');
-                proceedWithJSONP();
-            })
-            .catch(() => {
-                console.log('❌ Google Apps Script no está accesible');
-                resolve({ success: false, message: 'Servicio no disponible' });
+        console.log('📤 Enviando pedido a Google Sheets via JSONP...', orderData);
+        
+        // Crear un script tag para JSONP (evita CORS)
+        const callbackName = 'sheetsCallback_' + Date.now();
+        const script = document.createElement('script');
+        
+        // Configurar la URL con parámetros
+        const url = new URL(scriptURL);
+        url.searchParams.append('callback', callbackName);
+        url.searchParams.append('orderData', JSON.stringify(orderData));
+        
+        script.src = url.toString();
+        console.log('🔍 DEBUG - URL de Google Sheets:', url.toString());
+        
+        // Crear función de callback global
+        window[callbackName] = function(response) {
+            console.log('📨 Respuesta JSONP de Sheets:', response);
+            
+            // Limpiar
+            delete window[callbackName];
+            document.head.removeChild(script);
+            
+            resolve(response);
+        };
+        
+        // Manejar errores
+        script.onerror = function() {
+            console.log('❌ Error cargando script JSONP');
+            delete window[callbackName];
+            document.head.removeChild(script);
+            
+            resolve({ 
+                success: false, 
+                message: 'Error de conexión JSONP' 
             });
-
-        function proceedWithJSONP() {
-            const callbackName = 'sheetsCallback_' + Date.now();
-            const script = document.createElement('script');
-            
-            const url = new URL(scriptURL);
-            url.searchParams.append('callback', callbackName);
-            url.searchParams.append('orderData', JSON.stringify(orderData));
-            
-            script.src = url.toString();
-            
-            const timeoutId = setTimeout(() => {
-                if (window[callbackName]) {
-                    delete window[callbackName];
-                }
-                if (script.parentNode) {
-                    document.head.removeChild(script);
-                }
-                console.log('⏰ Timeout en Google Sheets después de 30 segundos');
-                resolve({ success: false, message: 'Timeout' });
-            }, 30000); // 30 segundos
-            
-            window[callbackName] = function(response) {
-                clearTimeout(timeoutId);
-                console.log('📨 Respuesta de Google Sheets:', response);
-                
+        };
+        
+        // Agregar script al documento
+        document.head.appendChild(script);
+        console.log('🔍 DEBUG - Script agregado al DOM');
+        
+        // Timeout de seguridad
+        setTimeout(() => {
+            if (window[callbackName]) {
+                console.log('⏰ Timeout JSONP');
                 delete window[callbackName];
                 if (script.parentNode) {
                     document.head.removeChild(script);
                 }
-                
-                resolve(response);
-            };
-            
-            script.onerror = function() {
-                clearTimeout(timeoutId);
-                console.log('❌ Error cargando script JSONP');
-                delete window[callbackName];
-                if (script.parentNode) {
-                    document.head.removeChild(script);
-                }
-                resolve({ success: false, message: 'Error de conexión' });
-            };
-            
-            document.head.appendChild(script);
-            console.log('✅ Script de Google Sheets cargado');
-        }
+                resolve({ 
+                    success: false, 
+                    message: 'Timeout en conexión' 
+                });
+            }
+        }, 15000);
     });
 }
+
         function generateOrderData(formData) {
     const orderNumber = 'STBQ-' + Date.now();
     const orderDate = new Date().toLocaleString('es-CO', {
@@ -4236,9 +4247,6 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
-
-
-
 
 
 
