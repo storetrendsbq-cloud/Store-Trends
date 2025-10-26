@@ -3047,27 +3047,31 @@ async function initiateWompiPayment() {
         const widget = new WidgetCheckout(transactionData);
         
         widget.open((result) => {
-            console.log('🔔 Resultado de Wompi en callback:', result);
-            
-            // Restaurar botón
-            wompiButton.innerHTML = originalText;
-            wompiButton.disabled = false;
+    console.log('🔔 Resultado de Wompi en callback:', result);
+    
+    // Restaurar botón
+    wompiButton.innerHTML = originalText;
+    wompiButton.disabled = false;
 
-            if (result.transaction && result.transaction.status !== 'APPROVED') {
-                console.log('❌ Pago fallido en callback de Wompi');
-                // Limpiar sessionStorage en caso de fallo
-                sessionStorage.removeItem('pendingWompiOrder');
-                
-                let errorMessage = 'El pago no pudo ser procesado. ';
-                if (result.transaction.status === 'DECLINED') {
-                    errorMessage = '❌ Tu entidad financiera declinó la transacción.';
-                } else if (result.transaction.status === 'VOIDED') {
-                    errorMessage = '❌ La transacción fue cancelada.';
-                }
-                alert(errorMessage);
-            }
-            // Si es APPROVED, Wompi redirigirá automáticamente
-        });
+    if (result.transaction && result.transaction.status !== 'APPROVED') {
+        console.log('❌ Pago fallido en callback de Wompi:', result.transaction.status);
+        
+        // Limpiar sessionStorage inmediatamente para transacciones fallidas
+        sessionStorage.removeItem('pendingWompiOrder');
+        
+        let errorMessage = 'El pago no pudo ser procesado. ';
+        if (result.transaction.status === 'DECLINED') {
+            errorMessage = '❌ Tu entidad financiera declinó la transacción.';
+        } else if (result.transaction.status === 'VOIDED') {
+            errorMessage = '❌ La transacción fue cancelada.';
+        } else if (result.transaction.status === 'ERROR') {
+            errorMessage = '❌ Ocurrió un error durante la transacción.';
+        }
+        
+        alert(errorMessage + '\n\nPor favor intenta con otro método de pago.');
+    }
+    // Si es APPROVED, Wompi redirigirá automáticamente a gracias.html
+});
         
     } catch (error) {
         console.error('❌ Error iniciando pago Wompi:', error);
@@ -4247,6 +4251,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
