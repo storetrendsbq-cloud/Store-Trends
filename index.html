@@ -3009,15 +3009,17 @@ async function initiateWompiPayment() {
         
         // 7. 🔥 GUARDAR DATOS COMPLETOS EN SESSIONSTORAGE (más confiable)
         const orderDataToSave = {
-            ...orderData,
-            metadata: {
-                ...orderData.metadata,
-                wompiReference: wompiReference,
-                paymentMethod: 'Wompi - Pago en línea',
-                paymentStatus: 'pending',
-                timestamp: Date.now()
-            }
-        };
+    ...orderData,
+    metadata: {
+        ...orderData.metadata,
+        wompiReference: wompiReference,
+        paymentMethod: 'Wompi - Pago en línea',
+        paymentStatus: 'pending'
+    }
+};
+
+sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
+console.log('💾 Datos guardados en sessionStorage');
 
         // Usar sessionStorage que es más confiable para redirecciones
         sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
@@ -4251,6 +4253,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
