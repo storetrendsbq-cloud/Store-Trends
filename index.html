@@ -3058,34 +3058,20 @@ console.log('💾 Datos guardados en sessionStorage');
     if (result.transaction) {
         if (result.transaction.status === 'APPROVED') {
             console.log('✅ Pago APROBADO por Wompi');
-            // Mantener sessionStorage para procesar en gracias.html
+            // Guardar estado en localStorage como respaldo
+            localStorage.setItem('lastWompiStatus', 'APPROVED');
+            localStorage.setItem('lastWompiTransaction', JSON.stringify(result.transaction));
         } else {
             console.log('❌ Pago RECHAZADO por Wompi:', result.transaction.status);
-            // 🔥 LIMPIAR sessionStorage y redirigir a página de error
-            sessionStorage.removeItem('pendingWompiOrder');
+            // Guardar estado de error
+            localStorage.setItem('lastWompiStatus', result.transaction.status);
+            localStorage.setItem('lastWompiTransaction', JSON.stringify(result.transaction));
             
-            // Redirigir a página de error
-            window.location.href = `${getBaseUrl()}/error.html?order=${orderData.metadata.orderNumber}&status=${result.transaction.status}`;
-            return; // No continuar
+            // Limpiar sessionStorage para evitar procesamiento
+            sessionStorage.removeItem('pendingWompiOrder');
         }
     }
-    
-    // Si es APPROVED o no hay transaction (redirección automática), Wompi redirigirá automáticamente
-});        
-    } catch (error) {
-        console.error('❌ Error iniciando pago Wompi:', error);
-        
-        // Restaurar botón y limpiar sessionStorage en caso de error
-        const wompiButton = document.getElementById('wompiButton');
-        if (wompiButton) {
-            wompiButton.innerHTML = '🛒 Pagar con Wompi';
-            wompiButton.disabled = false;
-        }
-        sessionStorage.removeItem('pendingWompiOrder');
-        
-        alert('Error al iniciar el pago: ' + error.message);
-    }
-}
+});
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -3581,65 +3567,72 @@ console.log('💾 Datos guardados en sessionStorage');
             document.getElementById('checkoutTotal').textContent = formatPriceFull(total);
         }
 
-        // ===== FUNCIÓN MEJORADA PARA ENVIAR A GOOGLE SHEETS =====
+        // ===== FUNCIÓN MEJORADA PARA GOOGLE SHEETS =====
 function submitOrderToSheets(orderData) {
     return new Promise((resolve) => {
-        console.log('📤 Enviando a Google Sheets:', orderData);
+        console.log('📤 Intentando enviar a Google Sheets...');
         
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
-        const callbackName = 'sheetsCallback_' + Date.now();
         
-        // Crear el script para JSONP
-        const script = document.createElement('script');
-        const url = new URL(scriptURL);
-        url.searchParams.append('callback', callbackName);
-        url.searchParams.append('orderData', JSON.stringify(orderData));
-        
-        script.src = url.toString();
-        
-        // Configurar timeout
-        const timeoutId = setTimeout(() => {
-            if (window[callbackName]) {
+        // Verificar conectividad primero
+        fetch(scriptURL, { method: 'HEAD', mode: 'no-cors' })
+            .then(() => {
+                console.log('✅ Google Apps Script está accesible');
+                proceedWithJSONP();
+            })
+            .catch(() => {
+                console.log('❌ Google Apps Script no está accesible');
+                resolve({ success: false, message: 'Servicio no disponible' });
+            });
+
+        function proceedWithJSONP() {
+            const callbackName = 'sheetsCallback_' + Date.now();
+            const script = document.createElement('script');
+            
+            const url = new URL(scriptURL);
+            url.searchParams.append('callback', callbackName);
+            url.searchParams.append('orderData', JSON.stringify(orderData));
+            
+            script.src = url.toString();
+            
+            const timeoutId = setTimeout(() => {
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                }
+                if (script.parentNode) {
+                    document.head.removeChild(script);
+                }
+                console.log('⏰ Timeout en Google Sheets después de 30 segundos');
+                resolve({ success: false, message: 'Timeout' });
+            }, 30000); // 30 segundos
+            
+            window[callbackName] = function(response) {
+                clearTimeout(timeoutId);
+                console.log('📨 Respuesta de Google Sheets:', response);
+                
                 delete window[callbackName];
-            }
-            if (script.parentNode) {
-                document.head.removeChild(script);
-            }
-            console.log('⏰ Timeout en Google Sheets');
-            resolve({ success: false, message: 'Timeout en conexión' });
-        }, 10000);
-        
-        // Definir el callback global
-        window[callbackName] = function(response) {
-            clearTimeout(timeoutId);
-            console.log('📨 Respuesta Google Sheets:', response);
+                if (script.parentNode) {
+                    document.head.removeChild(script);
+                }
+                
+                resolve(response);
+            };
             
-            // Limpiar
-            delete window[callbackName];
-            if (script.parentNode) {
-                document.head.removeChild(script);
-            }
+            script.onerror = function() {
+                clearTimeout(timeoutId);
+                console.log('❌ Error cargando script JSONP');
+                delete window[callbackName];
+                if (script.parentNode) {
+                    document.head.removeChild(script);
+                }
+                resolve({ success: false, message: 'Error de conexión' });
+            };
             
-            resolve(response);
-        };
-        
-        // Manejar error de carga del script
-        script.onerror = function() {
-            clearTimeout(timeoutId);
-            console.log('❌ Error cargando script JSONP');
-            delete window[callbackName];
-            if (script.parentNode) {
-                document.head.removeChild(script);
-            }
-            resolve({ success: false, message: 'Error de conexión' });
-        };
-        
-        // Agregar el script al documento
-        document.head.appendChild(script);
-        console.log('✅ Script de Google Sheets cargado');
+            document.head.appendChild(script);
+            console.log('✅ Script de Google Sheets cargado');
+        }
     });
 }
-
         function generateOrderData(formData) {
     const orderNumber = 'STBQ-' + Date.now();
     const orderDate = new Date().toLocaleString('es-CO', {
@@ -4242,6 +4235,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
