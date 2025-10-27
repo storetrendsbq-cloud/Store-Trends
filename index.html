@@ -3063,6 +3063,20 @@ async function initiateWompiPayment() {
     }
     // Si es APPROVED, Wompi redirigirá automáticamente a la URL de éxito
 });
+   } catch (error) {
+        console.error('❌ Error iniciando pago Wompi:', error);
+        
+        // Restaurar botón y limpiar sessionStorage en caso de error
+        const wompiButton = document.getElementById('wompiButton');
+        if (wompiButton) {
+            wompiButton.innerHTML = '🛒 Pagar con Wompi';
+            wompiButton.disabled = false;
+        }
+        sessionStorage.removeItem('pendingWompiOrder');
+        
+        alert('Error al iniciar el pago: ' + error.message);
+    }
+}         
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -4226,6 +4240,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
