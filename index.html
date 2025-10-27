@@ -3046,7 +3046,7 @@ async function initiateWompiPayment() {
         console.log('🚀 Abriendo widget de Wompi...');
         const widget = new WidgetCheckout(transactionData);
         
-        widget.open((result) => {
+       widget.open((result) => {
     console.log('🔔 Resultado de Wompi en callback:', result);
     
     // Restaurar botón
@@ -3056,26 +3056,13 @@ async function initiateWompiPayment() {
     if (result.transaction && result.transaction.status !== 'APPROVED') {
         console.log('❌ Pago fallido en callback de Wompi');
         
-        // REDIRIGIR A PÁGINA DE DECLINADOS
-        const declinedUrl = `${getBaseUrl()}/gracias.html?wompi_success=false&ref=${wompiReference}`;
+        // 🔥 CORREGIDO: Redirigir a página de DECLINADOS
+        const declinedUrl = `${getBaseUrl()}/gracias.html?wompi_success=false&status=declined&ref=${wompiReference}`;
+        console.log('🔀 Redirigiendo a página de declinados:', declinedUrl);
         window.location.href = declinedUrl;
     }
     // Si es APPROVED, Wompi redirigirá automáticamente a la URL de éxito
 });
-} catch (error) {
-        console.error('❌ Error iniciando pago Wompi:', error);
-        
-        // Restaurar botón y limpiar sessionStorage en caso de error
-        const wompiButton = document.getElementById('wompiButton');
-        if (wompiButton) {
-            wompiButton.innerHTML = '🛒 Pagar con Wompi';
-            wompiButton.disabled = false;
-        }
-        sessionStorage.removeItem('pendingWompiOrder');
-        
-        alert('Error al iniciar el pago: ' + error.message);
-    }
-}         
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -4239,6 +4226,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
