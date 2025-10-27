@@ -113,13 +113,18 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const orderNumber = urlParams.get('order');
-            const reference = urlParams.get('ref');
-            const status = urlParams.get('status');
-            
-            console.log('📋 Parámetros error:', { orderNumber, reference, status });
+       document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderNumber = urlParams.get('order');
+    const reference = urlParams.get('ref');
+    const status = urlParams.get('status');
+    const idParam = urlParams.get('id');
+    
+    console.log('📋 Parámetros error:', { orderNumber, reference, status, idParam });
+    
+    // 🔥 LIMPIAR INMEDIATAMENTE - Esto evita que se envíe a Sheets
+    sessionStorage.removeItem('pendingWompiOrder');
+    console.log('🧹 sessionStorage limpiado para transacción declinada');
             
             // Actualizar UI
             document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
