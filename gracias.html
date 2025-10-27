@@ -239,68 +239,72 @@ function attemptJsonpFallback(orderData, resolve) {
     
     document.head.appendChild(script);
 }
-        // ===== DETECTAR TIPO DE TRANSACCIÓN =====
-        function getTransactionType() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const wompiSuccess = urlParams.get('wompi_success');
-            const transactionStatus = urlParams.get('status');
-            
-            console.log('🔍 Parámetros transacción:', { wompiSuccess, transactionStatus });
-            
-            // Si viene de Wompi exitoso
-            if (wompiSuccess === 'true') {
-                return 'approved';
-            }
-            
-            // Si viene de Wompi declinado
-            if (wompiSuccess === 'false') {
-                return 'declined';
-            }
-            
-            // Si viene con estado de transacción
-            if (transactionStatus === 'APPROVED') {
-                return 'approved';
-            }
-            if (transactionStatus === 'DECLINED' || transactionStatus === 'VOIDED') {
-                return 'declined';
-            }
-            
-            // Por defecto, asumir aprobado para mantener compatibilidad
-            return 'approved';
-        }
+        // ===== DETECTAR TIPO DE TRANSACCIÓN MEJORADO =====
+function getTransactionType() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const wompiSuccess = urlParams.get('wompi_success');
+    const transactionStatus = urlParams.get('status');
+    const idParam = urlParams.get('id');
+    
+    console.log('🔍 Parámetros transacción:', { 
+        wompiSuccess, 
+        transactionStatus, 
+        idParam 
+    });
+    
+    // 🔥 DETECCIÓN MÁS ROBUSTA
+    if (wompiSuccess === 'true') {
+        return 'approved';
+    }
+    
+    if (wompiSuccess === 'false' || transactionStatus === 'declined') {
+        return 'declined';
+    }
+    
+    // Si viene de Wompi con ID de transacción pero sin wompi_success
+    if (idParam && idParam.includes('-')) {
+        // Podría ser una transacción declinada que Wompi redirige mal
+        console.log('⚠️ Transacción con ID pero sin wompi_success, verificando estado...');
+        return 'declined'; // Por seguridad, asumir declinado
+    }
+    
+    // Por defecto para mantener compatibilidad
+    return 'approved';
+}
 
-        // ===== PROCESAR CUANDO LA PÁGINA CARGA =====
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🔄 Página de gracias cargada');
-            
-            // Obtener parámetros de la URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const orderNumber = urlParams.get('order');
-            const wompiRef = urlParams.get('ref');
-            
-            console.log('📋 Parámetros URL:', { orderNumber, wompiRef });
-            
-            // Actualizar UI
-            document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
-            document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
-            
-            // Configurar WhatsApp
-            const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, acabo de realizar un pedido (${orderNumber}) y quiero confirmar los detalles.`;
-            document.getElementById('whatsappBtn').href = whatsappUrl;
-            
-            // Determinar tipo de transacción
-            const transactionType = getTransactionType();
-            console.log('💰 Tipo de transacción:', transactionType);
-            
-            if (transactionType === 'approved') {
-                // PROCESAR PEDIDO APROBADO (como antes)
-                await processWompiOrder(orderNumber, wompiRef);
-            } else {
-                // MOSTRAR PÁGINA DE ERROR PARA DECLINADOS
-                showDeclinedPayment(wompiRef);
-            }
-        });
-
+// ===== PROCESAR CUANDO LA PÁGINA CARGA =====
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🔄 Página de gracias cargada');
+    
+    // Obtener parámetros de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderNumber = urlParams.get('order');
+    const wompiRef = urlParams.get('ref');
+    
+    console.log('📋 Parámetros URL:', { 
+        orderNumber, 
+        wompiRef,
+        wompiSuccess: urlParams.get('wompi_success'),
+        status: urlParams.get('status'),
+        id: urlParams.get('id')
+    });
+    
+    // Actualizar UI
+    document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
+    document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
+    
+    // Determinar tipo de transacción
+    const transactionType = getTransactionType();
+    console.log('💰 Tipo de transacción detectado:', transactionType);
+    
+    if (transactionType === 'approved') {
+        // 🔥 PROCESAR PEDIDO APROBADO
+        await processWompiOrder(orderNumber, wompiRef);
+    } else {
+        // 🔥 MOSTRAR PÁGINA DE ERROR PARA DECLINADOS
+        showDeclinedPayment(wompiRef);
+    }
+});
         // ===== PROCESAR PEDIDO APROBADO MEJORADO =====
 async function processWompiOrder(orderNumber, wompiRef) {
     try {
