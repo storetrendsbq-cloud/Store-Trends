@@ -162,6 +162,41 @@
     </div>
 
     <script>
+        // ===== DETECCIÓN DE TRANSACCIÓN REAL =====
+function detectTransactionType() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const wompiSuccess = urlParams.get('wompi_success');
+    const idParam = urlParams.get('id');
+    
+    console.log('🔍 Analizando parámetros Wompi:', { 
+        wompiSuccess, 
+        idParam,
+        todos: Object.fromEntries(urlParams) 
+    });
+
+    // 🔥 CRITERIO CONFIRMADO: Si hay parámetro 'id', es DECLINADA
+    if (idParam && idParam.includes('-')) {
+        console.log('🚫 TRANSACCIÓN DECLINADA detectada por parámetro id');
+        return 'declined';
+    }
+    
+    // 🔥 TRANSACCIÓN APROBADA: Solo si no tiene 'id' y tiene wompi_success=true
+    if (wompiSuccess === 'true' && !idParam) {
+        console.log('✅ TRANSACCIÓN APROBADA confirmada');
+        return 'approved';
+    }
+    
+    // Por defecto, asumir declinada por seguridad
+    console.log('🚫 TRANSACCIÓN DECLINADA (caso por defecto)');
+    return 'declined';
+}
+
+// ===== REDIRECCIÓN AUTOMÁTICA PARA DECLINADOS =====
+function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
+    console.log('🔀 Redirigiendo a página de error...');
+    const errorUrl = `error.html?order=${orderNumber || ''}&ref=${wompiRef || ''}&id=${transactionId || ''}&status=DECLINED`;
+    window.location.href = errorUrl;
+}
     // ===== FUNCIÓN PARA ENVIAR A GOOGLE SHEETS =====
     function submitOrderToSheets(orderData) {
         return new Promise((resolve) => {
@@ -307,30 +342,42 @@
     }
 
     // ===== INICIALIZACIÓN =====
-    document.addEventListener('DOMContentLoaded', async function() {
-        console.log('🔄 Página de gracias cargada - Transacción APROBADA');
-        
-        // Obtener parámetros de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const orderNumber = urlParams.get('order');
-        const wompiRef = urlParams.get('ref');
-        
-        console.log('📋 Parámetros URL:', { orderNumber, wompiRef });
-        
-        // Actualizar UI básica
-        document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
-        document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
-        
-        // Configurar WhatsApp
-        const whatsappBtn = document.getElementById('whatsappBtn');
-        if (whatsappBtn) {
-            const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, acabo de realizar un pedido (${orderNumber}) y quiero confirmar los detalles.`;
-            whatsappBtn.href = whatsappUrl;
-        }
-        
-        // 🔥 SOLO PROCESAR COMO APROBADO (ya no necesitamos detección)
-        await processWompiOrder(orderNumber, wompiRef);
-    });
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🔄 Página de gracias cargada');
+    
+    // 1. DETECTAR tipo de transacción primero
+    const transactionType = detectTransactionType();
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderNumber = urlParams.get('order');
+    const wompiRef = urlParams.get('ref');
+    const idParam = urlParams.get('id');
+    
+    console.log('💰 Tipo de transacción detectado:', transactionType);
+    
+    // 2. SI ES DECLINADA, REDIRIGIR INMEDIATAMENTE
+    if (transactionType === 'declined') {
+        console.log('❌ Transacción declinada - Redirigiendo a error.html');
+        redirectToErrorPage(orderNumber, wompiRef, idParam);
+        return; // 🔥 IMPORTANTE: Detener ejecución aquí
+    }
+    
+    // 3. SOLO SI ES APROBADA, continuar con el procesamiento normal
+    console.log('✅ Continuando con procesamiento de transacción APROBADA');
+    
+    // Actualizar UI básica
+    document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
+    document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
+    
+    // Configurar WhatsApp
+    const whatsappBtn = document.getElementById('whatsappBtn');
+    if (whatsappBtn) {
+        const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, acabo de realizar un pedido (${orderNumber}) y quiero confirmar los detalles.`;
+        whatsappBtn.href = whatsappUrl;
+    }
+    
+    // Procesar pedido aprobado
+    await processWompiOrder(orderNumber, wompiRef);
+});
 </script>
 </body>
 </html>
