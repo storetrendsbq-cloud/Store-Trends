@@ -162,34 +162,6 @@
     </div>
 
     <script>
-     // ===== DETECTAR TIPO DE TRANSACCIÓN =====
-    function getTransactionType() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const wompiSuccess = urlParams.get('wompi_success');
-        const idParam = urlParams.get('id');
-        
-        console.log('🔍 Parámetros transacción:', { 
-            wompiSuccess, 
-            idParam 
-        });
-
-        // Si hay parámetro 'id', es una transacción declinada
-        if (idParam && idParam.includes('-')) {
-            console.log('🚫 Transacción DECLINADA detectada por parámetro id');
-            return 'declined';
-        }
-        
-        // Solo procesar como aprobado si NO tiene el parámetro id
-        if (wompiSuccess === 'true' && !idParam) {
-            console.log('✅ Transacción APROBADA confirmada');
-            return 'approved';
-        }
-        
-        // Cualquier otro caso es declinado
-        console.log('🚫 Transacción DECLINADA (caso por defecto)');
-        return 'declined';
-    }
-
     // ===== FUNCIÓN PARA ENVIAR A GOOGLE SHEETS =====
     function submitOrderToSheets(orderData) {
         return new Promise((resolve) => {
@@ -240,62 +212,6 @@
                 });
             }, 15000);
         });
-    }
-
-    // ===== MANEJAR PAGOS DECLINADOS =====
-    function showDeclinedPayment(reference, transactionId) {
-        console.log('❌ Mostrando página de pago DECLINADO');
-        
-        // Limpiar sessionStorage inmediatamente para declinados
-        sessionStorage.removeItem('pendingWompiOrder');
-        localStorage.removeItem('pendingWompiOrder');
-        
-        // Ocultar mensaje de procesamiento
-        document.getElementById('processingMessage').style.display = 'none';
-        
-        // Cambiar el contenido principal para declinados
-        document.querySelector('.success-icon').textContent = '❌';
-        document.querySelector('h1').textContent = 'Pago Declinado';
-        document.querySelector('h1').style.color = '#f44336';
-        
-        // Actualizar información de orden
-        if (reference) {
-            document.getElementById('orderNumber').textContent = reference;
-        }
-        if (transactionId) {
-            document.getElementById('wompiReference').textContent = transactionId;
-        }
-        document.getElementById('status').textContent = '❌ Declinado por el banco';
-        document.getElementById('status').style.color = '#f44336';
-        
-        // Mostrar mensaje de error
-        document.getElementById('errorMessage').classList.remove('hidden');
-        document.getElementById('successMessage').classList.add('hidden');
-        
-        // Actualizar mensajes específicos para declinados
-        const errorParagraphs = document.querySelectorAll('#errorMessage p');
-        if (errorParagraphs[0]) {
-            errorParagraphs[0].textContent = '❌ Tu entidad financiera declinó la transacción.';
-        }
-        if (errorParagraphs[1]) {
-            errorParagraphs[1].textContent = 'Por favor intenta con otro método de pago o contacta tu banco.';
-        }
-        
-        if (reference) {
-            const errorReference = document.getElementById('errorReference');
-            if (errorReference) {
-                errorReference.textContent = reference;
-            }
-        }
-        
-        // Actualizar enlace de WhatsApp para declinados
-        const whatsappBtn = document.getElementById('whatsappBtn');
-        if (whatsappBtn) {
-            const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, tuve un problema con mi pago (Referencia: ${reference}). ¿Me pueden ayudar?`;
-            whatsappBtn.href = whatsappUrl;
-        }
-        
-        console.log('🚫 Pedido declinado - NO se envió a Google Sheets');
     }
 
     // ===== PROCESAR PEDIDO APROBADO =====
@@ -392,20 +308,14 @@
 
     // ===== INICIALIZACIÓN =====
     document.addEventListener('DOMContentLoaded', async function() {
-        console.log('🔄 Página de gracias cargada');
+        console.log('🔄 Página de gracias cargada - Transacción APROBADA');
         
         // Obtener parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const orderNumber = urlParams.get('order');
         const wompiRef = urlParams.get('ref');
-        const idParam = urlParams.get('id');
         
-        console.log('📋 Parámetros URL:', { 
-            orderNumber, 
-            wompiRef,
-            wompiSuccess: urlParams.get('wompi_success'),
-            id: idParam
-        });
+        console.log('📋 Parámetros URL:', { orderNumber, wompiRef });
         
         // Actualizar UI básica
         document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
@@ -418,17 +328,8 @@
             whatsappBtn.href = whatsappUrl;
         }
         
-        // Determinar tipo de transacción
-        const transactionType = getTransactionType();
-        console.log('💰 Tipo de transacción detectado:', transactionType);
-        
-        if (transactionType === 'approved') {
-            // PROCESAR PEDIDO APROBADO
-            await processWompiOrder(orderNumber, wompiRef);
-        } else {
-            // MOSTRAR PÁGINA DE ERROR PARA DECLINADOS
-            showDeclinedPayment(wompiRef, idParam);
-        }
+        // 🔥 SOLO PROCESAR COMO APROBADO (ya no necesitamos detección)
+        await processWompiOrder(orderNumber, wompiRef);
     });
 </script>
 </body>
