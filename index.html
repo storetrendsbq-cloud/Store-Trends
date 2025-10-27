@@ -3047,42 +3047,21 @@ async function initiateWompiPayment() {
         const widget = new WidgetCheckout(transactionData);
         
         widget.open((result) => {
-            console.log('🔔 Resultado de Wompi en callback:', result);
-            
-            // Restaurar botón
-            wompiButton.innerHTML = originalText;
-            wompiButton.disabled = false;
+    console.log('🔔 Resultado de Wompi en callback:', result);
+    
+    // Restaurar botón
+    wompiButton.innerHTML = originalText;
+    wompiButton.disabled = false;
 
-            if (result.transaction && result.transaction.status !== 'APPROVED') {
-                console.log('❌ Pago fallido en callback de Wompi');
-                // Limpiar sessionStorage en caso de fallo
-                sessionStorage.removeItem('pendingWompiOrder');
-                
-                let errorMessage = 'El pago no pudo ser procesado. ';
-                if (result.transaction.status === 'DECLINED') {
-                    errorMessage = '❌ Tu entidad financiera declinó la transacción.';
-                } else if (result.transaction.status === 'VOIDED') {
-                    errorMessage = '❌ La transacción fue cancelada.';
-                }
-                alert(errorMessage);
-            }
-            // Si es APPROVED, Wompi redirigirá automáticamente
-        });
+    if (result.transaction && result.transaction.status !== 'APPROVED') {
+        console.log('❌ Pago fallido en callback de Wompi');
         
-    } catch (error) {
-        console.error('❌ Error iniciando pago Wompi:', error);
-        
-        // Restaurar botón y limpiar sessionStorage en caso de error
-        const wompiButton = document.getElementById('wompiButton');
-        if (wompiButton) {
-            wompiButton.innerHTML = '🛒 Pagar con Wompi';
-            wompiButton.disabled = false;
-        }
-        sessionStorage.removeItem('pendingWompiOrder');
-        
-        alert('Error al iniciar el pago: ' + error.message);
+        // REDIRIGIR A PÁGINA DE DECLINADOS
+        const declinedUrl = `${getBaseUrl()}/gracias.html?wompi_success=false&ref=${wompiReference}`;
+        window.location.href = declinedUrl;
     }
-}
+    // Si es APPROVED, Wompi redirigirá automáticamente a la URL de éxito
+});
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -4247,6 +4226,7 @@ function handleFailedPayment(result) {
     </script>
 </body>
 </html>
+
 
 
 
