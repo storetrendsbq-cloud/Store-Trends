@@ -239,18 +239,34 @@ function attemptJsonpFallback(orderData, resolve) {
     
     document.head.appendChild(script);
 }
-        // ===== DETECTAR TIPO DE TRANSACCIÓN MEJORADO =====
+       // ===== DETECTAR TIPO DE TRANSACCIÓN - VERSIÓN DEFINITIVA =====
 function getTransactionType() {
     const urlParams = new URLSearchParams(window.location.search);
     const wompiSuccess = urlParams.get('wompi_success');
-    const transactionStatus = urlParams.get('status');
     const idParam = urlParams.get('id');
     
     console.log('🔍 Parámetros transacción:', { 
         wompiSuccess, 
-        transactionStatus, 
         idParam 
     });
+
+    // 🔥 DETECCIÓN CONFIRMADA: Si hay parámetro 'id', es una transacción declinada
+    // Wompi redirige transacciones declinadas a la URL de éxito pero con parámetro 'id'
+    if (idParam && idParam.includes('-')) {
+        console.log('🚫 Transacción DECLINADA detectada por parámetro id');
+        return 'declined';
+    }
+    
+    // 🔥 Solo procesar como aprobado si NO tiene el parámetro id
+    if (wompiSuccess === 'true' && !idParam) {
+        console.log('✅ Transacción APROBADA confirmada');
+        return 'approved';
+    }
+    
+    // Cualquier otro caso es declinado
+    console.log('🚫 Transacción DECLINADA (caso por defecto)');
+    return 'declined';
+}
     
     // 🔥 DETECCIÓN MÁS ROBUSTA
     if (wompiSuccess === 'true') {
@@ -280,39 +296,41 @@ document.addEventListener('DOMContentLoaded', async function() {
     const urlParams = new URLSearchParams(window.location.search);
     const orderNumber = urlParams.get('order');
     const wompiRef = urlParams.get('ref');
+    const idParam = urlParams.get('id');
     
-    console.log('📋 Parámetros URL:', { 
+    console.log('📋 Parámetros URL COMPLETOS:', { 
         orderNumber, 
         wompiRef,
         wompiSuccess: urlParams.get('wompi_success'),
-        status: urlParams.get('status'),
-        id: urlParams.get('id')
+        id: idParam,
+        todos: Object.fromEntries(urlParams)
     });
     
-    // Actualizar UI
+    // Actualizar UI básica
     document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
     document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
     
     // Determinar tipo de transacción
     const transactionType = getTransactionType();
-    console.log('💰 Tipo de transacción detectado:', transactionType);
+    console.log('💰 Tipo de transacción FINAL:', transactionType);
     
     if (transactionType === 'approved') {
-        // 🔥 PROCESAR PEDIDO APROBADO
+        // PROCESAR PEDIDO APROBADO
         await processWompiOrder(orderNumber, wompiRef);
     } else {
-        // 🔥 MOSTRAR PÁGINA DE ERROR PARA DECLINADOS
-        showDeclinedPayment(wompiRef);
+        // MOSTRAR PÁGINA DE ERROR PARA DECLINADOS
+        showDeclinedPayment(wompiRef, idParam);
     }
 });
-       // ===== PROCESAR PEDIDO APROBADO =====
+      // ===== PROCESAR PEDIDO APROBADO =====
 async function processWompiOrder(orderNumber, wompiRef) {
     try {
         console.log('🔍 Buscando datos del pedido APROBADO...');
         
         // 🔥 VERIFICACIÓN EXTRA: No procesar si es declinado
-        if (getTransactionType() === 'declined') {
-            console.log('🚫 Pedido detectado como declinado, cancelando procesamiento');
+        const currentTransactionType = getTransactionType();
+        if (currentTransactionType === 'declined') {
+            console.log('🚫 VERIFICACIÓN: Pedido es declinado, cancelando procesamiento');
             showDeclinedPayment(wompiRef);
             return;
         }
@@ -322,7 +340,7 @@ async function processWompiOrder(orderNumber, wompiRef) {
         
         if (pendingOrder) {
             orderData = JSON.parse(pendingOrder);
-            console.log('✅ Datos encontrados en sessionStorage:', orderData);
+            console.log('✅ Datos encontrados en sessionStorage');
         } else {
             console.log('ℹ️ Creando datos desde URL para aprobado');
             orderData = {
@@ -365,40 +383,48 @@ async function processWompiOrder(orderNumber, wompiRef) {
         // Enviar a Google Sheets
         const sheetsResult = await submitOrderToSheets(orderData);
         
-        if (sheetsResult.success) {
+        if (sheetsResult && sheetsResult.success) {
             console.log('✅ Pedido APROBADO registrado en Google Sheets');
             showSuccess();
             sessionStorage.removeItem('pendingWompiOrder');
         } else {
-            throw new Error(sheetsResult.message || 'Error en Google Sheets');
+            console.log('⚠️ Error en Sheets pero pedido fue aprobado');
+            showSuccess(); // Mostrar éxito aunque Sheets falle
+            sessionStorage.removeItem('pendingWompiOrder');
         }
         
     } catch (error) {
         console.error('❌ Error procesando pedido aprobado:', error);
-        showError(wompiRef);
+        // Aún así mostrar éxito al usuario
+        showSuccess();
+        sessionStorage.removeItem('pendingWompiOrder');
     }
 }
       // ===== MANEJAR PAGOS DECLINADOS =====
-function showDeclinedPayment(reference) {
+function showDeclinedPayment(reference, transactionId) {
     console.log('❌ Mostrando página de pago DECLINADO');
     
-    // 🔥 IMPORTANTE: Limpiar sessionStorage inmediatamente para declinados
+    // 🔥 LIMPIAR INMEDIATAMENTE para declinados
     sessionStorage.removeItem('pendingWompiOrder');
+    localStorage.removeItem('pendingWompiOrder'); // Limpiar también localStorage por seguridad
     
     // 🔥 NO ENVIAR A SHEETS para declinados
     
-    // Cambiar el contenido principal para declinados
+    // Cambiar completamente la UI para declinados
     document.querySelector('.success-icon').textContent = '❌';
     document.querySelector('h1').textContent = 'Pago Declinado';
     document.querySelector('h1').style.color = '#f44336';
     
     // Actualizar información de orden
-    document.getElementById('status').textContent = '❌ Declinado';
+    document.getElementById('orderNumber').textContent = reference ? reference : 'No disponible';
+    document.getElementById('wompiReference').textContent = transactionId ? transactionId : 'No disponible';
+    document.getElementById('status').textContent = '❌ Declinado por el banco';
     document.getElementById('status').style.color = '#f44336';
     
     // Ocultar procesamiento y mostrar mensaje de error
-    document.getElementById('processingMessage').classList.add('hidden');
-    document.getElementById('errorMessage').classList.remove('hidden');
+    document.getElementById('processingMessage').style.display = 'none';
+    document.getElementById('successMessage').style.display = 'none';
+    document.getElementById('errorMessage').style.display = 'block';
     
     // Actualizar mensaje de error específico para declinados
     document.querySelector('#errorMessage p').textContent = '❌ Tu entidad financiera declinó la transacción.';
