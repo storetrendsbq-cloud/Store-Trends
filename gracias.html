@@ -305,12 +305,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         showDeclinedPayment(wompiRef);
     }
 });
-        // ===== PROCESAR PEDIDO APROBADO MEJORADO =====
+       // ===== PROCESAR PEDIDO APROBADO =====
 async function processWompiOrder(orderNumber, wompiRef) {
     try {
-        console.log('🔍 Buscando datos del pedido...');
+        console.log('🔍 Buscando datos del pedido APROBADO...');
         
-        // 1. Intentar obtener de sessionStorage
+        // 🔥 VERIFICACIÓN EXTRA: No procesar si es declinado
+        if (getTransactionType() === 'declined') {
+            console.log('🚫 Pedido detectado como declinado, cancelando procesamiento');
+            showDeclinedPayment(wompiRef);
+            return;
+        }
+        
         let orderData = null;
         const pendingOrder = sessionStorage.getItem('pendingWompiOrder');
         
@@ -318,8 +324,7 @@ async function processWompiOrder(orderNumber, wompiRef) {
             orderData = JSON.parse(pendingOrder);
             console.log('✅ Datos encontrados en sessionStorage:', orderData);
         } else {
-            // 2. Si no hay en sessionStorage, crear datos básicos desde la URL
-            console.log('ℹ️ Creando datos desde URL');
+            console.log('ℹ️ Creando datos desde URL para aprobado');
             orderData = {
                 metadata: {
                     orderNumber: orderNumber,
@@ -333,7 +338,7 @@ async function processWompiOrder(orderNumber, wompiRef) {
                 },
                 customer: {
                     name: 'Cliente Wompi',
-                    email: 'cliente@wompi.com', 
+                    email: 'cliente@wompi.com',
                     phone: '3000000000',
                     address: 'Por confirmar',
                     city: 'Por confirmar',
@@ -355,43 +360,32 @@ async function processWompiOrder(orderNumber, wompiRef) {
         orderData.metadata.paymentStatus = 'approved';
         orderData.metadata.wompiReference = wompiRef;
 
-        console.log('📦 Enviando a Google Sheets...');
+        console.log('📦 Enviando pedido APROBADO a Google Sheets...');
         
         // Enviar a Google Sheets
         const sheetsResult = await submitOrderToSheets(orderData);
         
-        // 🔥 CAMBIO IMPORTANTE: Mostrar éxito aunque Sheets falle
-        if (sheetsResult.success || true) { // Forzar éxito temporalmente
-            console.log('✅ Pedido procesado exitosamente');
+        if (sheetsResult.success) {
+            console.log('✅ Pedido APROBADO registrado en Google Sheets');
             showSuccess();
-            // Limpiar sessionStorage
             sessionStorage.removeItem('pendingWompiOrder');
-            
-            // 🔥 AGREGAR: Mostrar detalles del pedido exitoso
-            document.getElementById('orderNumber').textContent = orderNumber;
-            document.getElementById('wompiReference').textContent = wompiRef;
-            
         } else {
-            console.log('⚠️ Error en Sheets pero pedido procesado');
-            // Aún así mostrar éxito al usuario
-            showSuccess();
-            sessionStorage.removeItem('pendingWompiOrder');
+            throw new Error(sheetsResult.message || 'Error en Google Sheets');
         }
         
     } catch (error) {
-        console.error('❌ Error procesando pedido:', error);
-        // 🔥 MOSTRAR ÉXITO A PESAR DEL ERROR
-        showSuccess();
-        sessionStorage.removeItem('pendingWompiOrder');
+        console.error('❌ Error procesando pedido aprobado:', error);
+        showError(wompiRef);
     }
 }
-       // ===== MANEJAR PAGOS DECLINADOS =====
+      // ===== MANEJAR PAGOS DECLINADOS =====
 function showDeclinedPayment(reference) {
-    console.log('❌ Mostrando página de pago declinado');
+    console.log('❌ Mostrando página de pago DECLINADO');
     
-    // 🔥 IMPORTANTE: NO enviar a Sheets para declinados
-    // Solo limpiar sessionStorage
+    // 🔥 IMPORTANTE: Limpiar sessionStorage inmediatamente para declinados
     sessionStorage.removeItem('pendingWompiOrder');
+    
+    // 🔥 NO ENVIAR A SHEETS para declinados
     
     // Cambiar el contenido principal para declinados
     document.querySelector('.success-icon').textContent = '❌';
@@ -417,6 +411,8 @@ function showDeclinedPayment(reference) {
     // Actualizar enlace de WhatsApp para declinados
     const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, tuve un problema con mi pago (Referencia: ${reference}). ¿Me pueden ayudar?`;
     document.getElementById('whatsappBtn').href = whatsappUrl;
+    
+    console.log('🚫 Pedido declinado - NO se envió a Google Sheets');
 }
         // ===== FUNCIONES DE UI (MANTENER COMO ESTABAN) =====
         function showSuccess() {
