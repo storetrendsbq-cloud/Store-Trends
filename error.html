@@ -94,8 +94,8 @@
         
         <div class="order-info">
             <p><strong>Número de pedido:</strong> <span id="orderNumber">-</span></p>
+            <p><strong>Referencia Wompi:</strong> <span id="reference">-</span></p>
             <p><strong>Estado:</strong> <span id="status">-</span></p>
-            <p><strong>Referencia:</strong> <span id="reference">-</span></p>
         </div>
         
         <p>El pago no pudo ser procesado correctamente.</p>
@@ -116,27 +116,44 @@
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const orderNumber = urlParams.get('order');
+            const reference = urlParams.get('ref');
             const status = urlParams.get('status');
+            
+            console.log('📋 Parámetros error:', { orderNumber, reference, status });
             
             // Actualizar UI
             document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
-            document.getElementById('reference').textContent = orderNumber || 'No disponible';
+            document.getElementById('reference').textContent = reference || 'No disponible';
             
             // Traducir estado
             const statusMap = {
-                'DECLINED': 'Declinado por tu entidad financiera',
-                'VOIDED': 'Transacción cancelada',
-                'ERROR': 'Error en la transacción',
-                'EXPIRED': 'Tiempo agotado'
+                'DECLINED': '❌ Declinado por tu entidad financiera',
+                'VOIDED': '⏹️ Transacción cancelada', 
+                'ERROR': '🚫 Error en la transacción',
+                'EXPIRED': '⏰ Tiempo agotado',
+                'PENDING': '⏳ Pendiente de confirmación'
             };
-            document.getElementById('status').textContent = statusMap[status] || status || 'Error desconocido';
+            
+            const statusText = statusMap[status] || '❌ Error en el pago';
+            document.getElementById('status').textContent = statusText;
             
             // Configurar botones
-            document.getElementById('retryBtn').href = `index.html?retry=${orderNumber}`;
-            document.getElementById('whatsappBtn').href = `https://wa.me/573054813630?text=Hola Store Trends, tuve un problema con mi pago (${orderNumber}) y necesito ayuda.`;
+            const retryBtn = document.getElementById('retryBtn');
+            if (retryBtn) {
+                retryBtn.href = `index.html?retry=${orderNumber}`;
+            }
             
-            // Limpiar sessionStorage
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            if (whatsappBtn) {
+                const message = status === 'DECLINED' 
+                    ? `Hola Store Trends, mi pago fue declinado (Referencia: ${reference}). ¿Me pueden ayudar?`
+                    : `Hola Store Trends, tuve un problema con mi pago (${reference}) y necesito ayuda.`;
+                whatsappBtn.href = `https://wa.me/573054813630?text=${encodeURIComponent(message)}`;
+            }
+            
+            // 🔥 LIMPIAR sessionStorage - IMPORTANTE
             sessionStorage.removeItem('pendingWompiOrder');
+            console.log('🚫 Pedido declinado - sessionStorage limpiado');
         });
     </script>
 </body>
