@@ -108,9 +108,20 @@
             to { transform: rotate(360deg); }
         }
 
-        .hidden {
-            display: none;
-        }
+        /* 🔥 ESTO ES LO NUEVO QUE DEBES AGREGAR */
+    .hidden {
+        display: none !important;
+    }
+
+    #processingMessage, #successMessage, #errorMessage {
+        transition: all 0.3s ease;
+    }
+
+    /* Asegurar que los botones sean visibles */
+    .btn {
+        display: inline-block !important;
+        visibility: visible !important;
+    }
     </style>
 </head>
 <body>
