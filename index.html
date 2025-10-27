@@ -3058,8 +3058,8 @@ async function initiateWompiPayment() {
     if (result.transaction && result.transaction.status !== 'APPROVED') {
         console.log('❌ Pago fallido en callback de Wompi');
         
-        // 🔥 CORREGIDO: Redirigir a página de DECLINADOS
-        const declinedUrl = `${getBaseUrl()}/gracias.html?wompi_success=false&status=declined&ref=${wompiReference}`;
+        // 🔥 REDIRIGIR A PÁGINA DE DECLINADOS CON PARÁMETROS CORRECTOS
+        const declinedUrl = `${getBaseUrl()}/gracias.html?wompi_success=false&ref=${wompiReference}`;
         console.log('🔀 Redirigiendo a página de declinados:', declinedUrl);
         window.location.href = declinedUrl;
     }
@@ -4242,6 +4242,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
