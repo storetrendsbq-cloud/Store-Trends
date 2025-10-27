@@ -3027,23 +3027,23 @@ async function initiateWompiPayment() {
 
         // 8. Configuración para Wompi con URL más simple
         const transactionData = {
-            currency: WOMPI_CURRENCY,
-            amountInCents: Math.round(orderData.metadata.total * 100).toString(),
-            reference: wompiReference,
-            publicKey: WOMPI_PUBLIC_KEY,
-            redirectUrl: `${getBaseUrl()}/gracias.html?wompi_success=true&order=${orderData.metadata.orderNumber}&ref=${wompiReference}`,
-            customer: {
-                email: orderData.customer.email,
-                fullName: orderData.customer.name,
-                phoneNumber: phoneNumber,
-                phoneNumberPrefix: '+57',
-                legalId: '1234567890',
-                legalIdType: 'CC'
-            }
-        };
-
-        console.log('📦 Datos de transacción Wompi:', transactionData);
-
+    currency: WOMPI_CURRENCY,
+    amountInCents: Math.round(orderData.metadata.total * 100).toString(),
+    reference: wompiReference,
+    publicKey: WOMPI_PUBLIC_KEY,
+    // ✅ URL para transacciones exitosas
+    redirectUrl: `${getBaseUrl()}/gracias.html?wompi_success=true&order=${orderData.metadata.orderNumber}&ref=${wompiReference}`,
+    // 🔥 NUEVO: URL para transacciones fallidas
+    errorUrl: `${getBaseUrl()}/error.html?order=${orderData.metadata.orderNumber}&ref=${wompiReference}&status=DECLINED`,
+    customer: {
+        email: orderData.customer.email,
+        fullName: orderData.customer.name,
+        phoneNumber: phoneNumber,
+        phoneNumberPrefix: '+57',
+        legalId: '1234567890',
+        legalIdType: 'CC'
+    }
+};
         // 9. Abrir checkout de Wompi
         console.log('🚀 Abriendo widget de Wompi...');
         const widget = new WidgetCheckout(transactionData);
@@ -3058,12 +3058,17 @@ async function initiateWompiPayment() {
     if (result.transaction && result.transaction.status !== 'APPROVED') {
         console.log('❌ Pago fallido en callback de Wompi');
         
-        // 🔥 REDIRIGIR A PÁGINA DE DECLINADOS CON PARÁMETROS CORRECTOS
-        const declinedUrl = `${getBaseUrl()}/gracias.html?wompi_success=false&ref=${wompiReference}`;
-        console.log('🔀 Redirigiendo a página de declinados:', declinedUrl);
-        window.location.href = declinedUrl;
+        // 🔥 REDIRIGIR A PÁGINA DE ERROR CON DETALLES ESPECÍFICOS
+        let status = 'DECLINED';
+        if (result.transaction.status === 'VOIDED') status = 'VOIDED';
+        if (result.transaction.status === 'ERROR') status = 'ERROR';
+        if (result.transaction.status === 'EXPIRED') status = 'EXPIRED';
+        
+        const errorUrl = `${getBaseUrl()}/error.html?order=${orderData.metadata.orderNumber}&ref=${wompiReference}&status=${status}`;
+        console.log('🔀 Redirigiendo a página de error:', errorUrl);
+        window.location.href = errorUrl;
     }
-    // Si es APPROVED, Wompi redirigirá automáticamente a la URL de éxito
+    // Si es APPROVED, Wompi redirigirá automáticamente a redirectUrl
 });
    } catch (error) {
         console.error('❌ Error iniciando pago Wompi:', error);
@@ -4242,6 +4247,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
