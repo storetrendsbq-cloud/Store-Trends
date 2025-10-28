@@ -3020,7 +3020,9 @@ async function initiateWompiPayment() {
         isRealTransaction: true
     }
 };
-
+// Guardar en AMBOS para respaldo
+sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
+localStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave)); // 🔥 NUEVO
         // Usar sessionStorage que es más confiable para redirecciones
         sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
         console.log('💾 Datos guardados en sessionStorage:', orderDataToSave);
@@ -4247,6 +4249,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
