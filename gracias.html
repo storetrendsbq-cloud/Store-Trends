@@ -157,7 +157,7 @@
         // 🔥 NUEVA FUNCIÓN: Actualizar con ID real de Wompi
 function updateWithRealWompiId() {
     const urlParams = new URLSearchParams(window.location.search);
-    const realWompiId = urlParams.get('id'); // Este es el ID real de Wompi
+    const realWompiId = urlParams.get('id');
     
     if (realWompiId) {
         console.log('🆔 ID real de Wompi encontrado:', realWompiId);
@@ -165,20 +165,28 @@ function updateWithRealWompiId() {
         // Actualizar sessionStorage
         const sessionOrder = sessionStorage.getItem('pendingWompiOrder');
         if (sessionOrder) {
-            const orderData = JSON.parse(sessionOrder);
-            orderData.wompiId = realWompiId;
-            sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderData));
+            try {
+                const orderData = JSON.parse(sessionOrder);
+                orderData.wompiId = realWompiId;
+                sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderData));
+                console.log('✅ ID real actualizado en sessionStorage');
+            } catch (error) {
+                console.error('❌ Error actualizando sessionStorage:', error);
+            }
         }
         
         // Actualizar localStorage
         const localOrder = localStorage.getItem('pendingWompiOrder');
         if (localOrder) {
-            const orderData = JSON.parse(localOrder);
-            orderData.wompiId = realWompiId;
-            localStorage.setItem('pendingWompiOrder', JSON.stringify(localOrder));
+            try {
+                const orderData = JSON.parse(localOrder);
+                orderData.wompiId = realWompiId;
+                localStorage.setItem('pendingWompiOrder', JSON.stringify(orderData));
+                console.log('✅ ID real actualizado en localStorage');
+            } catch (error) {
+                console.error('❌ Error actualizando localStorage:', error);
+            }
         }
-        
-        console.log('✅ ID real de Wompi guardado en almacenamiento');
     }
 }
         // ===== CONFIGURACIÓN WOMPI =====
