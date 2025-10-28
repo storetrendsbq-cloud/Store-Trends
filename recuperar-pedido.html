@@ -1,295 +1,237 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificar Mi Pedido - Store Trends</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #d4af37, #f4d03f);
-            color: #1a1a1a;
-            padding: 12px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 10px 5px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .success { color: #4CAF50; }
-        .error { color: #f44336; }
-        .warning { color: #ff9800; }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #d4af37;
-            animation: spin 1s ease-in-out infinite;
-            margin: 10px auto;
-        }
+<script>
+    // ===== CONFIGURACIÓN WOMPI =====
+    const WOMPI_PUBLIC_KEY = 'pub_test_Mv1l7L1UJH55WaT7ScivNlQ5AUaLjp7Q';
+    const WOMPI_API_URL = 'https://sandbox.wompi.co/v1/transactions/';
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+    async function checkPendingOrder() {
+        console.log('🔍 Buscando pedido pendiente...');
+        
+        // 1. Buscar en localStorage y sessionStorage
+        let pendingOrder = null;
+        
+        try {
+            pendingOrder = localStorage.getItem('pendingWompiOrder') || 
+                          sessionStorage.getItem('pendingWompiOrder');
+        } catch (error) {
+            console.error('❌ Error accediendo al almacenamiento:', error);
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🔍 Verificar Mi Pedido</h1>
         
-        <div id="initialState">
-            <p>Si realizaste un pago pero no recibiste confirmación, verifica el estado aquí.</p>
-            <button class="btn" onclick="checkPendingOrder()">Verificar Mi Pedido Pendiente</button>
-        </div>
-        
-        <div id="result" class="hidden" style="margin-top: 20px;"></div>
-        
-        <div style="margin-top: 30px;">
-            <a href="index.html" class="btn">🏠 Volver a la Tienda</a>
-            <a href="https://wa.me/573054813630" class="btn" target="_blank">💬 Soporte WhatsApp</a>
-        </div>
-    </div>
-
-    <script>
-        // ===== CONFIGURACIÓN WOMPI =====
-        const WOMPI_PUBLIC_KEY = 'pub_test_Mv1l7L1UJH55WaT7ScivNlQ5AUaLjp7Q';
-        const WOMPI_API_URL = 'https://sandbox.wompi.co/v1/transactions/';
-
-       async function checkPendingOrder() {
-    console.log('🔍 Buscando pedido pendiente...');
-    
-    // 1. Buscar en localStorage y sessionStorage
-    const pendingOrder = localStorage.getItem('pendingWompiOrder') || 
-                        sessionStorage.getItem('pendingWompiOrder');
-    
-    if (!pendingOrder) {
-        showResult('error', 'No encontramos pedidos pendientes. Si realizaste un pago, por favor contáctanos por WhatsApp.');
-        return;
-    }
-    
-    const orderData = JSON.parse(pendingOrder);
-    
-    // 🔥 CAMBIO IMPORTANTE: Usar wompiId si está disponible, sino ourReference
-    const transactionIdToCheck = orderData.wompiId || orderData.ourReference;
-    
-    console.log('📋 Datos del pedido encontrado:', orderData);
-    console.log('🔍 ID a verificar:', transactionIdToCheck);
-    
-    if (!transactionIdToCheck) {
-        showResult('error', 'No encontramos información de transacción. Por favor contáctanos por WhatsApp.');
-        return;
-    }
-    
-    showResult('warning', 'Buscando información de tu transacción... <div class="loading"></div>');
-    
-    try {
-        // 2. Verificar estado con API de Wompi
-        console.log('🔍 Verificando transacción Wompi:', transactionIdToCheck);
-        const transaction = await verifyTransactionWithWompi(transactionIdToCheck);
-        console.log('📡 Respuesta de Wompi:', transaction);
-        
-        if (transaction && transaction.status === 'APPROVED') {
-            // 3. Procesar pedido aprobado
-            await processRecoveredOrder(orderData, transaction);
-        } else if (transaction) {
+        if (!pendingOrder) {
             showResult('error', 
-                `Tu pedido está en estado: <strong>${transaction.status}</strong>. ` +
-                `Si el pago fue exitoso pero ves este mensaje, contáctanos.`
+                'No encontramos pedidos pendientes. Esto puede significar que:<br><br>' +
+                '• Tu pedido ya fue procesado correctamente<br>' +
+                '• No se guardó información del pedido<br>' +
+                '• O realizaste el pago en otro dispositivo/navegador<br><br>' +
+                'Si realizaste un pago, por favor contáctanos por WhatsApp.'
             );
-        } else {
-            showResult('error', 
-                'No pudimos verificar el estado de tu transacción. ' +
-                'Por favor contáctanos por WhatsApp con tu número de pedido: ' + 
-                (orderData.ourReference || 'No disponible')
-            );
+            return;
         }
-    } catch (error) {
-        console.error('❌ Error verificando pedido:', error);
         
-        // 🔥 MEJOR MANEJO DE ERRORES
-        if (error.message.includes('404')) {
+        let orderData;
+        try {
+            orderData = JSON.parse(pendingOrder);
+            console.log('📋 Datos del pedido encontrado:', orderData);
+        } catch (error) {
+            console.error('❌ Error parseando datos del pedido:', error);
+            showResult('error', 'Error al leer la información del pedido. Por favor contáctanos.');
+            return;
+        }
+        
+        // 🔥 OBTENER ID PARA VERIFICAR (múltiples opciones)
+        let transactionIdToCheck = null;
+        
+        if (orderData.wompiId) {
+            transactionIdToCheck = orderData.wompiId;
+            console.log('🔍 Usando ID real de Wompi:', transactionIdToCheck);
+        } else if (orderData.ourReference) {
+            transactionIdToCheck = orderData.ourReference;
+            console.log('🔍 Usando nuestra referencia:', transactionIdToCheck);
+        } else if (orderData.metadata && orderData.metadata.wompiReference) {
+            transactionIdToCheck = orderData.metadata.wompiReference;
+            console.log('🔍 Usando referencia de metadata:', transactionIdToCheck);
+        }
+        
+        if (!transactionIdToCheck) {
+            console.error('❌ No se pudo encontrar ID para verificar:', orderData);
             showResult('error', 
-                'No encontramos la transacción en Wompi. Esto puede significar que:<br><br>' +
-                '• El pago no se completó<br>' +
-                '• La transacción fue cancelada<br>' +
-                '• Ocurrió un error durante el proceso<br><br>' +
-                'Por favor contáctanos por WhatsApp para verificar manualmente tu pedido.'
+                'No encontramos información suficiente para verificar tu transacción.<br><br>' +
+                'Por favor contáctanos por WhatsApp con cualquier información que tengas.'
             );
-        } else {
-            showResult('error', 
-                'Error al verificar el pedido. Por favor contáctanos por WhatsApp con tu número de pedido: ' + 
-                (orderData.ourReference || 'No disponible')
-            );
+            return;
+        }
+        
+        console.log('🔍 ID a verificar:', transactionIdToCheck);
+        showResult('warning', 'Buscando información de tu transacción... <div class="loading"></div>');
+        
+        try {
+            // 2. Verificar estado con API de Wompi
+            console.log('🔍 Verificando transacción Wompi:', transactionIdToCheck);
+            const transaction = await verifyTransactionWithWompi(transactionIdToCheck);
+            console.log('📡 Respuesta de Wompi:', transaction);
+            
+            if (transaction && transaction.status === 'APPROVED') {
+                // 3. Procesar pedido aprobado
+                await processRecoveredOrder(orderData, transaction);
+            } else if (transaction) {
+                showResult('error', 
+                    `Tu transacción está en estado: <strong>${transaction.status}</strong><br><br>` +
+                    `Si el pago fue exitoso pero ves este mensaje, por favor contáctanos.`
+                );
+            } else {
+                showResult('error', 
+                    'No pudimos obtener información de tu transacción.<br><br>' +
+                    'Esto puede significar que:<br>' +
+                    '• El pago no se completó<br>' +
+                    '• La transacción fue cancelada<br>' +
+                    '• Ocurrió un error en el proceso<br><br>' +
+                    'Por favor contáctanos por WhatsApp para verificar manualmente.'
+                );
+            }
+        } catch (error) {
+            console.error('❌ Error verificando pedido:', error);
+            
+            if (error.message.includes('404')) {
+                showResult('error', 
+                    'No encontramos la transacción en Wompi.<br><br>' +
+                    'Esto puede significar que:<br>' +
+                    '• El pago no se completó<br>' +
+                    '• La transacción fue cancelada<br>' +
+                    '• El ID de transacción es incorrecto<br><br>' +
+                    'Por favor contáctanos por WhatsApp para verificar manualmente.'
+                );
+            } else {
+                showResult('error', 
+                    'Error de conexión al verificar tu pedido.<br><br>' +
+                    'Por favor intenta nuevamente o contáctanos por WhatsApp.'
+                );
+            }
         }
     }
-}
 
-        async function verifyTransactionWithWompi(transactionId) {
-            try {
-                console.log('🌐 Consultando API Wompi:', `${WOMPI_API_URL}${transactionId}`);
-                
-                const response = await fetch(`${WOMPI_API_URL}${transactionId}`);
-                console.log('📞 Estado de la respuesta:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+    async function verifyTransactionWithWompi(transactionId) {
+        try {
+            console.log('🌐 Consultando API Wompi:', `${WOMPI_API_URL}${transactionId}`);
+            
+            const response = await fetch(`${WOMPI_API_URL}${transactionId}`);
+            console.log('📞 Estado de la respuesta:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('📊 Datos recibidos:', data);
+            
+            if (!data.data) {
+                throw new Error('No se encontraron datos en la respuesta');
+            }
+            
+            return data.data;
+        } catch (error) {
+            console.error('❌ Error en verifyTransactionWithWompi:', error);
+            throw error;
+        }
+    }
+
+    async function processRecoveredOrder(orderData, transaction) {
+        console.log('✅ Pedido recuperado - Procesando...', orderData);
+        
+        // Construir objeto para enviar a Sheets
+        const orderDataToSend = {
+            metadata: {
+                orderNumber: orderData.ourReference || orderData.metadata?.orderNumber || `STBQ-${Date.now()}`,
+                orderDate: new Date().toLocaleString('es-CO'),
+                paymentMethod: `Wompi - ${transaction.payment_method_type || 'Tarjeta'}`,
+                subtotal: Math.round(transaction.amount_in_cents / 100 * 0.85),
+                shipping: Math.round(transaction.amount_in_cents / 100 * 0.15),
+                total: transaction.amount_in_cents / 100,
+                wompiReference: transaction.id,
+                paymentStatus: 'approved',
+                recovered: true,
+                processedAt: new Date().toLocaleString('es-CO')
+            },
+            customer: {
+                name: transaction.customer_data?.full_name || orderData.customer?.name || 'Cliente Wompi',
+                email: transaction.customer_data?.email || orderData.customer?.email || 'cliente@wompi.com',
+                phone: transaction.customer_data?.phone_number || orderData.customer?.phone || '3000000000',
+                address: orderData.customer?.address || 'Por confirmar (Recuperado)',
+                city: orderData.customer?.city || 'Por confirmar (Recuperado)',
+                notes: 'Pedido recuperado automáticamente via página de recuperación'
+            },
+            items: orderData.items || [
+                {
+                    nombre: 'Productos Store Trends - Recuperado',
+                    cantidad: 1,
+                    precio_unitario: transaction.amount_in_cents / 100,
+                    precio_total: transaction.amount_in_cents / 100,
+                    marca: 'Store Trends'
                 }
-                
-                const data = await response.json();
-                console.log('📊 Datos recibidos:', data);
-                
-                return data.data;
-            } catch (error) {
-                console.error('❌ Error en verifyTransactionWithWompi:', error);
-                throw error;
-            }
-        }
-
-       async function processRecoveredOrder(orderData, transaction) {
-    console.log('✅ Pedido recuperado - Procesando...', orderData);
-    
-    // 🔥 ACTUALIZAR: Usar los datos reales del pedido
-    const orderDataToSend = {
-        metadata: {
-            orderNumber: orderData.ourReference || `STBQ-${Date.now()}`,
-            orderDate: new Date().toLocaleString('es-CO'),
-            paymentMethod: `Wompi - ${transaction.payment_method_type || 'Tarjeta'}`,
-            subtotal: Math.round(transaction.amount_in_cents / 100 * 0.85), // Aproximar
-            shipping: Math.round(transaction.amount_in_cents / 100 * 0.15), // Aproximar
-            total: transaction.amount_in_cents / 100,
-            wompiReference: transaction.id,
-            paymentStatus: 'approved',
-            recovered: true,
-            processedAt: new Date().toLocaleString('es-CO')
-        },
-        customer: {
-            name: transaction.customer_data?.full_name || 'Cliente Wompi',
-            email: transaction.customer_data?.email || 'cliente@wompi.com',
-            phone: transaction.customer_data?.phone_number || '3000000000',
-            address: 'Por confirmar (Recuperado)',
-            city: 'Por confirmar (Recuperado)',
-            notes: 'Pedido recuperado automáticamente via página de recuperación'
-        },
-        items: [
-            {
-                nombre: 'Productos Store Trends - Recuperado',
-                cantidad: 1,
-                precio_unitario: transaction.amount_in_cents / 100,
-                precio_total: transaction.amount_in_cents / 100,
-                marca: 'Store Trends'
-            }
-        ]
-    };
-    
-    // Enviar a Google Sheets
-    const sheetsResult = await submitOrderToSheets(orderDataToSend);
-    
-    if (sheetsResult && sheetsResult.success) {
-        // Limpiar almacenamiento
-        localStorage.removeItem('pendingWompiOrder');
-        sessionStorage.removeItem('pendingWompiOrder');
+            ]
+        };
         
-        showResult('success', 
-            `🎉 ¡Tu pedido <strong>${orderDataToSend.metadata.orderNumber}</strong> fue procesado exitosamente!<br><br>
-            ✅ <strong>Estado:</strong> Aprobado<br>
-            💳 <strong>Referencia Wompi:</strong> ${transaction.id}<br>
-            💰 <strong>Total:</strong> $${(transaction.amount_in_cents / 100).toLocaleString()}<br>
-            📅 <strong>Fecha:</strong> ${new Date(transaction.created_at).toLocaleString('es-CO')}<br><br>
-            <strong>Tu pedido ha sido registrado en nuestro sistema.</strong>`
-        );
-    } else {
-        showResult('error', 
-            'El pago fue aprobado pero hubo un error registrando tu pedido. ' +
-            'Por favor contáctanos con tu referencia: ' + transaction.id
-        );
+        // Enviar a Google Sheets
+        const sheetsResult = await submitOrderToSheets(orderDataToSend);
+        
+        if (sheetsResult && sheetsResult.success) {
+            // Limpiar almacenamiento
+            localStorage.removeItem('pendingWompiOrder');
+            sessionStorage.removeItem('pendingWompiOrder');
+            
+            showResult('success', 
+                `🎉 ¡Tu pedido <strong>${orderDataToSend.metadata.orderNumber}</strong> fue procesado exitosamente!<br><br>
+                ✅ <strong>Estado:</strong> Aprobado<br>
+                💳 <strong>Referencia Wompi:</strong> ${transaction.id}<br>
+                💰 <strong>Total:</strong> $${(transaction.amount_in_cents / 100).toLocaleString()}<br>
+                📅 <strong>Fecha:</strong> ${new Date(transaction.created_at).toLocaleString('es-CO')}<br><br>
+                <strong>Tu pedido ha sido registrado en nuestro sistema.</strong>`
+            );
+        } else {
+            showResult('error', 
+                'El pago fue aprobado pero hubo un error registrando tu pedido.<br><br>' +
+                'Por favor contáctanos con tu referencia: ' + transaction.id
+            );
+        }
     }
-}
-        function submitOrderToSheets(orderData) {
-            return new Promise((resolve) => {
-                console.log('📤 Enviando a Google Sheets...', orderData);
-                
-                const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
-                
-                fetch(scriptURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'orderData=' + encodeURIComponent(JSON.stringify(orderData))
-                })
-                .then(response => response.text())
-                .then(text => {
-                    console.log('📨 Respuesta de Sheets:', text);
-                    try {
-                        const data = JSON.parse(text);
-                        resolve(data);
-                    } catch (e) {
-                        console.log('📨 Respuesta no JSON, asumiendo éxito');
-                        resolve({ success: true, message: 'Pedido registrado' });
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Error enviando a Sheets:', error);
-                    resolve({ success: false, message: 'Error de conexión: ' + error.message });
-                });
-            });
-        }
 
-        function showResult(type, message) {
-            const resultDiv = document.getElementById('result');
-            const initialState = document.getElementById('initialState');
+    function submitOrderToSheets(orderData) {
+        return new Promise((resolve) => {
+            console.log('📤 Enviando a Google Sheets...', orderData);
             
-            initialState.classList.add('hidden');
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
+            
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'orderData=' + encodeURIComponent(JSON.stringify(orderData))
+            })
+            .then(response => response.text())
+            .then(text => {
+                console.log('📨 Respuesta de Sheets:', text);
+                try {
+                    const data = JSON.parse(text);
+                    resolve(data);
+                } catch (e) {
+                    console.log('📨 Respuesta no JSON, asumiendo éxito');
+                    resolve({ success: true, message: 'Pedido registrado' });
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error enviando a Sheets:', error);
+                resolve({ success: false, message: 'Error de conexión: ' + error.message });
+            });
+        });
+    }
+
+    function showResult(type, message) {
+        const resultDiv = document.getElementById('result');
+        const initialState = document.getElementById('initialState');
+        
+        if (initialState) initialState.classList.add('hidden');
+        if (resultDiv) {
             resultDiv.classList.remove('hidden');
-            
-            resultDiv.innerHTML = `
-                <div class="${type}">
-                    ${message}
-                </div>
-            `;
+            resultDiv.innerHTML = `<div class="${type}">${message}</div>`;
         }
-    </script>
-</body>
-</html>
+    }
+</script>
