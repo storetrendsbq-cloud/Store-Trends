@@ -154,6 +154,33 @@
     </div>
 
     <script>
+        // 🔥 NUEVA FUNCIÓN: Actualizar con ID real de Wompi
+function updateWithRealWompiId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const realWompiId = urlParams.get('id'); // Este es el ID real de Wompi
+    
+    if (realWompiId) {
+        console.log('🆔 ID real de Wompi encontrado:', realWompiId);
+        
+        // Actualizar sessionStorage
+        const sessionOrder = sessionStorage.getItem('pendingWompiOrder');
+        if (sessionOrder) {
+            const orderData = JSON.parse(sessionOrder);
+            orderData.wompiId = realWompiId;
+            sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderData));
+        }
+        
+        // Actualizar localStorage
+        const localOrder = localStorage.getItem('pendingWompiOrder');
+        if (localOrder) {
+            const orderData = JSON.parse(localOrder);
+            orderData.wompiId = realWompiId;
+            localStorage.setItem('pendingWompiOrder', JSON.stringify(localOrder));
+        }
+        
+        console.log('✅ ID real de Wompi guardado en almacenamiento');
+    }
+}
         // ===== CONFIGURACIÓN WOMPI =====
         const WOMPI_PUBLIC_KEY = 'pub_test_Mv1l7L1UJH55WaT7ScivNlQ5AUaLjp7Q';
         const WOMPI_API_URL = 'https://sandbox.wompi.co/v1/transactions/';
@@ -372,6 +399,9 @@
         // ===== INICIALIZACIÓN CON VERIFICACIÓN API =====
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🔄 Página de gracias cargada - Verificando transacción...');
+    
+    // 🔥 ACTUALIZAR CON ID REAL PRIMERO
+    updateWithRealWompiId();
             
             const urlParams = new URLSearchParams(window.location.search);
             const orderNumber = urlParams.get('order');
