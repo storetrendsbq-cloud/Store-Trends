@@ -3021,25 +3021,28 @@ localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
         const cleanPhone = customerPhone.replace(/\D/g, '');
         const phoneNumber = cleanPhone.startsWith('57') ? cleanPhone.substring(2) : cleanPhone;
         
-        // 7. 🔥 GUARDAR DATOS COMPLETOS EN SESSIONSTORAGE (más confiable)
-        const orderDataToSave = {
-    ...orderData,
-    metadata: {
-        ...orderData.metadata,
-        wompiReference: wompiReference,
-        paymentMethod: 'Wompi - Pago en línea',
-        paymentStatus: 'pending',
-        timestamp: Date.now(),
-        // 🔥 AGREGAR bandera para identificar transacciones reales
-        isRealTransaction: true
-    }
-};
-// Guardar en AMBOS para respaldo
-sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
-localStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave)); // 🔥 NUEVO
-        // Usar sessionStorage que es más confiable para redirecciones
-        sessionStorage.setItem('pendingWompiOrder', JSON.stringify(orderDataToSave));
-        console.log('💾 Datos guardados en sessionStorage:', orderDataToSave);
+                // 7. 🔥 GUARDAR DATOS MEJORADOS PARA RECUPERACIÓN
+        const paymentData = {
+            // Información de referencia
+            ourReference: wompiReference,
+            wompiId: null, // Se actualizará después si está disponible
+            
+            // Datos completos del pedido (estructura original)
+            metadata: orderData.metadata,
+            customer: orderData.customer,
+            items: orderData.items,
+            
+            // Información adicional para debugging
+            timestamp: Date.now(),
+            cartItemsCount: cart.length,
+            source: 'index_page'
+        };
+
+        // Guardar en AMBOS almacenamientos como respaldo
+        sessionStorage.setItem('pendingWompiOrder', JSON.stringify(paymentData));
+        localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentData));
+        
+        console.log('💾 Datos guardados para recuperación:', paymentData);
 
         // 8. Configuración para Wompi con URL más simple
         const transactionData = {
@@ -4263,6 +4266,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
