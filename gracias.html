@@ -162,39 +162,55 @@
     </div>
 
     <script>
-        // ===== DETECCIÓN DE TRANSACCIÓN REAL =====
+        // ===== DETECCIÓN MEJORADA DE TRANSACCIÓN REAL =====
 function detectTransactionType() {
     const urlParams = new URLSearchParams(window.location.search);
     const wompiSuccess = urlParams.get('wompi_success');
     const idParam = urlParams.get('id');
+    const transactionId = urlParams.get('transaction_id');
     
     console.log('🔍 Analizando parámetros Wompi:', { 
         wompiSuccess, 
         idParam,
+        transactionId,
         todos: Object.fromEntries(urlParams) 
     });
 
-    // 🔥 CRITERIO CONFIRMADO: Si hay parámetro 'id', es DECLINADA
-    if (idParam && idParam.includes('-')) {
-        console.log('🚫 TRANSACCIÓN DECLINADA detectada por parámetro id');
+    // 🔥 CRITERIO MÁS PRECISO:
+    // 1. Si hay parámetro 'id' Y NO hay 'transaction_id' → DECLINADA
+    // 2. Si hay 'transaction_id' → APROBADA (transacción exitosa)
+    // 3. Si wompi_success=true y NO hay 'id' → APROBADA
+    
+    if (idParam && idParam.includes('-') && !transactionId) {
+        console.log('🚫 TRANSACCIÓN DECLINADA - Tiene "id" pero no "transaction_id"');
         return 'declined';
     }
     
-    // 🔥 TRANSACCIÓN APROBADA: Solo si no tiene 'id' y tiene wompi_success=true
-    if (wompiSuccess === 'true' && !idParam) {
-        console.log('✅ TRANSACCIÓN APROBADA confirmada');
+    if (transactionId || (wompiSuccess === 'true' && !idParam)) {
+        console.log('✅ TRANSACCIÓN APROBADA - Tiene "transaction_id" o wompi_success sin id');
         return 'approved';
     }
     
-    // Por defecto, asumir declinada por seguridad
+    // Casos especiales de Wompi
+    if (wompiSuccess === 'true' && idParam) {
+        // Podría ser una redirección de Wompi con ambos parámetros
+        console.log('⚠️ Caso especial: Tiene wompi_success=true PERO también id');
+        // Por seguridad, asumir aprobada si wompi_success=true
+        return 'approved';
+    }
+    
     console.log('🚫 TRANSACCIÓN DECLINADA (caso por defecto)');
     return 'declined';
 }
-
-// ===== REDIRECCIÓN AUTOMÁTICA PARA DECLINADOS =====
+// ===== REDIRECCIÓN MEJORADA PARA DECLINADOS =====
 function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
     console.log('🔀 Redirigiendo a página de error...');
+    
+    // Limpiar sessionStorage ANTES de redirigir
+    sessionStorage.removeItem('pendingWompiOrder');
+    
     const errorUrl = `error.html?order=${orderNumber || ''}&ref=${wompiRef || ''}&id=${transactionId || ''}&status=DECLINED`;
+    console.log('📍 URL de error:', errorUrl);
     window.location.href = errorUrl;
 }
     // ===== FUNCIÓN PARA ENVIAR A GOOGLE SHEETS =====
@@ -341,7 +357,7 @@ function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
         }
     }
 
-    // ===== INICIALIZACIÓN =====
+    // ===== INICIALIZACIÓN MEJORADA =====
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🔄 Página de gracias cargada');
     
@@ -351,8 +367,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     const orderNumber = urlParams.get('order');
     const wompiRef = urlParams.get('ref');
     const idParam = urlParams.get('id');
+    const transactionId = urlParams.get('transaction_id');
     
-    console.log('💰 Tipo de transacción detectado:', transactionType);
+    console.log('💰 Tipo de transacción final:', transactionType);
+    console.log('📋 Todos los parámetros:', {
+        orderNumber,
+        wompiRef, 
+        idParam,
+        transactionId,
+        wompiSuccess: urlParams.get('wompi_success')
+    });
     
     // 2. SI ES DECLINADA, REDIRIGIR INMEDIATAMENTE
     if (transactionType === 'declined') {
@@ -362,7 +386,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     // 3. SOLO SI ES APROBADA, continuar con el procesamiento normal
-    console.log('✅ Continuando con procesamiento de transacción APROBADA');
+    console.log('✅ Transacción APROBADA - Continuando procesamiento');
     
     // Actualizar UI básica
     document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
