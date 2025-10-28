@@ -97,54 +97,74 @@
         const WOMPI_PUBLIC_KEY = 'pub_test_Mv1l7L1UJH55WaT7ScivNlQ5AUaLjp7Q';
         const WOMPI_API_URL = 'https://sandbox.wompi.co/v1/transactions/';
 
-        async function checkPendingOrder() {
-            console.log('🔍 Buscando pedido pendiente...');
-            
-            // 1. Buscar en localStorage y sessionStorage
-            const pendingOrder = localStorage.getItem('pendingWompiOrder') || 
-                                sessionStorage.getItem('pendingWompiOrder');
-            
-            if (!pendingOrder) {
-                showResult('error', 'No encontramos pedidos pendientes. Si realizaste un pago, por favor contáctanos por WhatsApp.');
-                return;
-            }
-            
-            const orderData = JSON.parse(pendingOrder);
-            const wompiRef = orderData.metadata.wompiReference;
-            
-            console.log('📋 Datos del pedido encontrado:', orderData);
-            
-            showResult('warning', 'Buscando información de tu transacción... <div class="loading"></div>');
-            
-            try {
-                // 2. Verificar estado con API de Wompi
-                console.log('🔍 Verificando transacción Wompi:', wompiRef);
-                const transaction = await verifyTransactionWithWompi(wompiRef);
-                console.log('📡 Respuesta de Wompi:', transaction);
-                
-                if (transaction && transaction.status === 'APPROVED') {
-                    // 3. Procesar pedido aprobado
-                    await processRecoveredOrder(orderData, transaction);
-                } else if (transaction) {
-                    showResult('error', 
-                        `Tu pedido está en estado: <strong>${transaction.status}</strong>. ` +
-                        `Si el pago fue exitoso pero ves este mensaje, contáctanos.`
-                    );
-                } else {
-                    showResult('error', 
-                        'No pudimos verificar el estado de tu transacción. ' +
-                        'Por favor contáctanos por WhatsApp con tu número de pedido: ' + 
-                        orderData.metadata.orderNumber
-                    );
-                }
-            } catch (error) {
-                console.error('❌ Error verificando pedido:', error);
-                showResult('error', 
-                    'Error al verificar el pedido. Por favor contáctanos por WhatsApp con tu número de pedido: ' + 
-                    orderData.metadata.orderNumber + '. Error: ' + error.message
-                );
-            }
+       async function checkPendingOrder() {
+    console.log('🔍 Buscando pedido pendiente...');
+    
+    // 1. Buscar en localStorage y sessionStorage
+    const pendingOrder = localStorage.getItem('pendingWompiOrder') || 
+                        sessionStorage.getItem('pendingWompiOrder');
+    
+    if (!pendingOrder) {
+        showResult('error', 'No encontramos pedidos pendientes. Si realizaste un pago, por favor contáctanos por WhatsApp.');
+        return;
+    }
+    
+    const orderData = JSON.parse(pendingOrder);
+    
+    // 🔥 CAMBIO IMPORTANTE: Usar wompiId si está disponible, sino ourReference
+    const transactionIdToCheck = orderData.wompiId || orderData.ourReference;
+    
+    console.log('📋 Datos del pedido encontrado:', orderData);
+    console.log('🔍 ID a verificar:', transactionIdToCheck);
+    
+    if (!transactionIdToCheck) {
+        showResult('error', 'No encontramos información de transacción. Por favor contáctanos por WhatsApp.');
+        return;
+    }
+    
+    showResult('warning', 'Buscando información de tu transacción... <div class="loading"></div>');
+    
+    try {
+        // 2. Verificar estado con API de Wompi
+        console.log('🔍 Verificando transacción Wompi:', transactionIdToCheck);
+        const transaction = await verifyTransactionWithWompi(transactionIdToCheck);
+        console.log('📡 Respuesta de Wompi:', transaction);
+        
+        if (transaction && transaction.status === 'APPROVED') {
+            // 3. Procesar pedido aprobado
+            await processRecoveredOrder(orderData, transaction);
+        } else if (transaction) {
+            showResult('error', 
+                `Tu pedido está en estado: <strong>${transaction.status}</strong>. ` +
+                `Si el pago fue exitoso pero ves este mensaje, contáctanos.`
+            );
+        } else {
+            showResult('error', 
+                'No pudimos verificar el estado de tu transacción. ' +
+                'Por favor contáctanos por WhatsApp con tu número de pedido: ' + 
+                (orderData.ourReference || 'No disponible')
+            );
         }
+    } catch (error) {
+        console.error('❌ Error verificando pedido:', error);
+        
+        // 🔥 MEJOR MANEJO DE ERRORES
+        if (error.message.includes('404')) {
+            showResult('error', 
+                'No encontramos la transacción en Wompi. Esto puede significar que:<br><br>' +
+                '• El pago no se completó<br>' +
+                '• La transacción fue cancelada<br>' +
+                '• Ocurrió un error durante el proceso<br><br>' +
+                'Por favor contáctanos por WhatsApp para verificar manualmente tu pedido.'
+            );
+        } else {
+            showResult('error', 
+                'Error al verificar el pedido. Por favor contáctanos por WhatsApp con tu número de pedido: ' + 
+                (orderData.ourReference || 'No disponible')
+            );
+        }
+    }
+}
 
         async function verifyTransactionWithWompi(transactionId) {
             try {
