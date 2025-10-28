@@ -3004,6 +3004,17 @@ async function initiateWompiPayment() {
 
         // 5. Crear referencia única para Wompi
         const wompiReference = WOMPI_REFERENCE_PREFIX + Date.now();
+        // 🔥 NUEVO: Crear un objeto para rastrear la transacción
+const paymentTracking = {
+    ourReference: wompiReference,
+    wompiId: null, // Se actualizará cuando Wompi lo proporcione
+    orderData: orderData,
+    timestamp: Date.now()
+};
+
+// Guardar en AMBOS almacenamientos
+sessionStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
+localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
         
         // 6. Obtener teléfono del formulario
         const customerPhone = formData.get('customerPhone') || '3000000000';
@@ -4252,6 +4263,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
