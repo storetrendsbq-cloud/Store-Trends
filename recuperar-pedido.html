@@ -187,39 +187,65 @@
             }
         }
 
-        async function processRecoveredOrder(orderData, transaction) {
-            console.log('✅ Pedido recuperado - Procesando...', orderData);
-            
-            // Actualizar datos con información real de Wompi
-            orderData.metadata.paymentStatus = 'approved';
-            orderData.metadata.wompiReference = transaction.id;
-            orderData.metadata.recovered = true;
-            orderData.metadata.processedAt = new Date().toLocaleString('es-CO');
-            
-            // Enviar a Google Sheets
-            const sheetsResult = await submitOrderToSheets(orderData);
-            
-            if (sheetsResult && sheetsResult.success) {
-                // Limpiar almacenamiento
-                localStorage.removeItem('pendingWompiOrder');
-                sessionStorage.removeItem('pendingWompiOrder');
-                
-                showResult('success', 
-                    `🎉 ¡Tu pedido <strong>${orderData.metadata.orderNumber}</strong> fue procesado exitosamente!<br><br>
-                    ✅ <strong>Estado:</strong> Aprobado<br>
-                    💳 <strong>Referencia Wompi:</strong> ${transaction.id}<br>
-                    💰 <strong>Total:</strong> $${(transaction.amount_in_cents / 100).toLocaleString()}<br>
-                    📅 <strong>Fecha:</strong> ${new Date(transaction.created_at).toLocaleString('es-CO')}<br><br>
-                    <strong>Tu pedido ha sido registrado en nuestro sistema.</strong>`
-                );
-            } else {
-                showResult('error', 
-                    'El pago fue aprobado pero hubo un error registrando tu pedido. ' +
-                    'Por favor contáctanos con tu referencia: ' + transaction.id
-                );
+       async function processRecoveredOrder(orderData, transaction) {
+    console.log('✅ Pedido recuperado - Procesando...', orderData);
+    
+    // 🔥 ACTUALIZAR: Usar los datos reales del pedido
+    const orderDataToSend = {
+        metadata: {
+            orderNumber: orderData.ourReference || `STBQ-${Date.now()}`,
+            orderDate: new Date().toLocaleString('es-CO'),
+            paymentMethod: `Wompi - ${transaction.payment_method_type || 'Tarjeta'}`,
+            subtotal: Math.round(transaction.amount_in_cents / 100 * 0.85), // Aproximar
+            shipping: Math.round(transaction.amount_in_cents / 100 * 0.15), // Aproximar
+            total: transaction.amount_in_cents / 100,
+            wompiReference: transaction.id,
+            paymentStatus: 'approved',
+            recovered: true,
+            processedAt: new Date().toLocaleString('es-CO')
+        },
+        customer: {
+            name: transaction.customer_data?.full_name || 'Cliente Wompi',
+            email: transaction.customer_data?.email || 'cliente@wompi.com',
+            phone: transaction.customer_data?.phone_number || '3000000000',
+            address: 'Por confirmar (Recuperado)',
+            city: 'Por confirmar (Recuperado)',
+            notes: 'Pedido recuperado automáticamente via página de recuperación'
+        },
+        items: [
+            {
+                nombre: 'Productos Store Trends - Recuperado',
+                cantidad: 1,
+                precio_unitario: transaction.amount_in_cents / 100,
+                precio_total: transaction.amount_in_cents / 100,
+                marca: 'Store Trends'
             }
-        }
-
+        ]
+    };
+    
+    // Enviar a Google Sheets
+    const sheetsResult = await submitOrderToSheets(orderDataToSend);
+    
+    if (sheetsResult && sheetsResult.success) {
+        // Limpiar almacenamiento
+        localStorage.removeItem('pendingWompiOrder');
+        sessionStorage.removeItem('pendingWompiOrder');
+        
+        showResult('success', 
+            `🎉 ¡Tu pedido <strong>${orderDataToSend.metadata.orderNumber}</strong> fue procesado exitosamente!<br><br>
+            ✅ <strong>Estado:</strong> Aprobado<br>
+            💳 <strong>Referencia Wompi:</strong> ${transaction.id}<br>
+            💰 <strong>Total:</strong> $${(transaction.amount_in_cents / 100).toLocaleString()}<br>
+            📅 <strong>Fecha:</strong> ${new Date(transaction.created_at).toLocaleString('es-CO')}<br><br>
+            <strong>Tu pedido ha sido registrado en nuestro sistema.</strong>`
+        );
+    } else {
+        showResult('error', 
+            'El pago fue aprobado pero hubo un error registrando tu pedido. ' +
+            'Por favor contáctanos con tu referencia: ' + transaction.id
+        );
+    }
+}
         function submitOrderToSheets(orderData) {
             return new Promise((resolve) => {
                 console.log('📤 Enviando a Google Sheets...', orderData);
