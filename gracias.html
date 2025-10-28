@@ -1,218 +1,59 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Gracias por tu compra! - Store Trends</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .success-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            animation: bounce 1s infinite alternate;
-        }
-        
-        @keyframes bounce {
-            from { transform: translateY(0px); }
-            to { transform: translateY(-10px); }
-        }
-        
-        h1 {
-            color: #d4af37;
-            margin-bottom: 15px;
-            font-size: 2rem;
-        }
-        
-        p {
-            margin-bottom: 15px;
-            line-height: 1.6;
-            opacity: 0.9;
-        }
-        
-        .order-info {
-            background: rgba(212, 175, 55, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #d4af37;
-        }
-        
-        .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #d4af37, #f4d03f);
-            color: #1a1a1a;
-            padding: 12px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 10px 5px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .whatsapp-btn {
-            background: #25D366;
-            color: white;
-        }
+<script>
+    // ===== CONFIGURACIÓN WOMPI =====
+    const WOMPI_PUBLIC_KEY = 'pub_test_Mv1l7L1UJH55WaT7ScivNlQ5AUaLjp7Q';
+    const WOMPI_API_URL = 'https://sandbox.wompi.co/v1/transactions/';
 
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #d4af37;
-            animation: spin 1s ease-in-out infinite;
-            margin: 10px auto;
+    // ===== VERIFICACIÓN CON API WOMPI =====
+    async function verifyTransactionWithWompi(transactionId) {
+        try {
+            console.log('🔍 Verificando transacción con Wompi API:', transactionId);
+            
+            const response = await fetch(`${WOMPI_API_URL}${transactionId}`);
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('📡 Respuesta API Wompi:', data);
+            
+            return data.data;
+        } catch (error) {
+            console.error('❌ Error verificando transacción:', error);
+            return null;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* 🔥 ESTO ES LO NUEVO QUE DEBES AGREGAR */
-    .hidden {
-        display: none !important;
     }
 
-    #processingMessage, #successMessage, #errorMessage {
-        transition: all 0.3s ease;
-    }
-
-    /* Asegurar que los botones sean visibles */
-    .btn {
-        display: inline-block !important;
-        visibility: visible !important;
-    }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="success-icon">🎉</div>
-        <h1>¡Gracias por tu compra!</h1>
+    // ===== DETECCIÓN CON API =====
+    async function detectTransactionType() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const idParam = urlParams.get('id');
         
-        <div class="order-info">
-            <p><strong>Número de pedido:</strong> <span id="orderNumber">-</span></p>
-            <p><strong>Referencia Wompi:</strong> <span id="wompiReference">-</span></p>
-            <p><strong>Estado:</strong> <span id="status">Procesando...</span></p>
-        </div>
+        console.log('🔍 Parámetros URL:', Object.fromEntries(urlParams));
+
+        // Si no hay ID, no podemos verificar
+        if (!idParam) {
+            console.log('⚠️ No hay ID de transacción - Asumiendo APROBADA');
+            return 'approved';
+        }
+
+        // Verificar con API de Wompi
+        const transactionData = await verifyTransactionWithWompi(idParam);
         
-        <div id="processingMessage">
-            <p>🔄 Registrando tu pedido en nuestro sistema...</p>
-            <div class="loading"></div>
-        </div>
+        if (!transactionData) {
+            console.log('⚠️ No se pudo verificar con API - Asumiendo APROBADA');
+            return 'approved';
+        }
 
-        <div id="successMessage" class="hidden">
-            <p>✅ Tu pedido ha sido registrado correctamente en Google Sheets.</p>
-            <p>Recibirás un correo de confirmación con los detalles de envío.</p>
-        </div>
-
-        <div id="errorMessage" class="hidden">
-            <p>❌ Hubo un error registrando tu pedido automáticamente.</p>
-            <p>Por favor contáctanos para confirmar los detalles.</p>
-            <p><strong>Referencia:</strong> <span id="errorReference"></span></p>
-        </div>
-        
-        <div style="margin-top: 30px;">
-            <a href="index.html" class="btn">🏠 Volver a la tienda</a>
-            <a href="#" id="whatsappBtn" class="btn whatsapp-btn">💬 Confirmar por WhatsApp</a>
-        </div>
-        
-        <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7;">
-            ¿Tienes preguntas? Contáctanos: +57 3054813630
-        </p>
-    </div>
-
-    <script>
-        // ===== DETECCIÓN MEJORADA DE TRANSACCIÓN REAL =====
-function detectTransactionType() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const wompiSuccess = urlParams.get('wompi_success');
-    const idParam = urlParams.get('id');
-    const transactionId = urlParams.get('transaction_id');
-    
-    console.log('🔍 Analizando parámetros Wompi:', { 
-        wompiSuccess, 
-        idParam,
-        transactionId,
-        todos: Object.fromEntries(urlParams) 
-    });
-
-    // 🔥 CRITERIO MÁS PRECISO:
-    // 1. Si hay parámetro 'id' Y NO hay 'transaction_id' → DECLINADA
-    // 2. Si hay 'transaction_id' → APROBADA (transacción exitosa)
-    // 3. Si wompi_success=true y NO hay 'id' → APROBADA
-    
-    if (idParam && idParam.includes('-') && !transactionId) {
-        console.log('🚫 TRANSACCIÓN DECLINADA - Tiene "id" pero no "transaction_id"');
-        return 'declined';
+        // Verificar estado real de la transacción
+        if (transactionData.status === 'APPROVED') {
+            console.log('✅ TRANSACCIÓN APROBADA - Confirmada por API Wompi');
+            return 'approved';
+        } else {
+            console.log('🚫 TRANSACCIÓN DECLINADA - Estado:', transactionData.status);
+            return 'declined';
+        }
     }
-    
-    if (transactionId || (wompiSuccess === 'true' && !idParam)) {
-        console.log('✅ TRANSACCIÓN APROBADA - Tiene "transaction_id" o wompi_success sin id');
-        return 'approved';
-    }
-    
-    // Casos especiales de Wompi
-    if (wompiSuccess === 'true' && idParam) {
-        // Podría ser una redirección de Wompi con ambos parámetros
-        console.log('⚠️ Caso especial: Tiene wompi_success=true PERO también id');
-        // Por seguridad, asumir aprobada si wompi_success=true
-        return 'approved';
-    }
-    
-    console.log('🚫 TRANSACCIÓN DECLINADA (caso por defecto)');
-    return 'declined';
-}
-// ===== REDIRECCIÓN MEJORADA PARA DECLINADOS =====
-function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
-    console.log('🔀 Redirigiendo a página de error...');
-    
-    // Limpiar sessionStorage ANTES de redirigir
-    sessionStorage.removeItem('pendingWompiOrder');
-    
-    const errorUrl = `error.html?order=${orderNumber || ''}&ref=${wompiRef || ''}&id=${transactionId || ''}&status=DECLINED`;
-    console.log('📍 URL de error:', errorUrl);
-    window.location.href = errorUrl;
-}
+
     // ===== FUNCIÓN PARA ENVIAR A GOOGLE SHEETS =====
     function submitOrderToSheets(orderData) {
         return new Promise((resolve) => {
@@ -220,7 +61,6 @@ function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
             
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
             
-            // Usar fetch en lugar de JSONP para mejor control
             fetch(scriptURL, {
                 method: 'POST',
                 headers: {
@@ -228,41 +68,33 @@ function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
                 },
                 body: 'orderData=' + encodeURIComponent(JSON.stringify(orderData))
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error HTTP: ' + response.status);
-                }
-                return response.text();
-            })
+            .then(response => response.text())
             .then(text => {
                 console.log('📨 Respuesta de Sheets:', text);
-                
-                // Intentar parsear como JSON, si falla considerar éxito
                 try {
                     const data = JSON.parse(text);
                     resolve(data);
                 } catch (e) {
-                    // Si no es JSON válido, asumir éxito
-                    console.log('✅ Respuesta no JSON - asumiendo éxito');
                     resolve({ success: true, message: 'Pedido registrado' });
                 }
             })
             .catch(error => {
                 console.error('❌ Error fetch:', error);
-                resolve({ 
-                    success: false, 
-                    message: 'Error de conexión' 
-                });
+                resolve({ success: false, message: 'Error de conexión' });
             });
             
-            // Timeout de seguridad
             setTimeout(() => {
-                resolve({ 
-                    success: false, 
-                    message: 'Timeout en conexión' 
-                });
+                resolve({ success: false, message: 'Timeout en conexión' });
             }, 15000);
         });
+    }
+
+    // ===== REDIRECCIÓN A ERROR =====
+    function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
+        console.log('🔀 Redirigiendo a página de error...');
+        sessionStorage.removeItem('pendingWompiOrder');
+        const errorUrl = `error.html?order=${orderNumber || ''}&ref=${wompiRef || ''}&id=${transactionId || ''}&status=DECLINED`;
+        window.location.href = errorUrl;
     }
 
     // ===== PROCESAR PEDIDO APROBADO =====
@@ -309,13 +141,11 @@ function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
                 };
             }
 
-            // Actualizar estado
             orderData.metadata.paymentStatus = 'approved';
             orderData.metadata.wompiReference = wompiRef;
 
             console.log('📦 Enviando pedido APROBADO a Google Sheets...');
             
-            // Enviar a Google Sheets
             const sheetsResult = await submitOrderToSheets(orderData);
             
             if (sheetsResult && sheetsResult.success) {
@@ -324,13 +154,12 @@ function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
                 sessionStorage.removeItem('pendingWompiOrder');
             } else {
                 console.log('⚠️ Error en Sheets pero pedido fue aprobado');
-                showSuccess(); // Mostrar éxito aunque Sheets falle
+                showSuccess();
                 sessionStorage.removeItem('pendingWompiOrder');
             }
             
         } catch (error) {
             console.error('❌ Error procesando pedido aprobado:', error);
-            // Aún así mostrar éxito al usuario
             showSuccess();
             sessionStorage.removeItem('pendingWompiOrder');
         }
@@ -344,64 +173,39 @@ function redirectToErrorPage(orderNumber, wompiRef, transactionId) {
         document.getElementById('successMessage').classList.remove('hidden');
     }
 
-    function showError(reference) {
-        document.getElementById('status').textContent = '❌ Error en registro';
-        document.getElementById('status').style.color = '#f44336';
-        document.getElementById('processingMessage').classList.add('hidden');
-        document.getElementById('errorMessage').classList.remove('hidden');
-        if (reference) {
-            const errorReference = document.getElementById('errorReference');
-            if (errorReference) {
-                errorReference.textContent = reference;
-            }
+    // ===== INICIALIZACIÓN CON VERIFICACIÓN API =====
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('🔄 Página de gracias cargada - Verificando transacción...');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get('order');
+        const wompiRef = urlParams.get('ref');
+        const idParam = urlParams.get('id');
+        
+        console.log('📋 Parámetros URL:', { orderNumber, wompiRef, idParam });
+        
+        // Actualizar UI básica
+        document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
+        document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
+        
+        // Configurar WhatsApp
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        if (whatsappBtn) {
+            const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, acabo de realizar un pedido (${orderNumber}) y quiero confirmar los detalles.`;
+            whatsappBtn.href = whatsappUrl;
         }
-    }
-
-    // ===== INICIALIZACIÓN MEJORADA =====
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🔄 Página de gracias cargada');
-    
-    // 1. DETECTAR tipo de transacción primero
-    const transactionType = detectTransactionType();
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderNumber = urlParams.get('order');
-    const wompiRef = urlParams.get('ref');
-    const idParam = urlParams.get('id');
-    const transactionId = urlParams.get('transaction_id');
-    
-    console.log('💰 Tipo de transacción final:', transactionType);
-    console.log('📋 Todos los parámetros:', {
-        orderNumber,
-        wompiRef, 
-        idParam,
-        transactionId,
-        wompiSuccess: urlParams.get('wompi_success')
+        
+        // 🔥 VERIFICACIÓN CON API WOMPI
+        const transactionType = await detectTransactionType();
+        console.log('💰 Tipo de transacción final:', transactionType);
+        
+        if (transactionType === 'declined') {
+            console.log('❌ Transacción declinada - Redirigiendo a error.html');
+            redirectToErrorPage(orderNumber, wompiRef, idParam);
+            return;
+        }
+        
+        console.log('✅ Transacción APROBADA - Continuando procesamiento');
+        await processWompiOrder(orderNumber, wompiRef);
     });
-    
-    // 2. SI ES DECLINADA, REDIRIGIR INMEDIATAMENTE
-    if (transactionType === 'declined') {
-        console.log('❌ Transacción declinada - Redirigiendo a error.html');
-        redirectToErrorPage(orderNumber, wompiRef, idParam);
-        return; // 🔥 IMPORTANTE: Detener ejecución aquí
-    }
-    
-    // 3. SOLO SI ES APROBADA, continuar con el procesamiento normal
-    console.log('✅ Transacción APROBADA - Continuando procesamiento');
-    
-    // Actualizar UI básica
-    document.getElementById('orderNumber').textContent = orderNumber || 'No disponible';
-    document.getElementById('wompiReference').textContent = wompiRef || 'No disponible';
-    
-    // Configurar WhatsApp
-    const whatsappBtn = document.getElementById('whatsappBtn');
-    if (whatsappBtn) {
-        const whatsappUrl = `https://wa.me/573054813630?text=Hola Store Trends, acabo de realizar un pedido (${orderNumber}) y quiero confirmar los detalles.`;
-        whatsappBtn.href = whatsappUrl;
-    }
-    
-    // Procesar pedido aprobado
-    await processWompiOrder(orderNumber, wompiRef);
-});
 </script>
-</body>
-</html>
