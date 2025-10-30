@@ -3102,7 +3102,92 @@ localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
         
         alert('Error al iniciar el pago: ' + error.message);
     }
-}         
+}      
+     // 🔥 NUEVA FUNCIÓN PARA PROCESAR PAGOS MANUALES
+async function processManualPayment(paymentMethod) {
+    console.log('🔄 Procesando pago manual:', paymentMethod);
+    
+    try {
+        // 1. Validar formulario
+        if (!validateCheckoutForm()) {
+            alert('Por favor completa todos los campos obligatorios antes de continuar.');
+            return;
+        }
+
+        // 2. Obtener datos del formulario
+        const formData = new FormData(document.getElementById('checkoutForm'));
+        const orderData = generateOrderData(formData);
+        
+        console.log('📋 Datos del pedido para ' + paymentMethod + ':', orderData);
+
+        // 3. Generar referencia única
+        const manualReference = 'STBQ-' + paymentMethod.toUpperCase().substring(0, 2) + '-' + Date.now();
+        
+        // 4. Guardar datos para recuperación (IGUAL QUE WOMPI)
+        const paymentData = {
+            ourReference: manualReference,
+            wompiId: null,
+            metadata: orderData.metadata,
+            customer: orderData.customer,
+            items: orderData.items,
+            timestamp: Date.now(),
+            cartItemsCount: cart.length,
+            source: 'index_page',
+            paymentMethod: paymentMethod,
+            status: 'pending_confirmation'
+        };
+
+        // Guardar en AMBOS almacenamientos
+        sessionStorage.setItem('pendingWompiOrder', JSON.stringify(paymentData));
+        localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentData));
+        
+        console.log('💾 Datos guardados para ' + paymentMethod + ':', paymentData);
+
+        // 5. Mostrar loading
+        const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '⏳ Procesando...';
+        submitBtn.disabled = true;
+
+        // 6. Enviar a Google Sheets
+        console.log('📤 Enviando pedido a Google Sheets...');
+        const sheetsResult = await submitOrderToSheets(orderData);
+        
+        if (sheetsResult && sheetsResult.success) {
+            console.log('✅ Pedido registrado en Google Sheets');
+            
+            // 7. Limpiar carrito
+            cart = [];
+            updateCartUI();
+            localStorage.removeItem('cart');
+            
+            // 8. Cerrar modales
+            closeCheckout();
+            closeCart();
+            
+            // 9. 🔥 REDIRIGIR A PÁGINA DE GRACIAS
+            const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
+            console.log('🔀 Redirigiendo a:', graciasUrl);
+            
+            window.location.href = graciasUrl;
+            
+        } else {
+            throw new Error(sheetsResult?.message || 'Error registrando en Google Sheets');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error procesando pago manual:', error);
+        
+        // Restaurar botón
+        const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '✅ Confirmar Pedido';
+            submitBtn.disabled = false;
+        }
+        
+        alert('Error al procesar el pedido: ' + error.message);
+    }
+}       
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -3671,12 +3756,17 @@ function submitOrderToSheets(orderData) {
     });
     
     let paymentMethod = formData.get('paymentMethod') || 'No especificada';
+    let paymentMethodText = '';
+    
+    // 🔥 MEJORAR LA DETECCIÓN DEL MÉTODO DE PAGO
     if (paymentMethod === 'wompi') {
-        paymentMethod = 'Pago en línea (Wompi)';
+        paymentMethodText = 'Pago en línea (Wompi)';
     } else if (paymentMethod === 'transferencia') {
-        paymentMethod = 'Transferencia bancaria';
+        paymentMethodText = 'Transferencia bancaria';
     } else if (paymentMethod === 'contra_entrega') {
-        paymentMethod = 'Contra entrega';
+        paymentMethodText = 'Contra entrega';
+    } else {
+        paymentMethodText = paymentMethod;
     }
     
     const subtotal = cart.reduce((sum, item) => sum + (item.precio.actual * item.quantity), 0);
@@ -3688,12 +3778,12 @@ function submitOrderToSheets(orderData) {
         marca: item.marca || 'Store Trends'
     }));
 
-    // Asegurar que todos los campos tengan valores por defecto
     const orderData = {
         metadata: {
             orderNumber: orderNumber,
             orderDate: orderDate,
-            paymentMethod: paymentMethod,
+            paymentMethod: paymentMethodText, // 🔥 USAR EL TEXTO MEJORADO
+            paymentMethodCode: paymentMethod, // 🔥 GUARDAR TAMBIÉN EL CÓDIGO
             subtotal: subtotal,
             shipping: shipping,
             total: total
@@ -4158,15 +4248,24 @@ function handleFailedPayment(result) {
             
             // Formulario de checkout
             document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
-                event.preventDefault();
-                
-                const paymentMethod = document.getElementById('paymentMethod').value;
-                
-                // Si el método de pago es Wompi, no procesamos el formulario aquí
-                if (paymentMethod === 'wompi') {
-                    alert('Por favor haz clic en el botón "Pagar con Wompi" para continuar.');
-                    return;
-                }
+    event.preventDefault();
+    
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    
+    // 🔥 NUEVA LÓGICA - Redirigir según método de pago
+    if (paymentMethod === 'wompi') {
+        // Para Wompi, usar la función existente
+        initiateWompiPayment();
+        return;
+    } else if (paymentMethod === 'transferencia' || paymentMethod === 'contra_entrega') {
+        // Para métodos manuales, usar la nueva función
+        processManualPayment(paymentMethod);
+        return;
+    } else {
+        alert('Por favor selecciona un método de pago válido.');
+        return;
+    }
+});
 
                 const formData = new FormData(this);
                 const orderData = generateOrderData(formData);
@@ -4266,6 +4365,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
