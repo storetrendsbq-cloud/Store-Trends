@@ -3112,7 +3112,7 @@ localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
         alert('Error al iniciar el pago: ' + error.message);
     }
 }      
-     // 🔥 NUEVA FUNCIÓN PARA PROCESAR PAGOS MANUALES
+     // 🔥 NUEVA FUNCIÓN PARA PROCESAR PAGOS MANUALES - VERSIÓN CORREGIDA
 async function processManualPayment(paymentMethod) {
     console.log('🔄 Procesando pago manual:', paymentMethod);
     
@@ -3152,8 +3152,8 @@ async function processManualPayment(paymentMethod) {
         
         console.log('💾 Datos guardados para ' + paymentMethod + ':', paymentData);
 
-        // 5. Mostrar loading
-        const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+        // 5. 🔥 CORREGIDO: Mostrar loading - usar el ID correcto
+        const submitBtn = document.getElementById('confirmOrderBtn');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '⏳ Procesando...';
         submitBtn.disabled = true;
@@ -3165,7 +3165,7 @@ async function processManualPayment(paymentMethod) {
         if (sheetsResult && sheetsResult.success) {
             console.log('✅ Pedido registrado en Google Sheets');
             
-           // 7. 🔥 NUEVO: Generar y ofrecer enlace de WhatsApp
+            // 7. 🔥 NUEVO: Generar y ofrecer enlace de WhatsApp
             const whatsappUrl = sendOrderConfirmation(orderData);
             
             // 8. Limpiar carrito
@@ -3207,7 +3207,7 @@ async function processManualPayment(paymentMethod) {
     } catch (error) {
         console.error('❌ Error procesando pago manual:', error);
         
-        // Restaurar botón
+        // 🔥 CORREGIDO: Restaurar botón con el ID correcto
         const submitBtn = document.getElementById('confirmOrderBtn');
         if (submitBtn) {
             submitBtn.innerHTML = '✅ Confirmar Pedido';
@@ -4366,6 +4366,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
