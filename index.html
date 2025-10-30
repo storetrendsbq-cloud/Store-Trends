@@ -2805,8 +2805,8 @@
 </div>
                     
                     <div class="checkout-actions">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">
-                            ✅ Confirmar Pedido
+                        <button type="button" class="btn btn-primary" style="flex: 1;" onclick="handleCheckoutSubmit()">
+                        ✅ Confirmar Pedido
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="closeCheckout()">
                             ✏️ Modificar Carrito
@@ -4310,6 +4310,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
