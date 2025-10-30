@@ -3091,7 +3091,16 @@ localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
 });
    } catch (error) {
         console.error('❌ Error iniciando pago Wompi:', error);
+        // 🔥 NUEVO: Ofrecer WhatsApp antes de redirigir
+        const whatsappUrl = sendOrderConfirmation(orderData);
+        const userChoice = confirm(
+            '✅ Pago aprobado exitosamente\n\n' +
+            '¿Quieres abrir WhatsApp para confirmar los detalles con el vendedor?'
+        );
         
+        if (userChoice) {
+            window.open(whatsappUrl, '_blank');
+        }
         // Restaurar botón y limpiar sessionStorage en caso de error
         const wompiButton = document.getElementById('wompiButton');
         if (wompiButton) {
@@ -3156,20 +3165,40 @@ async function processManualPayment(paymentMethod) {
         if (sheetsResult && sheetsResult.success) {
             console.log('✅ Pedido registrado en Google Sheets');
             
-            // 7. Limpiar carrito
+           // 7. 🔥 NUEVO: Generar y ofrecer enlace de WhatsApp
+            const whatsappUrl = sendOrderConfirmation(orderData);
+            
+            // 8. Limpiar carrito
             cart = [];
             updateCartUI();
             localStorage.removeItem('cart');
             
-            // 8. Cerrar modales
+            // 9. Cerrar modales
             closeCheckout();
             closeCart();
             
-            // 9. 🔥 REDIRIGIR A PÁGINA DE GRACIAS
-            const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
-            console.log('🔀 Redirigiendo a:', graciasUrl);
-            
-            window.location.href = graciasUrl;
+            // 10. 🔥 MOSTRAR CONFIRMACIÓN CON WHATSAPP
+            setTimeout(() => {
+                const userChoice = confirm(
+                    '✅ Pedido procesado exitosamente\n\n' +
+                    '📦 Número de pedido: ' + orderData.metadata.orderNumber + '\n' +
+                    '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n\n' +
+                    '¿Quieres abrir WhatsApp para confirmar los detalles con el vendedor?'
+                );
+                
+                if (userChoice) {
+                    window.open(whatsappUrl, '_blank');
+                    // Redirigir después de abrir WhatsApp
+                    setTimeout(() => {
+                        const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
+                        window.location.href = graciasUrl;
+                    }, 1000);
+                } else {
+                    // Redirigir directamente si no quiere WhatsApp
+                    const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
+                    window.location.href = graciasUrl;
+                }
+            }, 500);
             
         } else {
             throw new Error(sheetsResult?.message || 'Error registrando en Google Sheets');
@@ -3179,7 +3208,7 @@ async function processManualPayment(paymentMethod) {
         console.error('❌ Error procesando pago manual:', error);
         
         // Restaurar botón
-        const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+        const submitBtn = document.querySelector('#checkoutForm button[type="button"]');
         if (submitBtn) {
             submitBtn.innerHTML = '✅ Confirmar Pedido';
             submitBtn.disabled = false;
@@ -3187,7 +3216,7 @@ async function processManualPayment(paymentMethod) {
         
         alert('Error al procesar el pedido: ' + error.message);
     }
-}       
+}
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -4310,6 +4339,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
