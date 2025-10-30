@@ -3217,6 +3217,33 @@ async function processManualPayment(paymentMethod) {
         alert('Error al procesar el pedido: ' + error.message);
     }
 }
+         // 🔥 FUNCIÓN PARA MANEJAR EL ENVÍO DEL CHECKOUT
+function handleCheckoutSubmit() {
+    console.log('🔍 handleCheckoutSubmit ejecutado');
+    
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    
+    if (!paymentMethod) {
+        alert('Por favor selecciona un método de pago.');
+        return;
+    }
+    
+    // 🔥 NUEVA LÓGICA - Redirigir según método de pago
+    if (paymentMethod === 'wompi') {
+        // Para Wompi, usar la función existente
+        console.log('💳 Iniciando pago Wompi...');
+        initiateWompiPayment();
+        return;
+    } else if (paymentMethod === 'transferencia' || paymentMethod === 'contra_entrega') {
+        // Para métodos manuales, usar la nueva función
+        console.log('🏦 Iniciando pago manual:', paymentMethod);
+        processManualPayment(paymentMethod);
+        return;
+    } else {
+        alert('Por favor selecciona un método de pago válido.');
+        return;
+    }
+}   
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
             await loadProductsFromJSON();
@@ -4339,6 +4366,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
