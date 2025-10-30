@@ -2805,7 +2805,7 @@
 </div>
                     
                     <div class="checkout-actions">
-                        <button type="button" class="btn btn-primary" style="flex: 1;" onclick="handleCheckoutSubmit()">
+                        <button type="button" class="btn btn-primary" style="flex: 1;" id="confirmOrderBtn" onclick="handleCheckoutSubmit()">
                         ✅ Confirmar Pedido
                         </button>
                         <button type="button" class="btn btn-secondary" onclick="closeCheckout()">
@@ -3208,7 +3208,7 @@ async function processManualPayment(paymentMethod) {
         console.error('❌ Error procesando pago manual:', error);
         
         // Restaurar botón
-        const submitBtn = document.querySelector('#checkoutForm button[type="button"]');
+        const submitBtn = document.getElementById('confirmOrderBtn');
         if (submitBtn) {
             submitBtn.innerHTML = '✅ Confirmar Pedido';
             submitBtn.disabled = false;
@@ -4366,6 +4366,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
