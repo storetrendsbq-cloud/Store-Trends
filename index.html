@@ -4266,62 +4266,7 @@ function handleFailedPayment(result) {
         return;
     }
 });
-
-                const formData = new FormData(this);
-                const orderData = generateOrderData(formData);
-                
-                // Mostrar loading
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '⏳ Procesando...';
-                submitBtn.disabled = true;
-
-                try {
-                    // 1. Enviar a Google Sheets
-                    const sheetsResult = await submitOrderToSheets(orderData);
-                    
-                    if (sheetsResult.success) {
-                        // 2. Enviar confirmación por WhatsApp
-                        const whatsappUrl = sendOrderConfirmation(orderData);
-                        
-                        // 3. Limpiar carrito
-                        cart = [];
-                        updateCartUI();
-                        localStorage.removeItem('cart');
-                        
-                        // 4. Cerrar modales
-                        closeCheckout();
-                        closeCart();
-                        
-                        // 5. Mostrar éxito y redirigir a WhatsApp
-                        setTimeout(() => {
-                            // Manejo mejorado de WhatsApp para evitar error 429
-                            const userChoice = confirm(
-                                '✅ Pedido procesado exitosamente\n\n' +
-                                '¿Quieres abrir WhatsApp para confirmar los detalles?\n\n' +
-                                'Si aparece error 429, espera 1 minuto e intenta nuevamente.'
-                            );
-                            
-                            if (userChoice) {
-                                window.open(whatsappUrl, '_blank');
-                            } else {
-                                alert('📱 Puedes contactarnos directamente al: +57 3054813630');
-                            }
-                        }, 1000);
-                        
-                    } else {
-                        throw new Error(sheetsResult.message);
-                    }
-                    
-                } catch (error) {
-                    console.error('Error procesando pedido:', error);
-                    alert('❌ Error al procesar el pedido: ' + error.message + '\n\nPor favor contacta directamente por WhatsApp.');
-                } finally {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            });
-            
+                          
             // Scroll
             window.addEventListener('scroll', handleScroll);
             
@@ -4365,6 +4310,7 @@ function handleFailedPayment(result) {
      </script>
  </body>
 </html>
+
 
 
 
