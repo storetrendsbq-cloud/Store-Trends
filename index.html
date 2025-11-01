@@ -4644,7 +4644,7 @@ function handleFailedPayment(result) {
 
             // 🔥 CONFIGURAR MANEJADOR DE FORMA DE PAGO
             setupPaymentMethodHandler();
-            / 🔥 NUEVO: Actualizar en resize
+            // 🔥 NUEVO: Actualizar en resize
     window.addEventListener('resize', updateMobileCartButton);
             // 🔥 CONFIGURAR INTEGRACIÓN WOMPI
             setupWompiIntegration();
@@ -4710,14 +4710,16 @@ function handleFailedPayment(result) {
             }
         `;
         document.head.appendChild(style);
-           <!-- Botón flotante para móviles -->
+          
+     </script>
+     <!-- Botón flotante para móviles -->
 <button class="mobile-cart-btn" onclick="openCart()">
     🛒
     <span class="cart-count-mobile">0</span>
 </button> 
-     </script>
  </body>
 </html>
+
 
 
 
