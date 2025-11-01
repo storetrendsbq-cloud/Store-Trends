@@ -1227,6 +1227,271 @@
         .fade-in-up {
             animation: fadeInUp 0.6s ease-out;
         }
+        /* ===== MEJORAS PARA MÓVILES ===== */
+@media (max-width: 768px) {
+    /* Carrito Full-Screen */
+    .cart-sidebar {
+        width: 100vw;
+        height: 100vh;
+        right: -100vw;
+        top: 0;
+        border-radius: 0;
+        transform: none;
+        max-width: none;
+        transition: right 0.3s ease;
+    }
+    
+    .cart-sidebar.active {
+        right: 0;
+    }
+    
+    .cart-header {
+        padding: 20px 15px;
+        position: sticky;
+        top: 0;
+        background: var(--background);
+        z-index: 10;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .cart-content {
+        height: calc(100vh - 200px) !important;
+        overflow-y: auto;
+        padding: 0 15px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .cart-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--background);
+        padding: 15px;
+        border-top: 2px solid var(--accent);
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        display: block !important;
+    }
+    
+    /* Items del carrito optimizados */
+    .cart-item {
+        padding: 15px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .cart-item-image {
+        width: 70px;
+        height: 70px;
+        min-width: 70px;
+    }
+    
+    .cart-item-details {
+        flex: 1;
+        min-width: 0;
+        padding-left: 10px;
+    }
+    
+    .cart-item-title {
+        font-size: 0.95rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .cart-item-price {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin: 5px 0;
+    }
+    
+    .cart-item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .quantity-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+    
+    .cart-item-remove {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+        background: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        margin-left: auto;
+    }
+    
+    /* Checkout Modal Mejorado */
+    #checkoutModal .modal-content {
+        width: 95%;
+        height: 95vh;
+        margin: 2.5vh auto;
+        border-radius: 15px;
+        max-width: none;
+    }
+    
+    .modal-body {
+        max-height: calc(90vh - 120px);
+        overflow-y: auto;
+        padding: 15px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .checkout-actions {
+        position: sticky;
+        bottom: 0;
+        background: var(--background);
+        padding: 20px 15px;
+        border-top: 2px solid var(--accent);
+        margin: 20px -15px -15px -15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .checkout-actions .btn {
+        min-height: 55px;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    /* Formularios optimizados */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px;
+        padding: 15px;
+        min-height: 50px;
+    }
+    
+    /* Sección de pago mejorada */
+    #transferInfo,
+    #wompiInfo {
+        margin-top: 15px;
+        padding: 20px;
+    }
+    
+    #transferInfo img {
+        max-height: 250px;
+    }
+    
+    /* Botones generales mejorados */
+    .btn {
+        min-height: 50px;
+        padding: 14px 20px;
+        font-size: 1rem;
+        touch-action: manipulation;
+    }
+    
+    /* Header del carrito fijo */
+    .cart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .cart-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+    }
+    
+    .close-cart {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    
+    /* Mejoras visuales para scroll */
+    .cart-content::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .cart-content::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 10px;
+    }
+}
+
+/* Botón flotante para móviles */
+.mobile-cart-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: var(--gradient-gold);
+    color: var(--primary);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+    z-index: 1000;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mobile-cart-btn:active {
+    transform: scale(0.95);
+}
+
+.cart-count-mobile {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid var(--background);
+}
+
+/* Mostrar botón flotante solo en móviles */
+@media (max-width: 768px) {
+    .mobile-cart-btn {
+        display: flex;
+    }
+    
+    /* Ocultar el botón de carrito del header en móviles */
+    #openCart {
+        display: none;
+    }
+}
+
+/* Mejoras para tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .cart-sidebar {
+        width: 400px;
+    }
+    
+    .modal-content {
+        width: 90%;
+        max-width: 600px;
+    }
+}
      </style>
 </head>
 <body>
@@ -3217,6 +3482,79 @@ async function processManualPayment(paymentMethod) {
         alert('Error al procesar el pedido: ' + error.message);
     }
 }
+      // ===== MEJORAS PARA MÓVILES =====
+
+// Función para mejorar la experiencia táctil
+function enhanceMobileExperience() {
+    console.log('📱 Mejorando experiencia móvil...');
+    
+    // Prevenir zoom en inputs (solo en móviles)
+    if ('ontouchstart' in window) {
+        document.addEventListener('touchstart', function() {}, { passive: true });
+        
+        // Mejorar feedback táctil en botones
+        const buttons = document.querySelectorAll('.btn, .quantity-btn, .cart-item-remove, .mobile-cart-btn');
+        buttons.forEach(btn => {
+            btn.style.cursor = 'pointer';
+            btn.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+                this.style.opacity = '0.8';
+            });
+            btn.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+                this.style.opacity = '1';
+            });
+        });
+        
+        // Scroll suave para iOS
+        document.documentElement.style.setProperty('--webkit-overflow-scrolling', 'touch');
+    }
+}
+
+// Actualizar botón flotante del carrito
+function updateMobileCartButton() {
+    const mobileBtn = document.querySelector('.mobile-cart-btn');
+    const mobileCount = document.querySelector('.cart-count-mobile');
+    
+    if (mobileBtn && mobileCount) {
+        const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        mobileCount.textContent = cartCount;
+        
+        // Mostrar/ocultar basado en el tamaño de pantalla
+        if (window.innerWidth <= 768) {
+            mobileBtn.style.display = 'flex';
+        } else {
+            mobileBtn.style.display = 'none';
+        }
+    }
+}
+
+// Cerrar carrito al hacer clic fuera (solo móviles)
+function setupMobileClickOutside() {
+    document.getElementById('overlay').addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+            closeCart();
+        }
+    });
+}
+
+// Prevenir cierre accidental al hacer scroll
+function preventAccidentalClose() {
+    let startY = 0;
+    const cartSidebar = document.getElementById('cartSidebar');
+    
+    cartSidebar.addEventListener('touchstart', function(e) {
+        startY = e.touches[0].clientY;
+    });
+    
+    cartSidebar.addEventListener('touchmove', function(e) {
+        const currentY = e.touches[0].clientY;
+        // Si el scroll es hacia arriba desde el top, prevenir cerrar
+        if (cartSidebar.scrollTop === 0 && currentY > startY) {
+            e.preventDefault();
+        }
+    });
+}      
          // 🔥 FUNCIÓN PARA MANEJAR EL ENVÍO DEL CHECKOUT
 function handleCheckoutSubmit() {
     console.log('🔍 handleCheckoutSubmit ejecutado');
@@ -3250,6 +3588,9 @@ function handleCheckoutSubmit() {
             setupEventListeners();
             updateCartUI();
             handleScroll();
+             enhanceMobileExperience(); // 🔥 Nueva línea
+            setupMobileClickOutside(); // 🔥 Nueva línea
+            preventAccidentalClose(); // 🔥 Nueva línea
         }
 
         // FUNCIÓN CRÍTICA: Cargar productos desde tu JSON - VERSIÓN MÁS ESTABLE
@@ -3954,6 +4295,7 @@ function submitOrderToSheets(orderData) {
             
             localStorage.setItem('cart', JSON.stringify(cart));
             renderCartItems();
+            updateMobileCartButton(); // 🔥 Nueva línea
         }
 
         function renderCartItems() {
@@ -4028,6 +4370,10 @@ function submitOrderToSheets(orderData) {
             document.getElementById('cartSidebar').classList.add('active');
             document.getElementById('overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+             // 🔥 NUEVO: Enfocar el carrito para mejor accesibilidad
+    setTimeout(() => {
+        document.getElementById('cartSidebar').focus();
+    }, 100);
         }
 
         function closeCart() {
@@ -4298,7 +4644,8 @@ function handleFailedPayment(result) {
 
             // 🔥 CONFIGURAR MANEJADOR DE FORMA DE PAGO
             setupPaymentMethodHandler();
-            
+            / 🔥 NUEVO: Actualizar en resize
+    window.addEventListener('resize', updateMobileCartButton);
             // 🔥 CONFIGURAR INTEGRACIÓN WOMPI
             setupWompiIntegration();
             
@@ -4363,9 +4710,15 @@ function handleFailedPayment(result) {
             }
         `;
         document.head.appendChild(style);
+           <!-- Botón flotante para móviles -->
+<button class="mobile-cart-btn" onclick="openCart()">
+    🛒
+    <span class="cart-count-mobile">0</span>
+</button> 
      </script>
  </body>
 </html>
+
 
 
 
