@@ -6724,7 +6724,7 @@
         "hombre"
       ],
       "precio": {
-        "actual": 100,
+        "actual": 100000,
         "anterior": null,
         "descuento": 0,
         "esOportunidad": false
@@ -10533,6 +10533,7 @@
     }
   ]
 }
+
 
 
 
