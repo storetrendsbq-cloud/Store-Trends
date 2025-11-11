@@ -5132,7 +5132,7 @@
         "combo"
       ],
       "precio": {
-        "actual": 29900,
+        "actual": 129900,
         "anterior": null,
         "descuento": 0,
         "esOportunidad": false
@@ -10533,5 +10533,6 @@
     }
   ]
 }
+
 
 
