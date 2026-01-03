@@ -3495,59 +3495,45 @@
     console.log(`🔍 Buscando: "${term}" en ${allProducts.length} productos`);
     
     if (term.length < 2) {
-        console.log('⚠️ Término muy corto (mínimo 2 caracteres)');
         return [];
     }
     
     return allProducts.filter(product => {
         try {
-            // Normalizar y preparar campos de búsqueda
-            const searchFields = [
-                (product.descripcion || '').toLowerCase(),
-                (product.nombre || '').toLowerCase(),
-                (product.marca || '').toLowerCase(),
-                (product.tags || []).map(t => t.toLowerCase()).join(' '),
-                (product.categorias || []).map(c => c.toLowerCase()).join(' ')
-            ];
+            // 🔥 CAMBIOS IMPORTANTES: Usar los nombres de campos de TU JSON
             
-            // Unir todo en un texto buscable
-            const searchableText = searchFields.join(' ');
-            
-            // Búsqueda flexible
-            // 1. Buscar coincidencia exacta
-            if (searchableText.includes(term)) {
-                console.log(`✅ Exact match: ${product.nombre}`);
+            // 1. Buscar en el campo "descripción" (con tilde, como en tu JSON)
+            const descripcion = product.descripción || product.descripcion || '';
+            if (descripcion.toLowerCase().includes(term)) {
+                console.log(`✅ Encontrado en descripción: ${product.Nombre || product.nombre}`);
                 return true;
             }
             
-            // 2. Buscar palabras separadas (si el término tiene espacios)
-            const searchWords = term.split(/\s+/).filter(word => word.length >= 2);
-            if (searchWords.length > 1) {
-                const allWordsFound = searchWords.every(word => 
-                    searchableText.includes(word)
-                );
-                if (allWordsFound) {
-                    console.log(`✅ Multi-word match: ${product.nombre}`);
-                    return true;
-                }
+            // 2. Buscar en el campo "Nombre" (con N mayúscula, como en tu JSON)
+            const nombre = product.Nombre || product.nombre || '';
+            if (nombre.toLowerCase().includes(term)) {
+                console.log(`✅ Encontrado en nombre: ${nombre}`);
+                return true;
             }
             
-            // 3. Buscar aproximación (para typos leves)
-            const wordsInText = searchableText.split(/\s+/);
-            for (const word of wordsInText) {
-                if (word.length >= 3 && term.length >= 3) {
-                    // Coincidencia de primeros caracteres
-                    if (word.startsWith(term.substring(0, 3))) {
-                        console.log(`✅ Partial match: ${product.nombre} (${word})`);
-                        return true;
-                    }
-                }
+            // 3. Buscar en categorías
+            const categoria = product.Categoria || product.categoria || product.categorias || '';
+            if (categoria.toLowerCase().includes(term)) {
+                console.log(`✅ Encontrado en categoría: ${nombre} (${categoria})`);
+                return true;
+            }
+            
+            // 4. Buscar en cualquier campo del objeto (como fallback)
+            const productString = JSON.stringify(product).toLowerCase();
+            if (productString.includes(term)) {
+                console.log(`✅ Encontrado en otros campos: ${nombre}`);
+                return true;
             }
             
             return false;
             
         } catch (error) {
-            console.error(`❌ Error buscando en producto ${product.id}:`, error);
+            console.error(`❌ Error buscando producto:`, error);
             return false;
         }
     });
@@ -4235,8 +4221,8 @@ function handleCheckoutSubmit() {
                     </div>
                     
                     <div class="product-info">
-                        <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.nombre}</h3>
-                        <p class="product-description">${(product.descripcion || '').substring(0, 100)}...</p>
+                        <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.Nombre || product.nombre || 'Producto'}</h3>
+<p class="product-description">${(product.descripción || product.descripcion || '').substring(0, 100)}...</p>
                         
                         <div class="product-tags">
                             ${(product.tags || []).map(tag => `<span class="product-tag">#${tag}</span>`).join('')}
@@ -4245,7 +4231,7 @@ function handleCheckoutSubmit() {
                         
                         <div class="product-meta">
                             <span class="product-stock">${product.disponible !== false ? `✅ ${product.stock || 10} disponibles` : '❌ Agotado'}</span>
-                            <span class="product-brand">${product.marca || 'Premium'}</span>
+                            <span class="product-brand">${product.Categoria || product.categoria || 'Premium'}</span>
                         </div>
                         
                         <div class="product-price">
@@ -5192,6 +5178,7 @@ function handleFailedPayment(result) {
 </script>
  </body>
 </html>
+
 
 
 
