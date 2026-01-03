@@ -31,98 +31,7 @@
     <!-- En el head de tu index.html -->
     <script src="https://checkout.wompi.co/widget.js"></script>
     <style>
-         /* ===== BARRA DE BÚSQUEDA ===== */
-        .search-container {
-            max-width: 800px;
-            margin: 20px auto 40px auto;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 15px 50px 15px 20px;
-            font-size: 1.1rem;
-            border: 2px solid var(--border);
-            border-radius: 50px;
-            background: var(--background-alt);
-            color: var(--text);
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-        }
-
-        .search-button {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--accent);
-            cursor: pointer;
-            padding: 10px;
-        }
-
-        .search-results {
-            margin-top: 20px;
-            padding: 20px;
-            background: var(--background-alt);
-            border-radius: 10px;
-            border: 1px solid var(--border);
-        }
-
-        .search-results h3 {
-            color: var(--accent);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .search-count {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
-        .search-results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-light);
-        }
-
-        .no-results span {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .search-input {
-                padding: 12px 45px 12px 15px;
-                font-size: 1rem;
-            }
-            
-            .search-button {
-                right: 8px;
-                font-size: 1.3rem;
-            }
-            
-            .search-results-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+         
         /* ===== RESET Y VARIABLES ===== */
         :root {
             --primary: #000000;      /* Negro principal */
@@ -518,6 +427,98 @@
             </div>
         </div>
     </section>
+        /* ===== BARRA DE BÚSQUEDA ===== */
+        .search-container {
+            max-width: 800px;
+            margin: 20px auto 40px auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            background: var(--background-alt);
+            color: var(--text);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .search-results {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--background-alt);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .search-results h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .search-count {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+        }
+
+        .no-results span {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .search-input {
+                padding: 12px 45px 12px 15px;
+                font-size: 1rem;
+            }
+            
+            .search-button {
+                right: 8px;
+                font-size: 1.3rem;
+            }
+            
+            .search-results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         /* ===== PRODUCTOS ===== */
         .products-section {
             padding: 100px 0;
@@ -5049,6 +5050,7 @@ function handleFailedPayment(result) {
 </script>
  </body>
 </html>
+
 
 
 
