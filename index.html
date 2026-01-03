@@ -31,6 +31,98 @@
     <!-- En el head de tu index.html -->
     <script src="https://checkout.wompi.co/widget.js"></script>
     <style>
+         /* ===== BARRA DE BÚSQUEDA ===== */
+        .search-container {
+            max-width: 800px;
+            margin: 20px auto 40px auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            background: var(--background-alt);
+            color: var(--text);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .search-results {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--background-alt);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .search-results h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .search-count {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+        }
+
+        .no-results span {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .search-input {
+                padding: 12px 45px 12px 15px;
+                font-size: 1rem;
+            }
+            
+            .search-button {
+                right: 8px;
+                font-size: 1.3rem;
+            }
+            
+            .search-results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         /* ===== RESET Y VARIABLES ===== */
         :root {
             --primary: #000000;      /* Negro principal */
@@ -408,7 +500,24 @@
             display: block;
             margin-bottom: 10px;
         }
-
+ <!-- BARRA DE BÚSQUEDA - Agrega esto después del Hero Section -->
+    <section style="background: var(--background-alt); padding: 40px 0;">
+        <div class="container">
+            <div class="search-container">
+                <input type="text" 
+                       id="searchInput" 
+                       class="search-input" 
+                       placeholder="🔍 Buscar perfumes por nombre, marca o descripción...">
+                <button class="search-button" onclick="performSearch()">🔍</button>
+                
+                <div id="searchResults" class="search-results" style="display: none;">
+                    <h3>Resultados de búsqueda</h3>
+                    <div class="search-count" id="searchCount"></div>
+                    <div class="search-results-grid" id="searchResultsGrid"></div>
+                </div>
+            </div>
+        </div>
+    </section>
         /* ===== PRODUCTOS ===== */
         .products-section {
             padding: 100px 0;
@@ -3199,6 +3308,215 @@
     </footer>
 
         <script>
+            // ===== FUNCIONALIDAD DE BÚSQUEDA =====
+        let allProducts = []; // Para almacenar todos los productos
+
+        async function loadProductsFromJSON() {
+            try {
+                console.log('🔄 Iniciando carga del catálogo...');
+                
+                const response = await fetch('./data/catalogo.json');
+                
+                if (!response.ok) {
+                    throw new Error(`Error cargando catálogo: ${response.status}`);
+                }
+                
+                const catalogData = await response.json();
+                
+                // Validar que el JSON tenga la estructura correcta
+                if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
+                    throw new Error('El archivo JSON no tiene la estructura correcta');
+                }
+                
+                products = catalogData.productos;
+                allProducts = products; // Guardar todos los productos para búsqueda
+                
+                console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
+                
+                displayProducts();
+                
+                // Ocultar loading screen después de cargar
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    console.log('🏁 Aplicación cargada completamente');
+                    
+                    // Configurar búsqueda por Enter
+                    setupSearchFunctionality();
+                }, 800);
+                
+            } catch (error) {
+                console.error('❌ Error cargando el catálogo:', error);
+                loadEmergencyProducts();
+            }
+        }
+
+        function setupSearchFunctionality() {
+            const searchInput = document.getElementById('searchInput');
+            
+            // Buscar al presionar Enter
+            searchInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // Buscar mientras se escribe (con debounce)
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    if (this.value.length >= 2) {
+                        performSearch();
+                    } else if (this.value.length === 0) {
+                        hideSearchResults();
+                    }
+                }, 300);
+            });
+            
+            console.log('✅ Funcionalidad de búsqueda configurada');
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            
+            if (searchTerm.length < 2) {
+                alert('Por favor ingresa al menos 2 caracteres para buscar');
+                return;
+            }
+            
+            console.log('🔍 Buscando:', searchTerm);
+            
+            // Realizar la búsqueda
+            const results = searchProducts(searchTerm);
+            displaySearchResults(results, searchTerm);
+            
+            // Scroll a los resultados
+            document.getElementById('searchResults').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+
+        function searchProducts(searchTerm) {
+            const term = searchTerm.toLowerCase();
+            
+            return allProducts.filter(product => {
+                // Buscar en múltiples campos
+                const searchFields = [
+                    product.descripcion || '',
+                    product.nombre || '',
+                    product.marca || '',
+                    (product.tags || []).join(' '),
+                    (product.categorias || []).join(' ')
+                ];
+                
+                // Unir todos los campos en un solo string para buscar
+                const searchableText = searchFields.join(' ').toLowerCase();
+                
+                // Verificar si el término está en algún campo
+                return searchableText.includes(term);
+            });
+        }
+
+        function displaySearchResults(results, searchTerm) {
+            const searchResultsDiv = document.getElementById('searchResults');
+            const searchCountDiv = document.getElementById('searchCount');
+            const searchResultsGrid = document.getElementById('searchResultsGrid');
+            
+            if (results.length === 0) {
+                searchResultsDiv.style.display = 'block';
+                searchCountDiv.innerHTML = `No se encontraron perfumes para: <strong>"${searchTerm}"</strong>`;
+                searchResultsGrid.innerHTML = `
+                    <div class="no-results">
+                        <span>😔</span>
+                        <p>No encontramos perfumes que coincidan con tu búsqueda.</p>
+                        <p>Intenta con otros términos o explora nuestras categorías.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Mostrar resultados
+            searchResultsDiv.style.display = 'block';
+            searchCountDiv.innerHTML = `Se encontraron <strong>${results.length}</strong> perfumes para: <strong>"${searchTerm}"</strong>`;
+            
+            // Mostrar productos encontrados
+            searchResultsGrid.innerHTML = results.map(product => `
+                <div class="product-card fade-in-up">
+                    ${product.precio && product.precio.descuento > 0 ? 
+                        `<div class="product-badge badge-discount">-${product.precio.descuento}%</div>` : ''}
+                    ${product.precio && product.precio.esOportunidad ? 
+                        `<div class="product-badge badge-oferta">🔥 OFERTA</div>` : ''}
+                    
+                    <div class="product-image" onclick="openProductModal('${product.id}')">
+                        <img src="${product.imagen || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='}" 
+                             alt="${product.nombre}" 
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='">
+                        <div class="product-overlay">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); openProductModal('${product.id}')">
+                                👁️ Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-info">
+                        <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.nombre}</h3>
+                        <p class="product-description">${(product.descripcion || '').substring(0, 100)}...</p>
+                        
+                        <div class="product-tags">
+                            ${(product.tags || []).map(tag => `<span class="product-tag">#${tag}</span>`).join('')}
+                            ${(product.categorias || []).map(cat => `<span class="product-tag">${cat}</span>`).join('')}
+                        </div>
+                        
+                        <div class="product-meta">
+                            <span class="product-stock">${product.disponible !== false ? `✅ ${product.stock || 10} disponibles` : '❌ Agotado'}</span>
+                            <span class="product-brand">${product.marca || 'Premium'}</span>
+                        </div>
+                        
+                        <div class="product-price">
+                            <span class="price-current">${formatPriceFull(product.precio?.actual || 0)}</span>
+                            ${product.precio?.anterior ? `
+                                <span class="price-old">${formatPriceFull(product.precio.anterior)}</span>
+                            ` : ''}
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="addToCart('${product.id}')" 
+                                ${product.disponible === false ? 'disabled style="opacity: 0.5;"' : ''}
+                                style="width: 100%;">
+                            ${product.disponible === false ? '❌ Agotado' : '🛒 Agregar al Carrito'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Animar los resultados
+            setTimeout(() => {
+                const animatedElements = searchResultsGrid.querySelectorAll('.fade-in-up');
+                animatedElements.forEach(element => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                });
+            }, 100);
+        }
+
+        function hideSearchResults() {
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        // ===== FUNCIÓN PARA LIMPIAR BÚSQUEDA =====
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            hideSearchResults();
+        }
+
+        // ===== ACTUALIZAR LA FUNCIÓN initApp =====
+        async function initApp() {
+            await loadProductsFromJSON();
+            setupEventListeners();
+            updateCartUI();
+            handleScroll();
+        }
+
         // ===== VARIABLES GLOBALES =====
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let products = [];
@@ -4731,6 +5049,7 @@ function handleFailedPayment(result) {
 </script>
  </body>
 </html>
+
 
 
 
