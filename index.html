@@ -411,23 +411,6 @@
         }
 
     </section>
-         <!-- BARRA DE BÚSQUEDA - Agrega esto después del Hero Section -->
-    <section style="background: var(--background-alt); padding: 40px 0;">
-        <div class="container">
-            <div class="search-container">
-                <input type="text" 
-                       id="searchInput" 
-                       class="search-input" 
-                       placeholder="🔍 Buscar perfumes por nombre, marca o descripción...">
-                <button class="search-button" onclick="performSearch()">🔍</button>
-                
-                <div id="searchResults" class="search-results" style="display: none;">
-                    <h3>Resultados de búsqueda</h3>
-                    <div class="search-count" id="searchCount"></div>
-                    <div class="search-results-grid" id="searchResultsGrid"></div>
-                </div>
-            </div>
-        </div>
         /* ===== BARRA DE BÚSQUEDA ===== */
         .search-container {
             max-width: 800px;
@@ -1714,7 +1697,24 @@
             </div>
         </div>
     </section>
-
+<!-- 🔍 BARRA DE BÚSQUEDA -->
+    <section style="background: var(--background-alt); padding: 40px 0;">
+        <div class="container">
+            <div class="search-container">
+                <input type="text" 
+                       id="searchInput" 
+                       class="search-input" 
+                       placeholder="🔍 Buscar perfumes por nombre, marca o descripción...">
+                <button class="search-button" onclick="performSearch()">🔍</button>
+                
+                <div id="searchResults" class="search-results" style="display: none;">
+                    <h3>Resultados de búsqueda</h3>
+                    <div class="search-count" id="searchCount"></div>
+                    <div class="search-results-grid" id="searchResultsGrid"></div>
+                </div>
+            </div>
+        </div>
+    </section>
     <!-- Sección Productos para Él -->
     <section class="products-section" id="hombre">
         <div class="container">
@@ -5051,6 +5051,7 @@ function handleFailedPayment(result) {
 </script>
  </body>
 </html>
+
 
 
 
