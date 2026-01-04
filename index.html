@@ -3461,9 +3461,11 @@ if (originalInitApp) {
         
         // 🔥 CRÍTICO: Asignar a AMBAS variables
         products = catalogData.productos;
-        window.products = catalogData.productos; // 🔥 GLOBAL
-        allProducts = catalogData.productos;
-        window.allProducts = catalogData.productos; // 🔥 GLOBAL
+allProducts = catalogData.productos; // Guardar todos los productos para búsqueda
+
+// 🔥 AGREGAR ESTAS 2 LÍNEAS:
+window.products = catalogData.productos; // Hacer global
+window.allProducts = catalogData.productos; // Hacer global
         
         console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
         console.log('✅ window.products asignado:', window.products.length, 'productos');
@@ -3729,25 +3731,13 @@ function testSearchFunctionality() {
     return resultados;
 }
         function displaySearchResults(results, searchTerm) {
-    console.log(`📊 Displaying ${results.length} results for "${searchTerm}"`);
+    console.log(`📊 Mostrando ${results.length} resultados para "${searchTerm}"`);
     
     const searchResultsDiv = document.getElementById('searchResults');
     const searchCountDiv = document.getElementById('searchCount');
     const searchResultsGrid = document.getElementById('searchResultsGrid');
     
-    console.log('🔍 Elementos DOM:', {
-        searchResultsDiv,
-        searchCountDiv, 
-        searchResultsGrid
-    });
-    
-    if (!searchResultsDiv) {
-        console.error('❌ No se encontró #searchResults en el DOM');
-        return;
-    }
-    
     if (results.length === 0) {
-        console.log('📭 No hay resultados, mostrando mensaje');
         searchResultsDiv.style.display = 'block';
         searchCountDiv.innerHTML = `No se encontraron perfumes para: <strong>"${searchTerm}"</strong>`;
         searchResultsGrid.innerHTML = `
@@ -3760,13 +3750,17 @@ function testSearchFunctionality() {
         return;
     }
     
-    // Mostrar resultados
-    console.log('🎨 Renderizando resultados...');
-    searchResultsDiv.style.display = 'block';
-    searchCountDiv.innerHTML = `Se encontraron <strong>${results.length}</strong> perfumes para: <strong>"${searchTerm}"</strong>`;
+    // Limitar a 20 resultados para mejor rendimiento
+    const mostrarResultados = results.slice(0, 20);
     
-    // Crear HTML de resultados
-    searchResultsGrid.innerHTML = results.map(product => `
+    searchResultsDiv.style.display = 'block';
+    searchCountDiv.innerHTML = `
+        Se encontraron <strong>${results.length}</strong> perfumes para: <strong>"${searchTerm}"</strong>
+        ${results.length > 20 ? `<br><small>(Mostrando los primeros 20)</small>` : ''}
+    `;
+    
+    // Mostrar productos como en el catálogo normal
+    searchResultsGrid.innerHTML = mostrarResultados.map(product => `
         <div class="product-card fade-in-up">
             ${product.precio && product.precio.descuento > 0 ? 
                 `<div class="product-badge badge-discount">-${product.precio.descuento}%</div>` : ''}
@@ -3774,9 +3768,9 @@ function testSearchFunctionality() {
                 `<div class="product-badge badge-oferta">🔥 OFERTA</div>` : ''}
             
             <div class="product-image" onclick="openProductModal('${product.id}')">
-                <img src="${product.imagen || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='}" 
-                     alt="${product.nombre}" 
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='">
+                <img src="${product.imagen || 'https://cdn-icons-png.flaticon.com/512/2972/2972421.png'}" 
+                     alt="${product.Nombre || product.nombre || 'Producto'}" 
+                     onerror="this.src='https://cdn-icons-png.flaticon.com/512/2972/2972421.png'">
                 <div class="product-overlay">
                     <button class="btn btn-primary" onclick="event.stopPropagation(); openProductModal('${product.id}')">
                         👁️ Ver Detalles
@@ -3785,38 +3779,48 @@ function testSearchFunctionality() {
             </div>
             
             <div class="product-info">
-                <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.nombre}</h3>
-                <p class="product-description">${(product.descripcion || '').substring(0, 100)}...</p>
+                <h3 class="product-title" onclick="openProductModal('${product.id}')">
+                    ${product.Nombre || product.nombre || 'Producto'}
+                </h3>
+                <p class="product-description">
+                    ${(product.descripción || product.descripcion || 'Descripción no disponible').substring(0, 80)}...
+                </p>
                 
                 <div class="product-tags">
-                    ${(product.tags || []).map(tag => `<span class="product-tag">#${tag}</span>`).join('')}
-                    ${(product.categorias || []).map(cat => `<span class="product-tag">${cat}</span>`).join('')}
+                    ${product.Categoria ? `<span class="product-tag">${product.Categoria}</span>` : ''}
                 </div>
                 
                 <div class="product-meta">
-                    <span class="product-stock">${product.disponible !== false ? `✅ ${product.stock || 10} disponibles` : '❌ Agotado'}</span>
-                    <span class="product-brand">${product.marca || 'Premium'}</span>
+                    <span class="product-stock">✅ Disponible</span>
+                    <span class="product-brand">${product.marca || 'Store Trends'}</span>
                 </div>
                 
                 <div class="product-price">
-                    <span class="price-current">${formatPriceFull(product.precio?.actual || 0)}</span>
+                    <span class="price-current">
+                        ${formatPriceFull(product.precio?.actual || product.precio || 0)}
+                    </span>
                     ${product.precio?.anterior ? `
                         <span class="price-old">${formatPriceFull(product.precio.anterior)}</span>
                     ` : ''}
                 </div>
                 
-                <button class="btn btn-primary" onclick="addToCart('${product.id}')" 
-                        ${product.disponible === false ? 'disabled style="opacity: 0.5;"' : ''}
-                        style="width: 100%;">
-                    ${product.disponible === false ? '❌ Agotado' : '🛒 Agregar al Carrito'}
+                <button class="btn btn-primary" onclick="addToCart('${product.id}')" style="width: 100%;">
+                    🛒 Agregar al Carrito
                 </button>
             </div>
         </div>
     `).join('');
     
-    console.log('✅ Resultados renderizados');
+    // Animar los resultados
+    setTimeout(() => {
+        const cards = searchResultsGrid.querySelectorAll('.fade-in-up');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        });
+    }, 100);
 }
-
         function hideSearchResults() {
             document.getElementById('searchResults').style.display = 'none';
         }
@@ -5538,6 +5542,7 @@ window.addEventListener('load', function() {
 </script>
  </body>
 </html>
+
 
 
 
