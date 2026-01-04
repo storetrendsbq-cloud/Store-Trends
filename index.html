@@ -10,26 +10,7 @@
 
   gtag('config', 'GT-TXZCR537');
 </script>
-    // 🔥🔥🔥 SOLUCIÓN DEFINITIVA - HOISTING DE VARIABLES GLOBALES
-console.log('🔥 INICIANDO HOISTING DE VARIABLES GLOBALES');
-
-// Declarar como variables globales en el scope más alto
-var cart, products, allProducts, currentModalProductId;
-
-// Inicializar si no existen
-cart = window.cart || JSON.parse(localStorage.getItem('cart')) || [];
-products = window.products || [];
-allProducts = window.allProducts || [];
-currentModalProductId = window.currentModalProductId || null;
-
-// Forzar que sean propiedades de window
-window.cart = cart;
-window.products = products;
-window.allProducts = allProducts;
-window.currentModalProductId = currentModalProductId;
-
-console.log('✅ Variables globales inicializadas');
-    <meta charset="UTF-8">
+       <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store Trends | Perfumes Premium - Fragancias de Lujo en Colombia</title>
     
@@ -3370,11 +3351,6 @@ console.log('✅ Variables globales inicializadas');
    💬 WhatsApp
 </a>
 
-<!-- 🔥 BOTÓN DE EMERGENCIA PARA BÚSQUEDA -->
-<button onclick="solucionarBusquedaEmergencia()" 
-        style="position: fixed; bottom: 220px; left: 30px; background: #FF9800; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; z-index: 1000; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px;">
-    🚨 Arreglar Búsqueda
-</button>
     <!-- Footer -->
     <footer class="footer" id="contacto">
         <div class="container">
@@ -5358,214 +5334,11 @@ function handleFailedPayment(result) {
     <span class="cart-count-mobile">0</span>
 </button> 
     <script>
-// 🔥 SOLUCIÓN MEJORADA - ESPERA A QUE PRODUCTOS SE CARGUEN
-console.log('🔄 ACTIVANDO SOLUCIÓN DE BÚSQUEDA MEJORADA...');
 
-// Función que se ejecutará cuando los productos estén listos
-function activarBusquedaCuandoEsteLista() {
-    console.log('⏳ Esperando productos...');
-    
-    // Verificar cada segundo si products ya tiene datos
-    const intervalo = setInterval(function() {
-        if (window.products && window.products.length > 0) {
-            clearInterval(intervalo); // Detener la verificación
-            console.log(`✅ ¡Productos encontrados! ${window.products.length} productos`);
-            
-            // 🔥 COPIA LOS PRODUCTOS A allProducts
-            window.allProducts = window.products;
-            console.log(`✅ allProducts listo con ${window.allProducts.length} productos`);
-            
-            // 🔥 REEMPLAZAR LA FUNCIÓN DE BÚSQUEDA
-            window.searchProducts = function(searchTerm) {
-                const term = searchTerm.toLowerCase().trim();
-                console.log(`🔍 Buscando: "${term}" en ${window.allProducts.length} productos`);
-                
-                // Buscar en TODOS los campos del JSON
-                const resultados = window.allProducts.filter(product => {
-                    // Convertir todo el producto a texto para buscar
-                    const textoProducto = JSON.stringify(product).toLowerCase();
-                    return textoProducto.includes(term);
-                });
-                
-                console.log(`✅ Encontrados: ${resultados.length} resultados`);
-                
-                // Mostrar algunos ejemplos
-                if (resultados.length > 0 && resultados.length <= 3) {
-                    resultados.forEach((p, i) => {
-                        console.log(`   ${i+1}. ${p.Nombre || p.nombre || 'Sin nombre'}`);
-                    });
-                }
-                
-                return resultados;
-            };
-            
-            console.log('🎯 ¡BÚSQUEDA CONFIGURADA CORRECTAMENTE!');
-            
-            // Probar automáticamente con "fragancia"
-            setTimeout(() => {
-                console.log('🧪 Probando búsqueda automática...');
-                const testResults = window.searchProducts('fragancia');
-                console.log(`🧪 Test "fragancia": ${testResults.length} resultados`);
-                
-                // Si no encuentra "fragancia", probar con "perfume"
-                if (testResults.length === 0) {
-                    console.log('🧪 Probando con "perfume"...');
-                    const testResults2 = window.searchProducts('perfume');
-                    console.log(`🧪 Test "perfume": ${testResults2.length} resultados`);
-                }
-                
-                // Mostrar mensaje en pantalla
-                mostrarMensajeExito();
-                
-            }, 1000);
-            
-        } else {
-            console.log('⏳ Esperando productos... (products:', window.products ? 'vacío' : 'no definido', ')');
-        }
-    }, 1000); // Verificar cada segundo
-    
-    // Timeout de seguridad: si después de 10 segundos no hay productos
-    setTimeout(() => {
-        clearInterval(intervalo);
-        console.log('❌ TIMEOUT: No se cargaron productos después de 10 segundos');
-        mostrarMensajeError();
-    }, 10000);
-}
-
-// Función para mostrar mensaje de éxito
-function mostrarMensajeExito() {
-    // Crear un mensaje flotante
-    const mensaje = document.createElement('div');
-    mensaje.innerHTML = `
-        <div style="position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 15px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            ✅ <strong>¡Búsqueda activada!</strong><br>
-            Ya puedes buscar perfumes en el catálogo.
-        </div>
-    `;
-    document.body.appendChild(mensaje);
-    
-    // Quitar el mensaje después de 5 segundos
-    setTimeout(() => {
-        if (mensaje.parentNode) {
-            mensaje.remove();
-        }
-    }, 5000);
-}
-
-// Función para mostrar mensaje de error
-function mostrarMensajeError() {
-    const mensaje = document.createElement('div');
-    mensaje.innerHTML = `
-        <div style="position: fixed; top: 20px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-            ❌ <strong>Error en búsqueda</strong><br>
-            Recarga la página e intenta de nuevo.
-            <button onclick="location.reload()" style="background: white; color: #f44336; border: none; padding: 5px 10px; margin-left: 10px; border-radius: 3px; cursor: pointer;">
-                🔄 Recargar
-            </button>
-        </div>
-    `;
-    document.body.appendChild(mensaje);
-}
-
-// Iniciar cuando la página termine de cargar
-window.addEventListener('load', function() {
-    console.log('📄 Página completamente cargada, iniciando verificación...');
-    setTimeout(activarBusquedaCuandoEsteLista, 2000);
-});
-  function verificarEstadoBusqueda() {
-    console.log('🔧 ===== VERIFICACIÓN COMPLETA =====');
-    
-    // 1. Verificar todas las variables
-    console.log('1. 📊 VARIABLES:');
-    console.log('   - products (local):', products ? products.length : 'no definido');
-    console.log('   - window.products:', window.products ? window.products.length : 'no definido');
-    console.log('   - allProducts (local):', allProducts ? allProducts.length : 'no definido');
-    console.log('   - window.allProducts:', window.allProducts ? window.allProducts.length : 'no definido');
-    
-    // 2. Si no hay datos, intentar arreglarlo
-    if (!window.products || window.products.length === 0) {
-        console.log('2. ⚠️ window.products vacío. Intentando arreglar...');
-        
-        if (products && products.length > 0) {
-            window.products = products;
-            window.allProducts = products;
-            console.log(`   ✅ Arreglado! Ahora window.products tiene ${window.products.length} productos`);
-            alert(`✅ ¡ARREGLADO!\n\nAhora hay ${window.products.length} productos disponibles para búsqueda.`);
-        } else {
-            console.log('   ❌ products también está vacío');
-            alert('❌ ERROR: No hay productos cargados.\n\nRecarga la página con Ctrl+F5');
-            return;
-        }
-    }
-    
-    // 3. Probar búsqueda inmediata
-    console.log('3. 🧪 PROBANDO BÚSQUEDA...');
-    
-    const terminosPrueba = ['fragancia', 'perfume', 'aroma', 'hombre', 'mujer'];
-    let algunResultado = false;
-    
-    for (let termino of terminosPrueba) {
-        console.log(`   Probando "${termino}"...`);
-        const resultados = searchProducts(termino);
-        console.log(`     -> ${resultados.length} resultados`);
-        
-        if (resultados.length > 0 && !algunResultado) {
-            algunResultado = true;
-            console.log(`   ✅ ¡ÉXITO! "${termino}" encontró ${resultados.length} productos`);
-            
-            // Mostrar en pantalla
-            document.getElementById('searchInput').value = termino;
-            setTimeout(() => {
-                performSearch();
-                alert(`🎉 ¡BÚSQUEDA FUNCIONANDO!\n\n"${termino}" encontró ${resultados.length} productos.\n\nAhora puedes buscar en tu catálogo.`);
-            }, 500);
-            break;
-        }
-    }
-    
-    if (!algunResultado) {
-        console.log('4. ❌ Ningún término de prueba funcionó');
-        alert('⚠️ La búsqueda no encuentra los términos comunes.\n\nPrueba buscar marcas específicas o abre la consola para más detalles.');
-    }
-    
-    console.log('🔧 ===== FIN VERIFICACIÓN =====');
-}
- function solucionarBusquedaEmergencia() {
-    console.log('🚨 ===== SOLUCIÓN DE EMERGENCIA =====');
-    
-    // Forzar carga de productos desde el JSON
-    fetch('./data/catalogo.json')
-        .then(response => response.json())
-        .then(data => {
-            if (data.productos) {
-                // Actualizar TODAS las variables
-                products = data.productos;
-                allProducts = data.productos;
-                window.products = data.productos;
-                window.allProducts = data.productos;
-                
-                console.log(`🚨 ¡FORZADO! ${data.productos.length} productos cargados`);
-                
-                alert(`✅ ¡PROBLEMA SOLUCIONADO!\n\n${data.productos.length} productos cargados.\n\nAhora puedes buscar normalmente.`);
-                
-                // Probar automáticamente
-                setTimeout(() => {
-                    document.getElementById('searchInput').value = 'fragancia';
-                    performSearch();
-                }, 1000);
-                
-            } else {
-                alert('❌ Error: El archivo JSON no tiene la estructura correcta');
-            }
-        })
-        .catch(error => {
-            console.error('❌ Error:', error);
-            alert('Error cargando productos. Verifica la consola (F12).');
-        });
-}       
-</script>
+ </script>
  </body>
 </html>
+
 
 
 
