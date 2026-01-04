@@ -10,30 +10,25 @@
 
   gtag('config', 'GT-TXZCR537');
 </script>
-    // 🔥 URGENTE: HACER VARIABLES GLOBALES
-console.log('🔥 HACIENDO VARIABLES GLOBALES...');
+    // 🔥🔥🔥 SOLUCIÓN DEFINITIVA - HOISTING DE VARIABLES GLOBALES
+console.log('🔥 INICIANDO HOISTING DE VARIABLES GLOBALES');
 
-// Forzar que estas variables sean globales
-window.cart = window.cart || JSON.parse(localStorage.getItem('cart')) || [];
-window.products = window.products || []; // 🔥 ESTA ES CLAVE
-window.allProducts = window.allProducts || [];
-window.currentModalProductId = window.currentModalProductId || null;
+// Declarar como variables globales en el scope más alto
+var cart, products, allProducts, currentModalProductId;
 
-// Sobrescribir la función original para que guarde en window.products
-const originalInitApp = window.initApp;
-if (originalInitApp) {
-    window.initApp = function() {
-        console.log('🔥 VERSIÓN MODIFICADA DE initApp');
-        return originalInitApp().then(() => {
-            // Después de que initApp termine, copiar products a window.products
-            if (typeof products !== 'undefined' && products.length > 0) {
-                window.products = products;
-                window.allProducts = products;
-                console.log(`🔥 PRODUCTOS HECHOS GLOBALES: ${window.products.length}`);
-            }
-        });
-    };
-}
+// Inicializar si no existen
+cart = window.cart || JSON.parse(localStorage.getItem('cart')) || [];
+products = window.products || [];
+allProducts = window.allProducts || [];
+currentModalProductId = window.currentModalProductId || null;
+
+// Forzar que sean propiedades de window
+window.cart = cart;
+window.products = products;
+window.allProducts = allProducts;
+window.currentModalProductId = currentModalProductId;
+
+console.log('✅ Variables globales inicializadas');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store Trends | Perfumes Premium - Fragancias de Lujo en Colombia</title>
@@ -3375,10 +3370,10 @@ if (originalInitApp) {
    💬 WhatsApp
 </a>
 
-<!-- 🔥 BOTÓN DE VERIFICACIÓN INMEDIATA -->
-<button onclick="verificarEstadoBusqueda()" 
-        style="position: fixed; bottom: 160px; left: 30px; background: #4CAF50; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; z-index: 1000; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px;">
-    🔧 Verificar Estado
+<!-- 🔥 BOTÓN DE EMERGENCIA PARA BÚSQUEDA -->
+<button onclick="solucionarBusquedaEmergencia()" 
+        style="position: fixed; bottom: 220px; left: 30px; background: #FF9800; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; z-index: 1000; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px;">
+    🚨 Arreglar Búsqueda
 </button>
     <!-- Footer -->
     <footer class="footer" id="contacto">
@@ -3459,24 +3454,18 @@ if (originalInitApp) {
             throw new Error('El archivo JSON no tiene la estructura correcta');
         }
         
-        // 🔥 CRÍTICO: Asignar a AMBAS variables
+        // 🔥🔥🔥 ASIGNACIÓN CORRECTA A TODAS LAS VARIABLES
         products = catalogData.productos;
-allProducts = catalogData.productos; // Guardar todos los productos para búsqueda
-
-// 🔥 AGREGAR ESTAS 2 LÍNEAS:
-window.products = catalogData.productos; // Hacer global
-window.allProducts = catalogData.productos; // Hacer global
+        allProducts = catalogData.productos;
+        
+        // 🔥 CRÍTICO: Actualizar también las versiones de window
+        window.products = products;
+        window.allProducts = allProducts;
         
         console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
-        console.log('✅ window.products asignado:', window.products.length, 'productos');
-        console.log('✅ window.allProducts asignado:', window.allProducts.length, 'productos');
-        
-        // Verificación extra
-        console.log('🔍 Verificación - Primer producto:');
-        if (window.products[0]) {
-            console.log('   Nombre:', window.products[0].Nombre || window.products[0].nombre);
-            console.log('   Descripción:', (window.products[0].descripción || '').substring(0, 50) + '...');
-        }
+        console.log('✅ allProducts:', allProducts.length, 'productos');
+        console.log('✅ window.products:', window.products.length, 'productos');
+        console.log('✅ window.allProducts:', window.allProducts.length, 'productos');
         
         displayProducts();
         
@@ -3487,9 +3476,6 @@ window.allProducts = catalogData.productos; // Hacer global
             
             // Configurar búsqueda por Enter
             setupSearchFunctionality();
-            
-            // Notificar que ya se puede buscar
-            mostrarNotificacionBusquedaLista();
             
         }, 800);
         
@@ -3607,72 +3593,77 @@ function testSearchFunctionality() {
         }
 
         function performSearch() {
-    console.log('🔍 EJECUTANDO BÚSQUEDA...');
+    console.log('🔍 ===== EJECUTANDO BÚSQUEDA =====');
     
-    // Obtener término de búsqueda
-    const searchTerm = document.getElementById('searchInput').value.trim();
-    console.log(`🔍 Término: "${searchTerm}"`);
-    
-    if (searchTerm.length < 2) {
-        alert('Por favor ingresa al menos 2 caracteres para buscar');
-        return;
-    }
-    
-    // 🔥 GARANTIZAR que allProducts tenga datos
-    if ((!window.allProducts || window.allProducts.length === 0) && window.products) {
-        console.log('⚠️ allProducts vacío, copiando de products...');
-        window.allProducts = window.products;
-    }
-    
-    if (!window.allProducts || window.allProducts.length === 0) {
-        alert('❌ Error: No hay productos disponibles para buscar\n\nRecarga la página e intenta de nuevo.');
-        console.error('ERROR: allProducts vacío');
-        return;
-    }
-    
-    console.log(`📊 Buscando en ${window.allProducts.length} productos`);
-    
-    // Ejecutar búsqueda
-    const results = window.searchProducts(searchTerm);
-    
-    // Mostrar resultados
-    if (results.length === 0) {
-        console.log('📭 No se encontraron resultados');
-        document.getElementById('searchResults').style.display = 'block';
-        document.getElementById('searchCount').innerHTML = `No se encontraron perfumes para: <strong>"${searchTerm}"</strong>`;
-        document.getElementById('searchResultsGrid').innerHTML = `
-            <div class="no-results">
-                <span>😔</span>
-                <p>No encontramos perfumes que coincidan con tu búsqueda.</p>
-                <p>Intenta con palabras como: <strong>fragancia, perfume, aroma, hombre, mujer</strong></p>
-            </div>
-        `;
-    } else {
-        console.log(`✅ Mostrando ${results.length} resultados`);
+    try {
+        // Obtener término de búsqueda
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) {
+            console.error('❌ No se encontró el input de búsqueda');
+            return;
+        }
         
-        // Mostrar hasta 12 resultados
-        const mostrarResultados = results.slice(0, 12);
+        const searchTerm = searchInput.value.trim();
+        console.log(`🔍 Término: "${searchTerm}"`);
         
-        document.getElementById('searchResults').style.display = 'block';
-        document.getElementById('searchCount').innerHTML = `Se encontraron <strong>${results.length}</strong> perfumes para: <strong>"${searchTerm}"</strong>`;
+        if (searchTerm.length < 2) {
+            alert('Por favor ingresa al menos 2 caracteres para buscar');
+            return;
+        }
         
-        document.getElementById('searchResultsGrid').innerHTML = mostrarResultados.map(product => `
-            <div class="product-card">
-                <div class="product-image" onclick="openProductModal('${product.id}')">
-                    <img src="${product.imagen || ''}" alt="${product.Nombre || ''}">
-                </div>
-                <div class="product-info">
-                    <h3 class="product-title">${product.Nombre || 'Producto'}</h3>
-                    <p class="product-description">${(product.descripción || '').substring(0, 80)}...</p>
-                    <div class="product-price">
-                        <span class="price-current">${formatPriceFull(product.precio || 0)}</span>
-                    </div>
-                    <button class="btn btn-primary" onclick="addToCart('${product.id}')">
-                        🛒 Agregar al Carrito
-                    </button>
-                </div>
-            </div>
-        `).join('');
+        // 🔥 USAR CUALQUIER VARIABLE QUE TENGA DATOS
+        let productosParaBuscar = null;
+        
+        // Prioridad 1: allProducts
+        if (allProducts && allProducts.length > 0) {
+            productosParaBuscar = allProducts;
+            console.log('📊 Usando allProducts:', productosParaBuscar.length, 'productos');
+        }
+        // Prioridad 2: window.allProducts  
+        else if (window.allProducts && window.allProducts.length > 0) {
+            productosParaBuscar = window.allProducts;
+            console.log('📊 Usando window.allProducts:', productosParaBuscar.length, 'productos');
+        }
+        // Prioridad 3: products
+        else if (products && products.length > 0) {
+            productosParaBuscar = products;
+            console.log('📊 Usando products:', productosParaBuscar.length, 'productos');
+        }
+        // Prioridad 4: window.products
+        else if (window.products && window.products.length > 0) {
+            productosParaBuscar = window.products;
+            console.log('📊 Usando window.products:', productosParaBuscar.length, 'productos');
+        }
+        
+        if (!productosParaBuscar || productosParaBuscar.length === 0) {
+            console.error('❌ ERROR: No hay productos disponibles para buscar');
+            console.log('Estado de variables:');
+            console.log('  - allProducts:', allProducts ? allProducts.length : 'no');
+            console.log('  - window.allProducts:', window.allProducts ? window.allProducts.length : 'no');
+            console.log('  - products:', products ? products.length : 'no');
+            console.log('  - window.products:', window.products ? window.products.length : 'no');
+            
+            alert('❌ Error: Los productos no se cargaron correctamente.\n\nRecarga la página con Ctrl+F5');
+            return;
+        }
+        
+        console.log(`📊 Buscando en ${productosParaBuscar.length} productos`);
+        
+        // Ejecutar búsqueda
+        const results = searchProducts(searchTerm);
+        
+        // Mostrar resultados
+        displaySearchResults(results, searchTerm);
+        
+        // Scroll a resultados
+        document.getElementById('searchResults').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+        
+    } catch (error) {
+        console.error('❌ Error en performSearch:', error);
+        alert('Error al realizar la búsqueda. Intenta de nuevo.');
     }
 }
 
@@ -5539,9 +5530,43 @@ window.addEventListener('load', function() {
     
     console.log('🔧 ===== FIN VERIFICACIÓN =====');
 }
+ function solucionarBusquedaEmergencia() {
+    console.log('🚨 ===== SOLUCIÓN DE EMERGENCIA =====');
+    
+    // Forzar carga de productos desde el JSON
+    fetch('./data/catalogo.json')
+        .then(response => response.json())
+        .then(data => {
+            if (data.productos) {
+                // Actualizar TODAS las variables
+                products = data.productos;
+                allProducts = data.productos;
+                window.products = data.productos;
+                window.allProducts = data.productos;
+                
+                console.log(`🚨 ¡FORZADO! ${data.productos.length} productos cargados`);
+                
+                alert(`✅ ¡PROBLEMA SOLUCIONADO!\n\n${data.productos.length} productos cargados.\n\nAhora puedes buscar normalmente.`);
+                
+                // Probar automáticamente
+                setTimeout(() => {
+                    document.getElementById('searchInput').value = 'fragancia';
+                    performSearch();
+                }, 1000);
+                
+            } else {
+                alert('❌ Error: El archivo JSON no tiene la estructura correcta');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error:', error);
+            alert('Error cargando productos. Verifica la consola (F12).');
+        });
+}       
 </script>
  </body>
 </html>
+
 
 
 
