@@ -3430,18 +3430,12 @@
             throw new Error('El archivo JSON no tiene la estructura correcta');
         }
         
-        // 🔥🔥🔥 ASIGNACIÓN CORRECTA A TODAS LAS VARIABLES
+        // 🔥 CRÍTICO: ASIGNAR CORRECTAMENTE
         products = catalogData.productos;
-        allProducts = catalogData.productos;
-        
-        // 🔥 CRÍTICO: Actualizar también las versiones de window
-        window.products = products;
-        window.allProducts = allProducts;
+        allProducts = catalogData.productos; // ESTA LÍNEA ES CLAVE
         
         console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
-        console.log('✅ allProducts:', allProducts.length, 'productos');
-        console.log('✅ window.products:', window.products.length, 'productos');
-        console.log('✅ window.allProducts:', window.allProducts.length, 'productos');
+        console.log('✅ allProducts asignado:', allProducts.length, 'productos');
         
         displayProducts();
         
@@ -3644,57 +3638,36 @@ function testSearchFunctionality() {
 }
 
        function searchProducts(searchTerm) {
-    console.log('🎯 ===== INICIANDO BÚSQUEDA =====');
+    console.log('🔍 Iniciando búsqueda...');
     
-    // Usar window.allProducts si está disponible, sino products local
-    const productosABuscar = window.allProducts || allProducts || products || [];
+    // 🔥 USAR products SI allProducts ESTÁ VACÍO
+    const productosABuscar = allProducts && allProducts.length > 0 ? allProducts : products;
     
-    console.log(`📊 Productos disponibles para búsqueda: ${productosABuscar.length}`);
+    console.log(`📊 Productos para buscar: ${productosABuscar.length}`);
     
-    if (productosABuscar.length === 0) {
-        console.error('❌ ERROR CRÍTICO: No hay productos para buscar');
-        console.log('Estado de variables:');
-        console.log('  - window.allProducts:', window.allProducts ? window.allProducts.length : 'no');
-        console.log('  - allProducts:', allProducts ? allProducts.length : 'no');
-        console.log('  - products:', products ? products.length : 'no');
-        console.log('  - window.products:', window.products ? window.products.length : 'no');
+    if (!productosABuscar || productosABuscar.length === 0) {
+        console.error('❌ No hay productos para buscar');
         return [];
     }
     
     const term = searchTerm.toLowerCase().trim();
     console.log(`🔍 Buscando: "${term}"`);
     
-    // Mostrar ejemplo de qué hay en los productos
-    if (productosABuscar[0]) {
-        const ejemplo = productosABuscar[0];
-        console.log('📦 Ejemplo de producto (primero):');
-        console.log('  - Nombre:', ejemplo.Nombre || ejemplo.nombre);
-        console.log('  - Descripción:', (ejemplo.descripción || ejemplo.descripcion || '').substring(0, 80) + '...');
-    }
-    
-    // BÚSQUEDA SIMPLE PERO EFECTIVA
+    // Búsqueda simple
     const resultados = productosABuscar.filter(producto => {
         if (!producto) return false;
         
-        // Crear texto buscable
-        const textoBuscable = [
+        // Buscar en todos los campos
+        const texto = [
             producto.Nombre || producto.nombre || '',
             producto.descripción || producto.descripcion || '',
-            producto.Categoria || producto.categoria || '',
-            producto.marca || '',
-            JSON.stringify(producto).toLowerCase()
+            producto.Categoria || producto.categoria || ''
         ].join(' ').toLowerCase();
         
-        // Buscar el término
-        return textoBuscable.includes(term);
+        return texto.includes(term);
     });
     
-    console.log(`✅ Resultados encontrados: ${resultados.length}`);
-    
-    if (resultados.length > 0) {
-        console.log('🏆 Primer resultado:', resultados[0].Nombre || resultados[0].nombre);
-    }
-    
+    console.log(`✅ Resultados: ${resultados.length}`);
     return resultados;
 }
         function displaySearchResults(results, searchTerm) {
@@ -4480,84 +4453,35 @@ function handleCheckoutSubmit() {
                     }, 300); // Debounce de 300ms
                 });
                 
-                function performSearch(searchTerm) {
-                    const term = searchTerm.toLowerCase().trim();
-                    const options = citySelect.getElementsByTagName('option');
-                    const groups = citySelect.getElementsByTagName('optgroup');
-                    
-                    let foundCount = 0;
-                    
-                    // Resetear todas las opciones
-                    for (let i = 0; i < options.length; i++) {
-                        options[i].style.display = '';
-                    }
-                    
-                    // Si hay término de búsqueda, filtrar
-                    if (term.length >= 2) {
-                        for (let i = 0; i < options.length; i++) {
-                            const option = options[i];
-                            const text = option.textContent.toLowerCase();
-                            
-                            if (text.includes(term)) {
-                                option.style.display = '';
-                                foundCount++;
-                            } else {
-                                option.style.display = 'none';
-                            }
-                        }
-                        
-                        // Manejar visibilidad de grupos
-                        for (let i = 0; i < groups.length; i++) {
-                            const group = groups[i];
-                            const groupOptions = group.getElementsByTagName('option');
-                            let hasVisible = false;
-                            
-                            for (let j = 0; j < groupOptions.length; j++) {
-                                if (groupOptions[j].style.display !== 'none') {
-                                    hasVisible = true;
-                                    break;
-                                }
-                            }
-                            
-                            group.style.display = hasVisible ? '' : 'none';
-                        }
-                        
-                        // Actualizar placeholder con resultados
-                        searchInput.placeholder = foundCount > 0 
-                            ? `🔍 ${foundCount} municipios encontrados...`
-                            : '🔍 No se encontraron municipios...';
-                            
-                    } else {
-                        // Resetear a estado normal
-                        for (let i = 0; i < groups.length; i++) {
-                            groups[i].style.display = '';
-                        }
-                        searchInput.placeholder = '🔍 Escribe para buscar tu municipio...';
-                    }
-                }
-                
-                // Limpiar búsqueda cuando se selecciona una opción
-                citySelect.addEventListener('change', function() {
-                    searchInput.value = '';
-                    performSearch('');
-                });
-                
-                console.log('✅ Búsqueda de ciudades activada correctamente');
-                
-            } catch (error) {
-                console.error('❌ Error en enhanceCitySearch:', error);
-            }
-        }
-
-        // 🔥 TAMBIÉN AGREGAR ESTA FUNCIÓN PARA REINICIAR LA BÚSQUEDA
-        function resetCitySearch() {
-            const searchInput = document.getElementById('citySearchInput');
-            if (searchInput) {
-                searchInput.value = '';
-                const event = new Event('input', { bubbles: true });
-                searchInput.dispatchEvent(event);
-            }
-        }
+                function performSearch() {
+    console.log('🔍 Ejecutando búsqueda...');
+    
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput.value.trim();
+    
+    if (searchTerm.length < 2) {
+        alert('Por favor ingresa al menos 2 caracteres');
+        return;
+    }
+    
+    console.log(`🔍 Buscando: "${searchTerm}"`);
+    
+    // Verificar que tengamos productos
+    if (!allProducts || allProducts.length === 0) {
+        console.log('⚠️ allProducts vacío, usando products');
+        allProducts = products; // Asignar directamente
+    }
+    
+    if (!allProducts || allProducts.length === 0) {
+        alert('Error: No hay productos disponibles para buscar');
+        return;
+    }
+    
+    console.log(`📊 Buscando en ${allProducts.length} productos`);
+    
+    const results = searchProducts(searchTerm);
+    displaySearchResults(results, searchTerm);
+}
 
         // 🔥 ACTUALIZAR LA FUNCIÓN openCheckout PARA REINICIAR LA BÚSQUEDA
         function openCheckout() {
@@ -5334,10 +5258,23 @@ function handleFailedPayment(result) {
     <span class="cart-count-mobile">0</span>
 </button> 
     <script>
-
+// 🔥 VERIFICACIÓN FINAL - ASEGURAR QUE allProducts TENGA DATOS
+setTimeout(() => {
+    console.log('🔍 Verificación final de búsqueda...');
+    console.log('   - products:', products ? products.length : 'no');
+    console.log('   - allProducts:', allProducts ? allProducts.length : 'no');
+    
+    // Si products tiene datos pero allProducts no, copiarlos
+    if (products && products.length > 0 && (!allProducts || allProducts.length === 0)) {
+        console.log('⚠️ allProducts vacío, copiando de products...');
+        allProducts = products;
+        console.log('✅ allProducts actualizado:', allProducts.length);
+    }
+}, 3000);
  </script>
  </body>
 </html>
+
 
 
 
