@@ -3550,57 +3550,56 @@ function testSearchFunctionality() {
             });
         }
 
-        function searchProducts(searchTerm) {
-    console.log(`🔍 [searchProducts] Buscando: "${searchTerm}"`);
+       function searchProducts(searchTerm) {
+    console.log('🔍 ===== NUEVA BÚSQUEDA =====');
     
-    // 🔥 FALLBACK: Si allProducts está vacío, usar products
-    if ((!allProducts || allProducts.length === 0) && products && products.length > 0) {
-        console.log('⚠️ allProducts vacío, usando products como fallback');
-        allProducts = products;
+    // 🔥 EMERGENCIA: Si allProducts está vacío, usar window.products
+    let productosParaBuscar = window.allProducts;
+    
+    if (!productosParaBuscar || productosParaBuscar.length === 0) {
+        console.log('⚠️ allProducts vacío, buscando window.products...');
+        productosParaBuscar = window.products;
     }
     
-    console.log(`📊 Productos disponibles para búsqueda: ${allProducts ? allProducts.length : 0}`);
-    
-    if (!allProducts || allProducts.length === 0) {
-        console.error('❌ ERROR CRÍTICO: No hay productos para buscar');
-        console.log('   - products tiene:', products ? products.length : 0, 'productos');
+    if (!productosParaBuscar || productosParaBuscar.length === 0) {
+        console.error('❌ ERROR: No hay productos para buscar');
         return [];
     }
+    
+    console.log(`📊 Buscando en ${productosParaBuscar.length} productos`);
     
     const term = searchTerm.toLowerCase().trim();
-    console.log(`🔍 Término de búsqueda: "${term}"`);
+    console.log(`🔍 Término: "${term}"`);
     
-    try {
-        const resultados = allProducts.filter(product => {
-            if (!product) return false;
-            
-            // Buscar en todos los campos posibles
-            const campos = [
-                product.Nombre || product.nombre || '',
-                product.descripción || product.descripcion || '',
-                product.Categoria || product.categoria || '',
-                product.marca || '',
-                JSON.stringify(product).toLowerCase()
-            ];
-            
-            // Verificar si el término está en algún campo
-            for (let campo of campos) {
-                if (campo.toString().toLowerCase().includes(term)) {
-                    console.log(`✅ Encontrado: ${product.Nombre || product.nombre}`);
-                    return true;
-                }
-            }
-            
-            return false;
+    // MOSTRAR PRIMER PRODUCTO PARA DEBUG
+    if (productosParaBuscar[0]) {
+        const primerProducto = productosParaBuscar[0];
+        console.log('📦 Primer producto para referencia:', {
+            Nombre: primerProducto.Nombre || primerProducto.nombre,
+            Descripción: (primerProducto.descripción || primerProducto.descripcion || '').substring(0, 50),
+            Campos: Object.keys(primerProducto)
         });
-        
-        console.log(`✅ Total resultados: ${resultados.length}`);
-        return resultados;
-        
-    } catch (error) {
-        console.error('❌ Error en búsqueda:', error);
-        return [];
     }
+    
+    // BÚSQUEDA ULTRA SIMPLE
+    const resultados = productosParaBuscar.filter(product => {
+        if (!product) return false;
+        
+        // Convertir todo el producto a string
+        const textoCompleto = JSON.stringify(product).toLowerCase();
+        
+        // Buscar el término
+        const encontrado = textoCompleto.includes(term);
+        
+        if (encontrado) {
+            console.log(`✅ Encontrado: ${product.Nombre || product.nombre || 'Sin nombre'}`);
+        }
+        
+        return encontrado;
+    });
+    
+    console.log(`🎯 Total resultados: ${resultados.length}`);
+    return resultados;
 }
 
         function displaySearchResults(results, searchTerm) {
@@ -5239,9 +5238,48 @@ function handleFailedPayment(result) {
 </button> 
     <script>
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="bepLA18mMEZIWIzii5F36";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+// 🔥 SOLUCIÓN DE EMERGENCIA - FORZAR allProducts DESPUÉS DE CARGAR
+function forceAllProductsAssignment() {
+    console.log('🚨 EJECUTANDO SOLUCIÓN DE EMERGENCIA...');
+    
+    // Opción 1: Si products tiene datos pero allProducts no
+    if (window.products && window.products.length > 0 && 
+        (!window.allProducts || window.allProducts.length === 0)) {
+        console.log(`📦 products tiene ${window.products.length} productos`);
+        window.allProducts = window.products;
+        console.log(`✅ allProducts forzado: ${window.allProducts.length} productos`);
+    }
+    
+    // Opción 2: Verificar si la búsqueda funcionará
+    console.log('🔍 Estado final:');
+    console.log('  - allProducts:', window.allProducts ? window.allProducts.length : 'NO');
+    console.log('  - products:', window.products ? window.products.length : 'NO');
+    console.log('  - searchProducts function:', typeof window.searchProducts);
+    
+    // Forzar una prueba
+    if (window.allProducts && window.allProducts.length > 0) {
+        console.log('🧪 Probando búsqueda "fragancia"...');
+        const testResults = window.searchProducts('fragancia');
+        console.log(`✅ Test results: ${testResults.length} productos encontrados`);
+    }
+}
+
+// Ejecutar después de que todo cargue
+window.addEventListener('load', function() {
+    setTimeout(forceAllProductsAssignment, 2000);
+    setTimeout(forceAllProductsAssignment, 5000);
+});
+
+// También ejecutar cuando se haga clic en buscar
+document.addEventListener('click', function(event) {
+    if (event.target.closest('.search-button')) {
+        setTimeout(forceAllProductsAssignment, 100);
+    }
+});
 </script>
  </body>
 </html>
+
 
 
 
