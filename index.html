@@ -3415,26 +3415,27 @@
         }
         
         const catalogData = await response.json();
+        console.log('📦 JSON crudo recibido:', catalogData);
         
         // Validar que el JSON tenga la estructura correcta
         if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
+            console.error('❌ Estructura incorrecta. Campos disponibles:', Object.keys(catalogData));
             throw new Error('El archivo JSON no tiene la estructura correcta');
         }
         
         products = catalogData.productos;
-        // 🔥 CORRECCIÓN CRÍTICA AQUÍ
-        allProducts = catalogData.productos; // Asignar directamente
+        console.log('✅ products asignado:', products.length, 'productos');
         
-        console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
-        console.log('✅ allProducts listo para búsqueda:', allProducts.length, 'productos');
+        // 🔥 CRÍTICO: ASIGNAR allProducts
+        allProducts = catalogData.productos; // ESTA LÍNEA ES CLAVE
+        console.log('✅ allProducts asignado:', allProducts.length, 'productos');
         
-        // Verificar el primer producto
-        if (allProducts.length > 0) {
-            console.log('📋 Primer producto para búsqueda:', {
-                id: allProducts[0].id || 'sin id',
-                nombre: allProducts[0].Nombre || allProducts[0].nombre,
-                descripcion: allProducts[0].descripción || allProducts[0].descripcion
-            });
+        // VERIFICACIÓN EXTRA
+        console.log('🔍 Verificación:');
+        console.log('  - products === allProducts:', products === allProducts);
+        console.log('  - Primer producto en allProducts:', allProducts[0] ? 'Sí' : 'No');
+        if (allProducts[0]) {
+            console.log('  - Campos del primer producto:', Object.keys(allProducts[0]));
         }
         
         displayProducts();
@@ -3447,9 +3448,11 @@
             // Configurar búsqueda por Enter
             setupSearchFunctionality();
             
-            // 🔥 VERIFICACIÓN EXTRA
-            console.log('🔍 Verificación final - allProducts:', allProducts.length);
-            console.log('🔍 Verificación final - products:', products.length);
+            // 🔥 PRUEBA AUTOMÁTICA
+            console.log('🧪 Ejecutando prueba automática de búsqueda...');
+            setTimeout(() => {
+                testSearchFunctionality();
+            }, 1000);
             
         }, 800);
         
@@ -3457,6 +3460,48 @@
         console.error('❌ Error cargando el catálogo:', error);
         loadEmergencyProducts();
     }
+}
+            // 🔥 FUNCIÓN DE PRUEBA PARA DIAGNOSTICAR
+function testSearchFunctionality() {
+    console.log('🧪 ===== PRUEBA DE BÚSQUEDA =====');
+    
+    // 1. Verificar variables globales
+    console.log('1. Verificando variables:');
+    console.log('   - window.allProducts:', window.allProducts ? `Array(${window.allProducts.length})` : 'NO DEFINIDO');
+    console.log('   - window.products:', window.products ? `Array(${window.products.length})` : 'NO DEFINIDO');
+    
+    // 2. Verificar que searchProducts exista
+    console.log('2. Verificando función searchProducts:', typeof window.searchProducts);
+    
+    // 3. Probar búsqueda directa
+    if (window.allProducts && window.allProducts.length > 0) {
+        console.log('3. Probando búsqueda en primer producto...');
+        const primerProducto = window.allProducts[0];
+        console.log('   - Primer producto:', primerProducto.Nombre || primerProducto.nombre);
+        console.log('   - Descripción:', primerProducto.descripción || primerProducto.descripcion);
+        
+        // Buscar palabra que debería estar en la descripción
+        const testTerm = 'fragancia';
+        console.log(`4. Buscando "${testTerm}"...`);
+        
+        if (typeof window.searchProducts === 'function') {
+            const resultados = window.searchProducts(testTerm);
+            console.log(`   - Resultados: ${resultados.length}`);
+        } else {
+            console.log('   - ERROR: searchProducts no es una función');
+        }
+    } else {
+        console.log('3. ERROR: allProducts está vacío');
+        
+        // Intentar usar products como fallback
+        if (window.products && window.products.length > 0) {
+            console.log('   - PERO products tiene datos. Asignando allProducts = products...');
+            window.allProducts = window.products;
+            console.log('   - allProducts ahora:', window.allProducts.length);
+        }
+    }
+    
+    console.log('🧪 ===== FIN DE PRUEBA =====');
 }
         function setupSearchFunctionality() {
             const searchInput = document.getElementById('searchInput');
@@ -3506,52 +3551,56 @@
         }
 
         function searchProducts(searchTerm) {
-    const term = searchTerm.toLowerCase().trim();
-    console.log(`🔍 Buscando: "${term}" en ${allProducts.length} productos`);
+    console.log(`🔍 [searchProducts] Buscando: "${searchTerm}"`);
     
-    if (term.length < 2) {
+    // 🔥 FALLBACK: Si allProducts está vacío, usar products
+    if ((!allProducts || allProducts.length === 0) && products && products.length > 0) {
+        console.log('⚠️ allProducts vacío, usando products como fallback');
+        allProducts = products;
+    }
+    
+    console.log(`📊 Productos disponibles para búsqueda: ${allProducts ? allProducts.length : 0}`);
+    
+    if (!allProducts || allProducts.length === 0) {
+        console.error('❌ ERROR CRÍTICO: No hay productos para buscar');
+        console.log('   - products tiene:', products ? products.length : 0, 'productos');
         return [];
     }
     
-    return allProducts.filter(product => {
-        try {
-            // 🔥 CAMBIOS IMPORTANTES: Usar los nombres de campos de TU JSON
+    const term = searchTerm.toLowerCase().trim();
+    console.log(`🔍 Término de búsqueda: "${term}"`);
+    
+    try {
+        const resultados = allProducts.filter(product => {
+            if (!product) return false;
             
-            // 1. Buscar en el campo "descripción" (con tilde, como en tu JSON)
-            const descripcion = product.descripción || product.descripcion || '';
-            if (descripcion.toLowerCase().includes(term)) {
-                console.log(`✅ Encontrado en descripción: ${product.Nombre || product.nombre}`);
-                return true;
-            }
+            // Buscar en todos los campos posibles
+            const campos = [
+                product.Nombre || product.nombre || '',
+                product.descripción || product.descripcion || '',
+                product.Categoria || product.categoria || '',
+                product.marca || '',
+                JSON.stringify(product).toLowerCase()
+            ];
             
-            // 2. Buscar en el campo "Nombre" (con N mayúscula, como en tu JSON)
-            const nombre = product.Nombre || product.nombre || '';
-            if (nombre.toLowerCase().includes(term)) {
-                console.log(`✅ Encontrado en nombre: ${nombre}`);
-                return true;
-            }
-            
-            // 3. Buscar en categorías
-            const categoria = product.Categoria || product.categoria || product.categorias || '';
-            if (categoria.toLowerCase().includes(term)) {
-                console.log(`✅ Encontrado en categoría: ${nombre} (${categoria})`);
-                return true;
-            }
-            
-            // 4. Buscar en cualquier campo del objeto (como fallback)
-            const productString = JSON.stringify(product).toLowerCase();
-            if (productString.includes(term)) {
-                console.log(`✅ Encontrado en otros campos: ${nombre}`);
-                return true;
+            // Verificar si el término está en algún campo
+            for (let campo of campos) {
+                if (campo.toString().toLowerCase().includes(term)) {
+                    console.log(`✅ Encontrado: ${product.Nombre || product.nombre}`);
+                    return true;
+                }
             }
             
             return false;
-            
-        } catch (error) {
-            console.error(`❌ Error buscando producto:`, error);
-            return false;
-        }
-    });
+        });
+        
+        console.log(`✅ Total resultados: ${resultados.length}`);
+        return resultados;
+        
+    } catch (error) {
+        console.error('❌ Error en búsqueda:', error);
+        return [];
+    }
 }
 
         function displaySearchResults(results, searchTerm) {
@@ -5193,6 +5242,7 @@ function handleFailedPayment(result) {
 </script>
  </body>
 </html>
+
 
 
 
