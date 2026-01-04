@@ -3405,44 +3405,59 @@
         let allProducts = []; // Para almacenar todos los productos
 
         async function loadProductsFromJSON() {
-            try {
-                console.log('🔄 Iniciando carga del catálogo...');
-                
-                const response = await fetch('./data/catalogo.json');
-                
-                if (!response.ok) {
-                    throw new Error(`Error cargando catálogo: ${response.status}`);
-                }
-                
-                const catalogData = await response.json();
-                
-                // Validar que el JSON tenga la estructura correcta
-                if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
-                    throw new Error('El archivo JSON no tiene la estructura correcta');
-                }
-                
-                products = catalogData.productos;
-                allProducts = products; // Guardar todos los productos para búsqueda
-                
-                console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
-                
-                displayProducts();
-                
-                // Ocultar loading screen después de cargar
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    console.log('🏁 Aplicación cargada completamente');
-                    
-                    // Configurar búsqueda por Enter
-                    setupSearchFunctionality();
-                }, 800);
-                
-            } catch (error) {
-                console.error('❌ Error cargando el catálogo:', error);
-                loadEmergencyProducts();
-            }
+    try {
+        console.log('🔄 Iniciando carga del catálogo...');
+        
+        const response = await fetch('./data/catalogo.json');
+        
+        if (!response.ok) {
+            throw new Error(`Error cargando catálogo: ${response.status}`);
         }
-
+        
+        const catalogData = await response.json();
+        
+        // Validar que el JSON tenga la estructura correcta
+        if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
+            throw new Error('El archivo JSON no tiene la estructura correcta');
+        }
+        
+        products = catalogData.productos;
+        // 🔥 CORRECCIÓN CRÍTICA AQUÍ
+        allProducts = catalogData.productos; // Asignar directamente
+        
+        console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
+        console.log('✅ allProducts listo para búsqueda:', allProducts.length, 'productos');
+        
+        // Verificar el primer producto
+        if (allProducts.length > 0) {
+            console.log('📋 Primer producto para búsqueda:', {
+                id: allProducts[0].id || 'sin id',
+                nombre: allProducts[0].Nombre || allProducts[0].nombre,
+                descripcion: allProducts[0].descripción || allProducts[0].descripcion
+            });
+        }
+        
+        displayProducts();
+        
+        // Ocultar loading screen después de cargar
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            console.log('🏁 Aplicación cargada completamente');
+            
+            // Configurar búsqueda por Enter
+            setupSearchFunctionality();
+            
+            // 🔥 VERIFICACIÓN EXTRA
+            console.log('🔍 Verificación final - allProducts:', allProducts.length);
+            console.log('🔍 Verificación final - products:', products.length);
+            
+        }, 800);
+        
+    } catch (error) {
+        console.error('❌ Error cargando el catálogo:', error);
+        loadEmergencyProducts();
+    }
+}
         function setupSearchFunctionality() {
             const searchInput = document.getElementById('searchInput');
             
@@ -3658,6 +3673,7 @@
         // ===== VARIABLES GLOBALES =====
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let products = [];
+        let allProducts = []; // 🔥 AÑADE ESTA LÍNEA
         let currentModalProductId = null;
 
         // ===== WOMPI INTEGRATION =====
@@ -5187,6 +5203,7 @@ function handleFailedPayment(result) {
 </script>
  </body>
 </html>
+
 
 
 
