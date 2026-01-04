@@ -3492,11 +3492,20 @@
 
         function searchProducts(searchTerm) {
     const term = searchTerm.toLowerCase().trim();
-    console.log(`🔍 Buscando: "${term}" en ${allProducts.length} productos`);
     
-    if (term.length < 2) {
-        return [];
-    }
+    return allProducts.filter(product => {
+        // Buscar en TODOS los valores del objeto
+        for (let key in product) {
+            if (product.hasOwnProperty(key)) {
+                const value = String(product[key]).toLowerCase();
+                if (value.includes(term)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    });
+}
     
     return allProducts.filter(product => {
         try {
@@ -5178,6 +5187,7 @@ function handleFailedPayment(result) {
 </script>
  </body>
 </html>
+
 
 
 
