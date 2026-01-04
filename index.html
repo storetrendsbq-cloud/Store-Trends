@@ -5295,90 +5295,179 @@ function handleFailedPayment(result) {
     <span class="cart-count-mobile">0</span>
 </button> 
     <script>
-// 🔥 SOLUCIÓN DEFINITIVA PARA LA BÚSQUEDA
-console.log('🔄 ACTIVANDO SOLUCIÓN DE BÚSQUEDA...');
+// 🔥 SOLUCIÓN MEJORADA - ESPERA A QUE PRODUCTOS SE CARGUEN
+console.log('🔄 ACTIVANDO SOLUCIÓN DE BÚSQUEDA MEJORADA...');
 
-// Esperar a que la página cargue
-setTimeout(function() {
-    console.log('🔍 Verificando productos...');
+// Función que se ejecutará cuando los productos estén listos
+function activarBusquedaCuandoEsteLista() {
+    console.log('⏳ Esperando productos...');
     
-    // Si products tiene datos pero allProducts no, copiarlos
-    if (window.products && window.products.length > 0) {
-        console.log(`📦 Se encontraron ${window.products.length} productos`);
-        
-        // Copiar productos a allProducts
-        window.allProducts = window.products;
-        console.log(`✅ allProducts listo con ${window.allProducts.length} productos`);
-        
-        // Reemplazar la función de búsqueda con una que SÍ funcione
-        window.searchProducts = function(searchTerm) {
-            const term = searchTerm.toLowerCase().trim();
-            console.log(`🔍 Buscando: "${term}"`);
+    // Verificar cada segundo si products ya tiene datos
+    const intervalo = setInterval(function() {
+        if (window.products && window.products.length > 0) {
+            clearInterval(intervalo); // Detener la verificación
+            console.log(`✅ ¡Productos encontrados! ${window.products.length} productos`);
             
-            if (!window.allProducts || window.allProducts.length === 0) {
-                console.log('⚠️ No hay productos para buscar');
-                return [];
-            }
+            // 🔥 COPIA LOS PRODUCTOS A allProducts
+            window.allProducts = window.products;
+            console.log(`✅ allProducts listo con ${window.allProducts.length} productos`);
             
-            // Buscar en TODOS los campos
-            const resultados = window.allProducts.filter(product => {
-                const texto = JSON.stringify(product).toLowerCase();
-                return texto.includes(term);
-            });
+            // 🔥 REEMPLAZAR LA FUNCIÓN DE BÚSQUEDA
+            window.searchProducts = function(searchTerm) {
+                const term = searchTerm.toLowerCase().trim();
+                console.log(`🔍 Buscando: "${term}" en ${window.allProducts.length} productos`);
+                
+                // Buscar en TODOS los campos del JSON
+                const resultados = window.allProducts.filter(product => {
+                    // Convertir todo el producto a texto para buscar
+                    const textoProducto = JSON.stringify(product).toLowerCase();
+                    return textoProducto.includes(term);
+                });
+                
+                console.log(`✅ Encontrados: ${resultados.length} resultados`);
+                
+                // Mostrar algunos ejemplos
+                if (resultados.length > 0 && resultados.length <= 3) {
+                    resultados.forEach((p, i) => {
+                        console.log(`   ${i+1}. ${p.Nombre || p.nombre || 'Sin nombre'}`);
+                    });
+                }
+                
+                return resultados;
+            };
             
-            console.log(`✅ Encontrados: ${resultados.length} resultados`);
-            return resultados;
-        };
-        
-        console.log('🎯 Búsqueda configurada correctamente');
-        
-        // Probar automáticamente
-        console.log('🧪 Probando búsqueda automática...');
-        const testResults = window.searchProducts('fragancia');
-        console.log(`🧪 Test: ${testResults.length} resultados para "fragancia"`);
-        
-    } else {
-        console.log('❌ No se encontraron productos');
-    }
-}, 3000); // Esperar 3 segundos después de cargar
-  // 🔥 FUNCIÓN PARA PROBAR LA BÚSQUEDA MANUALMENTE
-function probarBusquedaRapida() {
-    alert('🧪 Probando búsqueda automática...');
-    
-    // Forzar que allProducts tenga datos
-    if (window.products && window.products.length > 0) {
-        window.allProducts = window.products;
-        alert(`✅ Se cargaron ${window.allProducts.length} productos para búsqueda`);
-        
-        // Probar buscar "fragancia" que debe estar en muchas descripciones
-        const resultados = window.searchProducts('fragancia');
-        
-        if (resultados.length > 0) {
-            alert(`🎉 ¡FUNCIONA! Encontró ${resultados.length} productos\n\nPrimer resultado: ${resultados[0].Nombre || resultados[0].nombre}`);
+            console.log('🎯 ¡BÚSQUEDA CONFIGURADA CORRECTAMENTE!');
             
-            // Mostrar en la barra de búsqueda
-            document.getElementById('searchInput').value = 'fragancia';
-            window.performSearch();
+            // Probar automáticamente con "fragancia"
+            setTimeout(() => {
+                console.log('🧪 Probando búsqueda automática...');
+                const testResults = window.searchProducts('fragancia');
+                console.log(`🧪 Test "fragancia": ${testResults.length} resultados`);
+                
+                // Si no encuentra "fragancia", probar con "perfume"
+                if (testResults.length === 0) {
+                    console.log('🧪 Probando con "perfume"...');
+                    const testResults2 = window.searchProducts('perfume');
+                    console.log(`🧪 Test "perfume": ${testResults2.length} resultados`);
+                }
+                
+                // Mostrar mensaje en pantalla
+                mostrarMensajeExito();
+                
+            }, 1000);
             
         } else {
-            alert('😕 No encontró "fragancia". Probando con "perfume"...');
-            
-            const resultados2 = window.searchProducts('perfume');
-            if (resultados2.length > 0) {
-                alert(`✅ Encontró ${resultados2.length} productos con "perfume"`);
-                document.getElementById('searchInput').value = 'perfume';
-                window.performSearch();
-            } else {
-                alert('❌ No encontró nada. Revisando datos...\n\nAbre la consola (F12) y mira los mensajes.');
-            }
+            console.log('⏳ Esperando productos... (products:', window.products ? 'vacío' : 'no definido', ')');
         }
-    } else {
-        alert('❌ ERROR: No hay productos cargados\n\nEspera a que la página termine de cargar y vuelve a intentar.');
+    }, 1000); // Verificar cada segundo
+    
+    // Timeout de seguridad: si después de 10 segundos no hay productos
+    setTimeout(() => {
+        clearInterval(intervalo);
+        console.log('❌ TIMEOUT: No se cargaron productos después de 10 segundos');
+        mostrarMensajeError();
+    }, 10000);
+}
+
+// Función para mostrar mensaje de éxito
+function mostrarMensajeExito() {
+    // Crear un mensaje flotante
+    const mensaje = document.createElement('div');
+    mensaje.innerHTML = `
+        <div style="position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 15px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            ✅ <strong>¡Búsqueda activada!</strong><br>
+            Ya puedes buscar perfumes en el catálogo.
+        </div>
+    `;
+    document.body.appendChild(mensaje);
+    
+    // Quitar el mensaje después de 5 segundos
+    setTimeout(() => {
+        if (mensaje.parentNode) {
+            mensaje.remove();
+        }
+    }, 5000);
+}
+
+// Función para mostrar mensaje de error
+function mostrarMensajeError() {
+    const mensaje = document.createElement('div');
+    mensaje.innerHTML = `
+        <div style="position: fixed; top: 20px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            ❌ <strong>Error en búsqueda</strong><br>
+            Recarga la página e intenta de nuevo.
+            <button onclick="location.reload()" style="background: white; color: #f44336; border: none; padding: 5px 10px; margin-left: 10px; border-radius: 3px; cursor: pointer;">
+                🔄 Recargar
+            </button>
+        </div>
+    `;
+    document.body.appendChild(mensaje);
+}
+
+// Iniciar cuando la página termine de cargar
+window.addEventListener('load', function() {
+    console.log('📄 Página completamente cargada, iniciando verificación...');
+    setTimeout(activarBusquedaCuandoEsteLista, 2000);
+});
+  // 🔥 FUNCIÓN PARA PROBAR LA BÚSQUEDA MANUALMENTE
+// 🔥 FUNCIÓN MEJORADA PARA PROBAR BÚSQUEDA
+function probarBusquedaRapida() {
+    console.log('🧪 Iniciando prueba de búsqueda...');
+    
+    // 1. Verificar si products tiene datos
+    if (!window.products || window.products.length === 0) {
+        alert('❌ ERROR: Los productos no se han cargado todavía.\n\nEspera unos segundos y vuelve a intentar.');
+        console.log('⚠️ window.products:', window.products);
+        return;
     }
-}      
+    
+    // 2. Asegurar que allProducts tenga los datos
+    if (!window.allProducts || window.allProducts.length === 0) {
+        console.log('⚠️ allProducts vacío, copiando de products...');
+        window.allProducts = window.products;
+        alert(`✅ Se copiaron ${window.allProducts.length} productos para búsqueda`);
+    }
+    
+    // 3. Probar búsquedes comunes
+    const pruebas = [
+        { termino: 'fragancia', desc: 'debe aparecer en descripciones' },
+        { termino: 'perfume', desc: 'palabra común' },
+        { termino: 'hombre', desc: 'categoría' },
+        { termino: 'mujer', desc: 'categoría' },
+        { termino: 'aroma', desc: 'debe aparecer' }
+    ];
+    
+    let encontrados = false;
+    
+    for (let prueba of pruebas) {
+        console.log(`🔍 Probando: "${prueba.termino}"`);
+        const resultados = window.searchProducts(prueba.termino);
+        
+        if (resultados.length > 0) {
+            alert(`🎉 ¡FUNCIONA!\n\n"${prueba.termino}": ${resultados.length} resultados\n\nEjemplo: ${resultados[0].Nombre || resultados[0].nombre}`);
+            
+            // Mostrar en la barra de búsqueda
+            document.getElementById('searchInput').value = prueba.termino;
+            window.performSearch();
+            
+            encontrados = true;
+            break; // Detener después del primer éxito
+        }
+    }
+    
+    if (!encontrados) {
+        alert('😕 No encontró ninguno de los términos comunes.\n\nPrueba buscar marcas específicas o abre la consola (F12) para más detalles.');
+        
+        // Mostrar estructura del primer producto para debug
+        if (window.allProducts[0]) {
+            console.log('📦 Primer producto para referencia:', window.allProducts[0]);
+        }
+    }
+}
 </script>
  </body>
 </html>
+
 
 
 
