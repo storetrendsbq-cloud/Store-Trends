@@ -3341,7 +3341,16 @@
        class="btn btn-whatsapp" target="_blank">
        💬 WhatsApp
     </a>
+<!-- Botón de WhatsApp existente -->
+<a href="https://wa.me/573054813630" class="btn btn-whatsapp" target="_blank">
+   💬 WhatsApp
+</a>
 
+<!-- 🔥 NUEVO BOTÓN DE PRUEBA - AGREGA ESTO -->
+<button onclick="probarBusquedaRapida()" 
+        style="position: fixed; bottom: 100px; left: 30px; background: #ff4444; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; z-index: 1000; box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4); cursor: pointer;">
+    🧪 Probar Búsqueda
+</button>
     <!-- Footer -->
     <footer class="footer" id="contacto">
         <div class="container">
@@ -3530,25 +3539,74 @@ function testSearchFunctionality() {
         }
 
         function performSearch() {
-            const searchTerm = document.getElementById('searchInput').value.trim();
-            
-            if (searchTerm.length < 2) {
-                alert('Por favor ingresa al menos 2 caracteres para buscar');
-                return;
-            }
-            
-            console.log('🔍 Buscando:', searchTerm);
-            
-            // Realizar la búsqueda
-            const results = searchProducts(searchTerm);
-            displaySearchResults(results, searchTerm);
-            
-            // Scroll a los resultados
-            document.getElementById('searchResults').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
-        }
+    console.log('🔍 EJECUTANDO BÚSQUEDA...');
+    
+    // Obtener término de búsqueda
+    const searchTerm = document.getElementById('searchInput').value.trim();
+    console.log(`🔍 Término: "${searchTerm}"`);
+    
+    if (searchTerm.length < 2) {
+        alert('Por favor ingresa al menos 2 caracteres para buscar');
+        return;
+    }
+    
+    // 🔥 GARANTIZAR que allProducts tenga datos
+    if ((!window.allProducts || window.allProducts.length === 0) && window.products) {
+        console.log('⚠️ allProducts vacío, copiando de products...');
+        window.allProducts = window.products;
+    }
+    
+    if (!window.allProducts || window.allProducts.length === 0) {
+        alert('❌ Error: No hay productos disponibles para buscar\n\nRecarga la página e intenta de nuevo.');
+        console.error('ERROR: allProducts vacío');
+        return;
+    }
+    
+    console.log(`📊 Buscando en ${window.allProducts.length} productos`);
+    
+    // Ejecutar búsqueda
+    const results = window.searchProducts(searchTerm);
+    
+    // Mostrar resultados
+    if (results.length === 0) {
+        console.log('📭 No se encontraron resultados');
+        document.getElementById('searchResults').style.display = 'block';
+        document.getElementById('searchCount').innerHTML = `No se encontraron perfumes para: <strong>"${searchTerm}"</strong>`;
+        document.getElementById('searchResultsGrid').innerHTML = `
+            <div class="no-results">
+                <span>😔</span>
+                <p>No encontramos perfumes que coincidan con tu búsqueda.</p>
+                <p>Intenta con palabras como: <strong>fragancia, perfume, aroma, hombre, mujer</strong></p>
+            </div>
+        `;
+    } else {
+        console.log(`✅ Mostrando ${results.length} resultados`);
+        
+        // Mostrar hasta 12 resultados
+        const mostrarResultados = results.slice(0, 12);
+        
+        document.getElementById('searchResults').style.display = 'block';
+        document.getElementById('searchCount').innerHTML = `Se encontraron <strong>${results.length}</strong> perfumes para: <strong>"${searchTerm}"</strong>`;
+        
+        document.getElementById('searchResultsGrid').innerHTML = mostrarResultados.map(product => `
+            <div class="product-card">
+                <div class="product-image" onclick="openProductModal('${product.id}')">
+                    <img src="${product.imagen || ''}" alt="${product.Nombre || ''}">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">${product.Nombre || 'Producto'}</h3>
+                    <p class="product-description">${(product.descripción || '').substring(0, 80)}...</p>
+                    <div class="product-price">
+                        <span class="price-current">${formatPriceFull(product.precio || 0)}</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="addToCart('${product.id}')">
+                        🛒 Agregar al Carrito
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+}
 
        function searchProducts(searchTerm) {
     console.log('🔍 ===== NUEVA BÚSQUEDA =====');
@@ -5237,48 +5295,91 @@ function handleFailedPayment(result) {
     <span class="cart-count-mobile">0</span>
 </button> 
     <script>
-(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="bepLA18mMEZIWIzii5F36";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-// 🔥 SOLUCIÓN DE EMERGENCIA - FORZAR allProducts DESPUÉS DE CARGAR
-function forceAllProductsAssignment() {
-    console.log('🚨 EJECUTANDO SOLUCIÓN DE EMERGENCIA...');
+// 🔥 SOLUCIÓN DEFINITIVA PARA LA BÚSQUEDA
+console.log('🔄 ACTIVANDO SOLUCIÓN DE BÚSQUEDA...');
+
+// Esperar a que la página cargue
+setTimeout(function() {
+    console.log('🔍 Verificando productos...');
     
-    // Opción 1: Si products tiene datos pero allProducts no
-    if (window.products && window.products.length > 0 && 
-        (!window.allProducts || window.allProducts.length === 0)) {
-        console.log(`📦 products tiene ${window.products.length} productos`);
+    // Si products tiene datos pero allProducts no, copiarlos
+    if (window.products && window.products.length > 0) {
+        console.log(`📦 Se encontraron ${window.products.length} productos`);
+        
+        // Copiar productos a allProducts
         window.allProducts = window.products;
-        console.log(`✅ allProducts forzado: ${window.allProducts.length} productos`);
-    }
-    
-    // Opción 2: Verificar si la búsqueda funcionará
-    console.log('🔍 Estado final:');
-    console.log('  - allProducts:', window.allProducts ? window.allProducts.length : 'NO');
-    console.log('  - products:', window.products ? window.products.length : 'NO');
-    console.log('  - searchProducts function:', typeof window.searchProducts);
-    
-    // Forzar una prueba
-    if (window.allProducts && window.allProducts.length > 0) {
-        console.log('🧪 Probando búsqueda "fragancia"...');
+        console.log(`✅ allProducts listo con ${window.allProducts.length} productos`);
+        
+        // Reemplazar la función de búsqueda con una que SÍ funcione
+        window.searchProducts = function(searchTerm) {
+            const term = searchTerm.toLowerCase().trim();
+            console.log(`🔍 Buscando: "${term}"`);
+            
+            if (!window.allProducts || window.allProducts.length === 0) {
+                console.log('⚠️ No hay productos para buscar');
+                return [];
+            }
+            
+            // Buscar en TODOS los campos
+            const resultados = window.allProducts.filter(product => {
+                const texto = JSON.stringify(product).toLowerCase();
+                return texto.includes(term);
+            });
+            
+            console.log(`✅ Encontrados: ${resultados.length} resultados`);
+            return resultados;
+        };
+        
+        console.log('🎯 Búsqueda configurada correctamente');
+        
+        // Probar automáticamente
+        console.log('🧪 Probando búsqueda automática...');
         const testResults = window.searchProducts('fragancia');
-        console.log(`✅ Test results: ${testResults.length} productos encontrados`);
+        console.log(`🧪 Test: ${testResults.length} resultados para "fragancia"`);
+        
+    } else {
+        console.log('❌ No se encontraron productos');
     }
-}
-
-// Ejecutar después de que todo cargue
-window.addEventListener('load', function() {
-    setTimeout(forceAllProductsAssignment, 2000);
-    setTimeout(forceAllProductsAssignment, 5000);
-});
-
-// También ejecutar cuando se haga clic en buscar
-document.addEventListener('click', function(event) {
-    if (event.target.closest('.search-button')) {
-        setTimeout(forceAllProductsAssignment, 100);
+}, 3000); // Esperar 3 segundos después de cargar
+  // 🔥 FUNCIÓN PARA PROBAR LA BÚSQUEDA MANUALMENTE
+function probarBusquedaRapida() {
+    alert('🧪 Probando búsqueda automática...');
+    
+    // Forzar que allProducts tenga datos
+    if (window.products && window.products.length > 0) {
+        window.allProducts = window.products;
+        alert(`✅ Se cargaron ${window.allProducts.length} productos para búsqueda`);
+        
+        // Probar buscar "fragancia" que debe estar en muchas descripciones
+        const resultados = window.searchProducts('fragancia');
+        
+        if (resultados.length > 0) {
+            alert(`🎉 ¡FUNCIONA! Encontró ${resultados.length} productos\n\nPrimer resultado: ${resultados[0].Nombre || resultados[0].nombre}`);
+            
+            // Mostrar en la barra de búsqueda
+            document.getElementById('searchInput').value = 'fragancia';
+            window.performSearch();
+            
+        } else {
+            alert('😕 No encontró "fragancia". Probando con "perfume"...');
+            
+            const resultados2 = window.searchProducts('perfume');
+            if (resultados2.length > 0) {
+                alert(`✅ Encontró ${resultados2.length} productos con "perfume"`);
+                document.getElementById('searchInput').value = 'perfume';
+                window.performSearch();
+            } else {
+                alert('❌ No encontró nada. Revisando datos...\n\nAbre la consola (F12) y mira los mensajes.');
+            }
+        }
+    } else {
+        alert('❌ ERROR: No hay productos cargados\n\nEspera a que la página termine de cargar y vuelve a intentar.');
     }
-});
+}      
 </script>
  </body>
 </html>
+
 
 
 
