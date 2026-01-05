@@ -1768,6 +1768,45 @@
         max-width: 600px;
     }
 }
+        /* 🔥🔥🔥 CORRECCIÓN ESPECÍFICA PARA ANDROID - CARRITO COMPLETAMENTE VISIBLE 🔥🔥🔥 */
+@media (max-width: 768px) {
+    /* Solo aplicar a Android detectado */
+    body.android .cart-sidebar {
+        height: calc(100vh - 60px) !important;
+        top: 60px !important;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+    }
+    
+    body.android .cart-header {
+        position: relative !important;
+        top: 0 !important;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+    }
+    
+    body.android .cart-content {
+        height: auto !important;
+        max-height: 60vh !important;
+        padding-bottom: 20px !important;
+    }
+    
+    body.android .cart-footer {
+        position: relative !important;
+        bottom: auto !important;
+        margin-top: auto !important;
+        padding-bottom: 30px !important;
+        border-top: 2px solid var(--accent);
+        background: var(--background) !important;
+        z-index: 10 !important;
+    }
+    
+    /* Overlay más oscuro para Android */
+    body.android .overlay {
+        background: rgba(0,0,0,0.9) !important;
+    }
+}
      </style>
 </head>
 <body>
@@ -4148,6 +4187,182 @@ function preventAccidentalClose() {
         }
     });
 }      
+            // 🔥 SOLUCIÓN COMPLETA PARA EL CARRITO EN ANDROID
+function setupAndroidCartFix() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isAndroid = /android/.test(userAgent);
+    
+    if (!isAndroid || window.innerWidth > 768) return;
+    
+    console.log('📱 Android detectado, aplicando correcciones de carrito...');
+    
+    // 1. Agregar clase al body para CSS específico
+    document.body.classList.add('android');
+    
+    // 2. Función para ajustar el carrito cuando se abre
+    function adjustCartForAndroid() {
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartContent = document.querySelector('.cart-content');
+        const cartFooter = document.querySelector('.cart-footer');
+        
+        if (!cartSidebar || !cartContent || !cartFooter) return;
+        
+        // Solo si el carrito está abierto
+        if (!cartSidebar.classList.contains('active')) return;
+        
+        console.log('🛠️ Ajustando carrito para Android...');
+        
+        // A. Calcular altura máxima disponible
+        const windowHeight = window.innerHeight;
+        const headerHeight = document.querySelector('.cart-header').offsetHeight;
+        const footerHeight = cartFooter.offsetHeight;
+        
+        // B. Altura máxima para el contenido
+        const maxContentHeight = windowHeight - headerHeight - footerHeight - 40;
+        
+        // C. Aplicar alturas
+        cartSidebar.style.height = (windowHeight - 60) + 'px';
+        cartContent.style.maxHeight = maxContentHeight + 'px';
+        cartContent.style.height = 'auto';
+        cartContent.style.overflowY = 'auto';
+        
+        // D. Asegurar que el footer sea visible
+        cartFooter.style.display = 'flex';
+        cartFooter.style.flexDirection = 'column';
+        cartFooter.style.gap = '15px';
+        cartFooter.style.padding = '20px 15px 30px';
+        cartFooter.style.position = 'relative';
+        cartFooter.style.bottom = '0';
+        cartFooter.style.left = '0';
+        cartFooter.style.right = '0';
+        cartFooter.style.zIndex = '1000';
+        
+        // E. Scroll al footer si es necesario
+        setTimeout(() => {
+            const footerRect = cartFooter.getBoundingClientRect();
+            if (footerRect.bottom > windowHeight) {
+                cartFooter.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end',
+                    inline: 'nearest'
+                });
+            }
+        }, 300);
+        
+        console.log('✅ Carrito ajustado:', {
+            windowHeight,
+            headerHeight,
+            footerHeight,
+            maxContentHeight
+        });
+    }
+    
+    // 3. Override de la función openCart para Android
+    const originalOpenCart = window.openCart;
+    window.openCart = function() {
+        originalOpenCart();
+        
+        // Ajustar después de abrir
+        setTimeout(adjustCartForAndroid, 100);
+        setTimeout(adjustCartForAndroid, 500); // Doble chequeo
+    };
+    
+    // 4. Ajustar al cambiar tamaño/orientación
+    window.addEventListener('resize', function() {
+        if (document.getElementById('cartSidebar').classList.contains('active')) {
+            adjustCartForAndroid();
+        }
+    });
+    
+    // 5. Ajustar al cambiar orientación
+    window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+            if (document.getElementById('cartSidebar').classList.contains('active')) {
+                adjustCartForAndroid();
+            }
+        }, 500);
+    });
+    
+    // 6. Botones más grandes para Android
+    function enhanceAndroidButtons() {
+        const buttons = document.querySelectorAll('.cart-actions .btn, .cart-item-remove, .quantity-btn');
+        buttons.forEach(btn => {
+            btn.style.minHeight = '50px';
+            btn.style.fontSize = '16px';
+            btn.style.padding = '15px 20px';
+            btn.style.touchAction = 'manipulation';
+        });
+    }
+    
+    // Ejecutar mejoras
+    setTimeout(enhanceAndroidButtons, 1000);
+    
+    console.log('✅ Correcciones para Android configuradas');
+}
+
+// 🔥 VERSIÓN SIMPLIFICADA (Si la anterior es muy compleja)
+function simpleAndroidCartFix() {
+    const isAndroid = /android/i.test(navigator.userAgent);
+    if (!isAndroid || window.innerWidth > 768) return;
+    
+    // Agregar clase para CSS
+    document.body.classList.add('android-mobile');
+    
+    // CSS inline para emergencia
+    const emergencyCSS = `
+        @media (max-width: 768px) {
+            body.android-mobile .cart-sidebar {
+                height: 85vh !important;
+                max-height: 85vh !important;
+                top: 10vh !important;
+                overflow: hidden !important;
+            }
+            
+            body.android-mobile .cart-content {
+                height: 50vh !important;
+                max-height: 50vh !important;
+                overflow-y: auto !important;
+            }
+            
+            body.android-mobile .cart-footer {
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: linear-gradient(to bottom, transparent, var(--background) 30%) !important;
+                padding-top: 40px !important;
+                z-index: 9999 !important;
+            }
+            
+            body.android-mobile .cart-summary {
+                background: rgba(0,0,0,0.7) !important;
+                backdrop-filter: blur(10px) !important;
+                border-radius: 15px !important;
+                padding: 20px !important;
+                margin-bottom: 15px !important;
+            }
+            
+            body.android-mobile .cart-actions .btn {
+                min-height: 60px !important;
+                font-size: 1.2rem !important;
+                font-weight: bold !important;
+            }
+        }
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = emergencyCSS;
+    document.head.appendChild(style);
+    
+    console.log('📱 Aplicada solución simple para Android');
+}
+
+// 🔥 ELIGE UNA VERSIÓN:
+// Opción 1: Solución completa
+// setupAndroidCartFix();
+
+// Opción 2: Solución simple (recomendada)
+simpleAndroidCartFix();
          // 🔥 FUNCIÓN PARA MANEJAR EL ENVÍO DEL CHECKOUT
 function handleCheckoutSubmit() {
     console.log('🔍 handleCheckoutSubmit ejecutado');
@@ -4177,14 +4392,31 @@ function handleCheckoutSubmit() {
 }   
         // ===== FUNCIONES PRINCIPALES =====
         async function initApp() {
-            await loadProductsFromJSON();
-            setupEventListeners();
-            updateCartUI();
-            handleScroll();
-             enhanceMobileExperience(); // 🔥 Nueva línea
-            setupMobileClickOutside(); // 🔥 Nueva línea
-            preventAccidentalClose(); // 🔥 Nueva línea
-        }
+    console.log('🚀 Iniciando aplicación...');
+    
+    // Detectar Android y aplicar fixes
+    if (/android/i.test(navigator.userAgent)) {
+        console.log('📱 Dispositivo Android detectado');
+        setTimeout(simpleAndroidCartFix, 500);
+    }
+    
+    await loadProductsFromJSON();
+    setupEventListeners();
+    updateCartUI();
+    handleScroll();
+    enhanceMobileExperience();
+    setupMobileClickOutside();
+    preventAccidentalClose();
+    
+    // Configurar búsqueda
+    if (window.innerWidth <= 768) {
+        setTimeout(setupSearchFunctionality, 500);
+    } else {
+        setupSearchFunctionality();
+    }
+    
+    console.log('✅ Aplicación completamente inicializada');
+}
 
         async function loadProductsFromJSON() {
     try {
@@ -5466,6 +5698,7 @@ window.addEventListener('resize', ensureCartFooterVisible);
   </script>
  </body>
 </html>
+
 
 
 
