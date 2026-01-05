@@ -5151,7 +5151,7 @@ async function handleSuccessfulPayment(orderData, wompiReference, result) {
             closeCheckout();
             closeCart();
             
-           / 4. Mostrar confirmación
+           // 4. Mostrar confirmación
             alert('🎉 ¡Pago exitoso! \n\n' +
                   '📦 Pedido: ' + orderData.metadata.orderNumber + '\n' +
                   '💳 Referencia Wompi: ' + wompiReference + '\n' +
@@ -5375,6 +5375,7 @@ function handleFailedPayment(result) {
   </script>
  </body>
 </html>
+
 
 
 
