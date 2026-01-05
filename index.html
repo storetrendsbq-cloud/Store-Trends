@@ -5159,7 +5159,7 @@ async function handleSuccessfulPayment(orderData, wompiReference, result) {
 💰 Total: ${formatPriceFull(orderData.metadata.total)}
 
 Tu pedido ha sido registrado correctamente.`);
-}
+
             // 5. Redirigir a página de gracias
             setTimeout(() => {
                 window.location.href = `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}`;
@@ -5376,6 +5376,7 @@ function handleFailedPayment(result) {
   </script>
  </body>
 </html>
+
 
 
 
