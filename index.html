@@ -5345,7 +5345,53 @@ function handleFailedPayment(result) {
     });
     
 } 
+        // 🔥 SOLUCIÓN SIMPLE PARA iOS Y ANDROID
+function fixMobileCartIssues() {
+    if (window.innerWidth > 768) return;
+    
+    const userAgent = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isAndroid = /android/i.test(userAgent);
+    
+    // 1. Reposicionar botón flotante en iOS
+    const mobileBtn = document.querySelector('.mobile-cart-btn');
+    if (mobileBtn) {
+        if (isIOS) {
+            mobileBtn.style.bottom = '100px'; // Bajar para no tapar el bot
+        } else {
+            mobileBtn.style.bottom = '25px'; // Posición normal
+        }
+    }
+    
+    // 2. Forzar visibilidad del footer en Android
+    if (isAndroid) {
+        const cartFooter = document.querySelector('.cart-footer');
+        const cartContent = document.querySelector('.cart-content');
+        
+        if (cartFooter && cartContent) {
+            // Asegurar que el footer esté visible
+            cartFooter.style.cssText = `
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                z-index: 99999 !important;
+                position: sticky !important;
+                bottom: 0 !important;
+                background: var(--background) !important;
+            `;
             
+            // Dejar espacio para el footer
+            cartContent.style.paddingBottom = '200px !important';
+        }
+    }
+}
+
+// Ejecutar al cargar y en eventos importantes
+document.addEventListener('DOMContentLoaded', fixMobileCartIssues);
+window.addEventListener('resize', fixMobileCartIssues);
+document.getElementById('openCart').addEventListener('click', function() {
+    setTimeout(fixMobileCartIssues, 300);
+});    
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
             // 🔥 INICIALIZAR BÚSQUEDA DE CIUDADES
@@ -5420,6 +5466,7 @@ window.addEventListener('resize', ensureCartFooterVisible);
   </script>
  </body>
 </html>
+
 
 
 
