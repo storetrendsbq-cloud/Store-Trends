@@ -5151,14 +5151,12 @@ async function handleSuccessfulPayment(orderData, wompiReference, result) {
             closeCheckout();
             closeCart();
             
-            // 4. Mostrar confirmación
-            alert(`🎉 ¡Pago exitoso! 
-            
-📦 Pedido: ${orderData.metadata.orderNumber}
-💳 Referencia Wompi: ${wompiReference}
-💰 Total: ${formatPriceFull(orderData.metadata.total)}
-
-Tu pedido ha sido registrado correctamente.`);
+           / 4. Mostrar confirmación
+            alert('🎉 ¡Pago exitoso! \n\n' +
+                  '📦 Pedido: ' + orderData.metadata.orderNumber + '\n' +
+                  '💳 Referencia Wompi: ' + wompiReference + '\n' +
+                  '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n\n' +
+                  'Tu pedido ha sido registrado correctamente.');
 
             // 5. Redirigir a página de gracias
             setTimeout(() => {
@@ -5376,6 +5374,7 @@ function handleFailedPayment(result) {
   </script>
  </body>
 </html>
+
 
 
 
