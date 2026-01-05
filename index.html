@@ -30,6 +30,75 @@
     <link rel="icon" href="https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg" type="image/jpeg">
     <!-- En el head de tu index.html -->
     <script src="https://checkout.wompi.co/widget.js"></script>
+    /* ===== OPTIMIZACIONES PARA MÓVIL ===== */
+@media (max-width: 768px) {
+    /* Loading screen más visible */
+    .loading-screen {
+        background: var(--gradient) !important;
+        z-index: 99999 !important;
+    }
+    
+    .loading-screen p {
+        font-size: 1.1rem;
+        margin-top: 15px;
+    }
+    
+    /* Optimizar grids para móvil */
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    
+    /* Optimizar búsqueda para móvil */
+    .search-input {
+        font-size: 1rem !important;
+        padding: 14px 45px 14px 15px !important;
+    }
+    
+    .search-button {
+        font-size: 1.3rem !important;
+        right: 8px !important;
+    }
+    
+    /* Reducir animaciones en móvil para mejor rendimiento */
+    .fade-in-up {
+        animation-duration: 0.4s !important;
+    }
+    
+    /* Optimizar modales para móvil */
+    .modal-content {
+        width: 95% !important;
+        margin: 10px auto !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Mejorar rendimiento de scroll */
+    * {
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* Prevenir zoom en inputs en iOS */
+@media (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Loading específico para móvil lento */
+.loading-mobile-message {
+    display: none;
+}
+
+@media (max-width: 768px) and (max-height: 700px) {
+    .loading-mobile-message {
+        display: block;
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-top: 10px;
+    }
+}
     <style>
           /* ===== BARRA DE BÚSQUEDA ===== */
         .search-container {
@@ -3649,7 +3718,26 @@
         }
 
         // ===== ACTUALIZAR LA FUNCIÓN initApp =====
-        async function initApp() {
+       async function initApp() {
+    console.log('🚀 Iniciando aplicación...');
+    
+    // En móvil, esperar a que todo esté listo
+    if (isMobileDevice()) {
+        console.log('📱 Iniciando en modo móvil optimizado');
+        
+        // Esperar a que el DOM esté completamente listo
+        await new Promise(resolve => {
+            if (document.readyState === 'complete') {
+                resolve();
+            } else {
+                window.addEventListener('load', resolve);
+            }
+        });
+        
+        // Pequeña pausa para que el navegador respire
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
     await loadProductsFromJSON();
     setupEventListeners();
     updateCartUI();
@@ -3657,13 +3745,35 @@
     enhanceMobileExperience();
     setupMobileClickOutside();
     preventAccidentalClose();
-    setupSearchFunctionality(); // 🔥 AGREGAR ESTA LÍNEA
+    
+    // Configurar búsqueda con delay en móvil
+    if (isMobileDevice()) {
+        setTimeout(setupSearchFunctionality, 500);
+    } else {
+        setupSearchFunctionality();
+    }
+    
+    console.log('✅ Aplicación completamente inicializada');
 }
         // ===== VARIABLES GLOBALES =====
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let products = [];
         let currentModalProductId = null;
+// 🔥 OPTIMIZACIÓN PARA MÓVILES
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
 
+// Optimizar para móviles
+if (isMobileDevice()) {
+    console.log('📱 Detectado dispositivo móvil, optimizando...');
+    
+    // Reducir timeout de carga
+    window.OPTIMIZE_FOR_MOBILE = true;
+    
+    // Prevenir zoom en inputs
+    document.addEventListener('touchstart', function() {}, { passive: true });
+}
         // ===== WOMPI INTEGRATION =====
         // 🔒 REEMPLAZA CON TUS CREDENCIALES REALES DE WOMPI
         const WOMPI_PUBLIC_KEY = 'pub_prod_rKIapkP42MQd4DslOTlPY7rShrkhOHr1'; // Tu llave pública de Wompi
@@ -4064,7 +4174,18 @@ function handleCheckoutSubmit() {
 
         async function loadProductsFromJSON() {
     try {
-        console.log('🔄 Iniciando carga del catálogo...');
+        console.log('🔄 Cargando catálogo...');
+        
+        // Mostrar loading más tiempo en móvil
+        if (isMobileDevice()) {
+            document.getElementById('loadingScreen').innerHTML = `
+                <div class="loading-logo">
+                    <img src="https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg" alt="Store Trends BQ">
+                </div>
+                <p>Cargando ${products.length} productos premium...</p>
+                <small style="opacity: 0.7;">Esto puede tomar unos segundos en móvil</small>
+            `;
+        }
         
         const response = await fetch('./data/catalogo.json');
         
@@ -4074,31 +4195,82 @@ function handleCheckoutSubmit() {
         
         const catalogData = await response.json();
         
-        // Validar que el JSON tenga la estructura correcta
         if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
             throw new Error('El archivo JSON no tiene la estructura correcta');
         }
         
-        // 🔥 CRÍTICO: ASIGNAR CORRECTAMENTE
         products = catalogData.productos;
-        allProducts = catalogData.productos; // ESTA LÍNEA ES CLAVE
+        allProducts = catalogData.productos;
         
-        console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
-        console.log('✅ allProducts asignado:', allProducts.length, 'productos');
+        console.log(`✅ ${products.length} productos cargados`);
         
-        displayProducts();
+        // En móvil, cargar primero solo productos esenciales
+        if (isMobileDevice() && products.length > 100) {
+            console.log('📱 Móvil detectado, optimizando visualización...');
+            // Limitar productos iniciales para mejor rendimiento
+            const initialProducts = products.slice(0, 50);
+            displayInitialProducts(initialProducts);
+        } else {
+            displayProducts();
+        }
         
-        // Ocultar loading screen después de cargar
+        // Ocultar loading - timeout diferente para móvil
+        const loadTime = isMobileDevice() ? 1500 : 800;
         setTimeout(() => {
             document.getElementById('loadingScreen').style.display = 'none';
-            console.log('🏁 Aplicación cargada completamente');
+            console.log('🏁 Aplicación cargada');
             
-        }, 800);
+            // Configurar búsqueda
+            setupSearchFunctionality();
+            
+        }, loadTime);
         
     } catch (error) {
-        console.error('❌ Error cargando el catálogo:', error);
+        console.error('❌ Error:', error);
         loadEmergencyProducts();
     }
+}
+
+// Función para mostrar productos iniciales en móvil
+function displayInitialProducts(initialProducts) {
+    console.log('📱 Mostrando productos iniciales para móvil:', initialProducts.length);
+    
+    // Mostrar solo algunas categorías al inicio
+    const mobileProducts = {
+        hombre: initialProducts.filter(p => p.categorias && p.categorias.includes('hombre')).slice(0, 12),
+        mujer: initialProducts.filter(p => p.categorias && p.categorias.includes('mujer')).slice(0, 12),
+        combos: initialProducts.filter(p => p.categorias && (p.categorias.includes('combo') || p.tipo === 'combo')).slice(0, 12)
+    };
+    
+    // Actualizar los grids
+    Object.keys(mobileProducts).forEach(section => {
+        const grid = document.getElementById(`productsGrid${section.charAt(0).toUpperCase() + section.slice(1)}`);
+        if (grid && mobileProducts[section].length > 0) {
+            // Mostrar productos limitados
+            grid.innerHTML = mobileProducts[section].map(product => `
+                <div class="product-card">
+                    <!-- Tu HTML de producto normal aquí -->
+                </div>
+            `).join('');
+            
+            // Agregar botón "Ver más"
+            if (products.filter(p => p.categorias && p.categorias.includes(section)).length > 12) {
+                const verMasBtn = document.createElement('div');
+                verMasBtn.innerHTML = `
+                    <button onclick="loadMoreProducts('${section}')" class="btn btn-secondary" style="margin: 20px auto; display: block;">
+                        📱 Ver más productos
+                    </button>
+                `;
+                grid.appendChild(verMasBtn);
+            }
+        }
+    });
+}
+
+function loadMoreProducts(section) {
+    console.log(`📱 Cargando más productos de ${section}...`);
+    // Aquí cargarías el resto de productos
+    displayProducts();
 }
         // Función de emergencia si falla la carga del JSON
         function loadEmergencyProducts() {
@@ -5204,6 +5376,7 @@ function handleFailedPayment(result) {
   </script>
  </body>
 </html>
+
 
 
 
