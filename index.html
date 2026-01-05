@@ -4254,68 +4254,137 @@ function handleCheckoutSubmit() {
         }
        
         // 🔥 FUNCIÓN MEJORADA DE BÚSQUEDA - PEGA ESTA VERSIÓN
-        function enhanceCitySearch() {
-            try {
-                const citySelect = document.getElementById('customerCity');
-                if (!citySelect) {
-                    console.log('⏳ Select de ciudades no cargado aún, reintentando...');
-                    setTimeout(enhanceCitySearch, 1000);
-                    return;
+        // 🔥 FUNCIÓN MEJORADA DE BÚSQUEDA DE CIUDADES - VERSIÓN CORREGIDA
+function enhanceCitySearch() {
+    try {
+        const citySelect = document.getElementById('customerCity');
+        if (!citySelect) {
+            console.log('⏳ Select de ciudades no cargado aún, reintentando...');
+            setTimeout(enhanceCitySearch, 1000);
+            return;
+        }
+        
+        // Verificar si ya se agregó la búsqueda
+        if (document.getElementById('citySearchInput')) {
+            return;
+        }
+        
+        console.log('✅ Inicializando búsqueda de ciudades...');
+        
+        // Crear contenedor de búsqueda
+        const searchContainer = document.createElement('div');
+        searchContainer.style.marginBottom = '15px';
+        searchContainer.style.position = 'relative';
+        
+        // Crear input de búsqueda
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.id = 'citySearchInput';
+        searchInput.placeholder = '🔍 Escribe para buscar tu municipio...';
+        searchInput.style.cssText = `
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--background-alt);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        `;
+        
+        // Efecto hover y focus
+        searchInput.addEventListener('focus', function() {
+            this.style.borderColor = 'var(--accent)';
+            this.style.boxShadow = '0 0 0 2px rgba(212, 175, 55, 0.2)';
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            this.style.borderColor = 'var(--border)';
+            this.style.boxShadow = 'none';
+        });
+        
+        searchContainer.appendChild(searchInput);
+        
+        // Insertar antes del select
+        citySelect.parentNode.insertBefore(searchContainer, citySelect);
+        
+        // Función de búsqueda optimizada
+        let searchTimeout;
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performCitySearch(e.target.value);
+            }, 300);
+        });
+        
+        function performCitySearch(searchValue) {
+            const term = searchValue.toLowerCase().trim();
+            const options = citySelect.getElementsByTagName('option');
+            const groups = citySelect.getElementsByTagName('optgroup');
+            
+            let foundCount = 0;
+            
+            // Resetear todas las opciones
+            for (let i = 0; i < options.length; i++) {
+                options[i].style.display = '';
+            }
+            
+            // Si hay término de búsqueda, filtrar
+            if (term.length >= 2) {
+                for (let i = 0; i < options.length; i++) {
+                    const option = options[i];
+                    const text = option.textContent.toLowerCase();
+                    
+                    if (text.includes(term)) {
+                        option.style.display = '';
+                        foundCount++;
+                    } else {
+                        option.style.display = 'none';
+                    }
                 }
                 
-                // Verificar si ya se agregó la búsqueda
-                if (document.getElementById('citySearchInput')) {
-                    return;
+                // Manejar visibilidad de grupos
+                for (let i = 0; i < groups.length; i++) {
+                    const group = groups[i];
+                    const groupOptions = group.getElementsByTagName('option');
+                    let hasVisible = false;
+                    
+                    for (let j = 0; j < groupOptions.length; j++) {
+                        if (groupOptions[j].style.display !== 'none') {
+                            hasVisible = true;
+                            break;
+                        }
+                    }
+                    
+                    group.style.display = hasVisible ? '' : 'none';
                 }
                 
-                console.log('✅ Inicializando búsqueda de ciudades...');
-                
-                // Crear contenedor de búsqueda
-                const searchContainer = document.createElement('div');
-                searchContainer.style.marginBottom = '15px';
-                searchContainer.style.position = 'relative';
-                
-                // Crear input de búsqueda
-                const searchInput = document.createElement('input');
-                searchInput.type = 'text';
-                searchInput.id = 'citySearchInput';
+                // Actualizar placeholder
+                searchInput.placeholder = foundCount > 0 
+                    ? `🔍 ${foundCount} municipios encontrados...`
+                    : '🔍 No se encontraron municipios...';
+                    
+            } else {
+                // Resetear
+                for (let i = 0; i < groups.length; i++) {
+                    groups[i].style.display = '';
+                }
                 searchInput.placeholder = '🔍 Escribe para buscar tu municipio...';
-                searchInput.style.cssText = `
-                    width: 100%;
-                    padding: 12px 15px;
-                    border: 1px solid var(--border);
-                    border-radius: 8px;
-                    background: var(--background-alt);
-                    color: var(--text);
-                    font-size: 1rem;
-                    transition: all 0.3s ease;
-                `;
-                
-                // Efecto hover y focus
-                searchInput.addEventListener('focus', function() {
-                    this.style.borderColor = 'var(--accent)';
-                    this.style.boxShadow = '0 0 0 2px rgba(212, 175, 55, 0.2)';
-                });
-                
-                searchInput.addEventListener('blur', function() {
-                    this.style.borderColor = 'var(--border)';
-                    this.style.boxShadow = 'none';
-                });
-                
-                searchContainer.appendChild(searchInput);
-                
-                // Insertar antes del select
-                citySelect.parentNode.insertBefore(searchContainer, citySelect);
-                
-                // Función de búsqueda optimizada
-                let searchTimeout;
-                searchInput.addEventListener('input', function(e) {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => {
-                        performSearch(e.target.value);
-                    }, 300); // Debounce de 300ms
-                });
-                
+            }
+        }
+        
+        // Limpiar búsqueda cuando se selecciona una opción
+        citySelect.addEventListener('change', function() {
+            searchInput.value = '';
+            performCitySearch('');
+        });
+        
+        console.log('✅ Búsqueda de ciudades activada correctamente');
+        
+    } catch (error) {
+        console.error('❌ Error en enhanceCitySearch:', error);
+    }
+}
                 function performSearch() {
     console.log('🔍 Ejecutando búsqueda...');
     
@@ -4347,13 +4416,14 @@ function handleCheckoutSubmit() {
 }
         // 🔥 TAMBIÉN AGREGAR ESTA FUNCIÓN PARA REINICIAR LA BÚSQUEDA
         function resetCitySearch() {
-            const searchInput = document.getElementById('citySearchInput');
-            if (searchInput) {
-                searchInput.value = '';
-                const event = new Event('input', { bubbles: true });
-                searchInput.dispatchEvent(event);
-            }
-        }
+    const searchInput = document.getElementById('citySearchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        // Disparar evento de input para resetear
+        const event = new Event('input', { bubbles: true });
+        searchInput.dispatchEvent(event);
+    }
+}
 
         // 🔥 ACTUALIZAR LA FUNCIÓN openCheckout PARA REINICIAR LA BÚSQUEDA
         function openCheckout() {
@@ -5134,6 +5204,7 @@ function handleFailedPayment(result) {
   </script>
  </body>
 </html>
+
 
 
 
