@@ -3413,130 +3413,7 @@
             // ===== FUNCIONALIDAD DE BÚSQUEDA =====
         let allProducts = []; // Para almacenar todos los productos
 
-        async function loadProductsFromJSON() {
-    try {
-        console.log('🔄 Iniciando carga del catálogo...');
-        
-        const response = await fetch('./data/catalogo.json');
-        
-        if (!response.ok) {
-            throw new Error(`Error cargando catálogo: ${response.status}`);
-        }
-        
-        const catalogData = await response.json();
-        
-        // Validar que el JSON tenga la estructura correcta
-        if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
-            throw new Error('El archivo JSON no tiene la estructura correcta');
-        }
-        
-        // 🔥 CRÍTICO: ASIGNAR CORRECTAMENTE
-        products = catalogData.productos;
-        allProducts = catalogData.productos; // ESTA LÍNEA ES CLAVE
-        
-        console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
-        console.log('✅ allProducts asignado:', allProducts.length, 'productos');
-        
-        displayProducts();
-        
-        // Ocultar loading screen después de cargar
-        setTimeout(() => {
-            document.getElementById('loadingScreen').style.display = 'none';
-            console.log('🏁 Aplicación cargada completamente');
-            
-            // Configurar búsqueda por Enter
-            setupSearchFunctionality();
-            
-        }, 800);
-        
-    } catch (error) {
-        console.error('❌ Error cargando el catálogo:', error);
-        loadEmergencyProducts();
-    }
-}
-
-// Función para mostrar notificación
-function mostrarNotificacionBusquedaLista() {
-    const notificacion = document.createElement('div');
-    notificacion.innerHTML = `
-        <div style="position: fixed; top: 100px; right: 20px; background: var(--accent); color: var(--primary); padding: 15px 20px; border-radius: 10px; z-index: 9999; box-shadow: var(--shadow-hover); animation: slideIn 0.5s ease;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 1.5rem;">🔍</span>
-                <div>
-                    <strong style="font-size: 1.1rem;">¡Búsqueda activada!</strong><br>
-                    <span style="font-size: 0.9rem;">Ya puedes buscar en ${window.products.length} perfumes</span>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Agregar estilo de animación
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(notificacion);
-    
-    // Quitar después de 5 segundos
-    setTimeout(() => {
-        if (notificacion.parentNode) {
-            notificacion.style.animation = 'slideOut 0.5s ease';
-            setTimeout(() => {
-                if (notificacion.parentNode) {
-                    notificacion.remove();
-                }
-            }, 500);
-        }
-    }, 5000);
-}
-            // 🔥 FUNCIÓN DE PRUEBA PARA DIAGNOSTICAR
-function testSearchFunctionality() {
-    console.log('🧪 ===== PRUEBA DE BÚSQUEDA =====');
-    
-    // 1. Verificar variables globales
-    console.log('1. Verificando variables:');
-    console.log('   - window.allProducts:', window.allProducts ? `Array(${window.allProducts.length})` : 'NO DEFINIDO');
-    console.log('   - window.products:', window.products ? `Array(${window.products.length})` : 'NO DEFINIDO');
-    
-    // 2. Verificar que searchProducts exista
-    console.log('2. Verificando función searchProducts:', typeof window.searchProducts);
-    
-    // 3. Probar búsqueda directa
-    if (window.allProducts && window.allProducts.length > 0) {
-        console.log('3. Probando búsqueda en primer producto...');
-        const primerProducto = window.allProducts[0];
-        console.log('   - Primer producto:', primerProducto.Nombre || primerProducto.nombre);
-        console.log('   - Descripción:', primerProducto.descripción || primerProducto.descripcion);
-        
-        // Buscar palabra que debería estar en la descripción
-        const testTerm = 'fragancia';
-        console.log(`4. Buscando "${testTerm}"...`);
-        
-        if (typeof window.searchProducts === 'function') {
-            const resultados = window.searchProducts(testTerm);
-            console.log(`   - Resultados: ${resultados.length}`);
-        } else {
-            console.log('   - ERROR: searchProducts no es una función');
-        }
-    } else {
-        console.log('3. ERROR: allProducts está vacío');
-        
-        // Intentar usar products como fallback
-        if (window.products && window.products.length > 0) {
-            console.log('   - PERO products tiene datos. Asignando allProducts = products...');
-            window.allProducts = window.products;
-            console.log('   - allProducts ahora:', window.allProducts.length);
-        }
-    }
-    
-    console.log('🧪 ===== FIN DE PRUEBA =====');
-}
-        function setupSearchFunctionality() {
+         function setupSearchFunctionality() {
             const searchInput = document.getElementById('searchInput');
             
             // Buscar al presionar Enter
@@ -3773,12 +3650,15 @@ function testSearchFunctionality() {
 
         // ===== ACTUALIZAR LA FUNCIÓN initApp =====
         async function initApp() {
-            await loadProductsFromJSON();
-            setupEventListeners();
-            updateCartUI();
-            handleScroll();
-        }
-
+    await loadProductsFromJSON();
+    setupEventListeners();
+    updateCartUI();
+    handleScroll();
+    enhanceMobileExperience();
+    setupMobileClickOutside();
+    preventAccidentalClose();
+    setupSearchFunctionality(); // 🔥 AGREGAR ESTA LÍNEA
+}
         // ===== VARIABLES GLOBALES =====
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let products = [];
@@ -4182,61 +4062,44 @@ function handleCheckoutSubmit() {
             preventAccidentalClose(); // 🔥 Nueva línea
         }
 
-        // FUNCIÓN CRÍTICA: Cargar productos desde tu JSON - VERSIÓN MÁS ESTABLE
         async function loadProductsFromJSON() {
-            try {
-                console.log('🔄 Iniciando carga del catálogo...');
-                
-                const response = await fetch('./data/catalogo.json');
-                
-                if (!response.ok) {
-                    throw new Error(`Error cargando catálogo: ${response.status}`);
-                }
-                
-                const catalogData = await response.json();
-                
-                // Validar que el JSON tenga la estructura correcta
-                if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
-                    throw new Error('El archivo JSON no tiene la estructura correcta');
-                }
-                
-                products = catalogData.productos;
-                
-                console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
-                
-                displayProducts();
-                
-                // Ocultar loading screen después de cargar
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    console.log('🏁 Aplicación cargada completamente');
-                }, 800);
-                
-            } catch (error) {
-                console.error('❌ Error cargando el catálogo:', error);
-                
-                // Mostrar error específico
-                const errorMessage = `
-                    <div style="text-align: center; color: white;">
-                        <div style="font-size: 3rem;">⚠️</div>
-                        <h2>Error cargando el catálogo</h2>
-                        <p>${error.message}</p>
-                        <p style="font-size: 0.9rem; opacity: 0.8;">
-                            Verifica que el archivo catalogo.json esté en la carpeta data/<br>
-                            y que tenga la estructura correcta.
-                        </p>
-                        <button class="btn btn-primary" onclick="location.reload()">Reintentar</button>
-                        <br><br>
-                        <button class="btn btn-secondary" onclick="loadEmergencyProducts()">
-                            Cargar productos de emergencia
-                        </button>
-                    </div>
-                `;
-                
-                document.getElementById('loadingScreen').innerHTML = errorMessage;
-            }
+    try {
+        console.log('🔄 Iniciando carga del catálogo...');
+        
+        const response = await fetch('./data/catalogo.json');
+        
+        if (!response.ok) {
+            throw new Error(`Error cargando catálogo: ${response.status}`);
         }
-
+        
+        const catalogData = await response.json();
+        
+        // Validar que el JSON tenga la estructura correcta
+        if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
+            throw new Error('El archivo JSON no tiene la estructura correcta');
+        }
+        
+        // 🔥 CRÍTICO: ASIGNAR CORRECTAMENTE
+        products = catalogData.productos;
+        allProducts = catalogData.productos; // ESTA LÍNEA ES CLAVE
+        
+        console.log('✅ Catálogo cargado correctamente:', products.length, 'productos');
+        console.log('✅ allProducts asignado:', allProducts.length, 'productos');
+        
+        displayProducts();
+        
+        // Ocultar loading screen después de cargar
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            console.log('🏁 Aplicación cargada completamente');
+            
+        }, 800);
+        
+    } catch (error) {
+        console.error('❌ Error cargando el catálogo:', error);
+        loadEmergencyProducts();
+    }
+}
         // Función de emergencia si falla la carga del JSON
         function loadEmergencyProducts() {
             console.log('🆘 Cargando productos de emergencia...');
@@ -5268,22 +5131,10 @@ function handleFailedPayment(result) {
 </button> 
     <script>
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="bepLA18mMEZIWIzii5F36";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
- // 🔥 VERIFICACIÓN FINAL - ASEGURAR QUE allProducts TENGA DATOS
-setTimeout(() => {
-    console.log('🔍 Verificación final de búsqueda...');
-    console.log('   - products:', products ? products.length : 'no');
-    console.log('   - allProducts:', allProducts ? allProducts.length : 'no');
-    
-    // Si products tiene datos pero allProducts no, copiarlos
-    if (products && products.length > 0 && (!allProducts || allProducts.length === 0)) {
-        console.log('⚠️ allProducts vacío, copiando de products...');
-        allProducts = products;
-        console.log('✅ allProducts actualizado:', allProducts.length);
-    }
-}, 3000);
   </script>
  </body>
 </html>
+
 
 
 
