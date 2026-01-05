@@ -5274,63 +5274,63 @@ function handleFailedPayment(result) {
         }
 
         function setupEventListeners() {
-            // Carrito
-            document.getElementById('openCart').addEventListener('click', openCart);
-            document.getElementById('closeCart').addEventListener('click', closeCart);
-            document.getElementById('overlay').addEventListener('click', closeCart);
-            
-            // Modales
-            document.getElementById('closeModal').addEventListener('click', closeModal);
-            document.getElementById('productModal').addEventListener('click', function(event) {
-                if (event.target === this) {
-                    closeModal();
-                }
-            });
-            
-            document.getElementById('closeCheckout').addEventListener('click', closeCheckout);
-            document.getElementById('checkoutModal').addEventListener('click', function(event) {
-                if (event.target === this) {
-                    closeCheckout();
-                }
-            });
-        }  
-            // 🔥 CONFIGURAR MANEJADOR DE FORMA DE PAGO
-            setupPaymentMethodHandler();
-            // 🔥 NUEVO: Actualizar en resize
-    window.addEventListener('resize', updateMobileCartButton);
-            // 🔥 CONFIGURAR INTEGRACIÓN WOMPI
-            setupWompiIntegration();
-            
-            // Formulario de checkout
-            document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
+    // Carrito
+    document.getElementById('openCart').addEventListener('click', openCart);
+    document.getElementById('closeCart').addEventListener('click', closeCart);
+    document.getElementById('overlay').addEventListener('click', closeCart);
     
-    const paymentMethod = document.getElementById('paymentMethod').value;
-    
-    // 🔥 NUEVA LÓGICA - Redirigir según método de pago
-    if (paymentMethod === 'wompi') {
-        // Para Wompi, usar la función existente
-        initiateWompiPayment();
-        return;
-    } else if (paymentMethod === 'transferencia' || paymentMethod === 'contra_entrega') {
-        // Para métodos manuales, usar la nueva función
-        processManualPayment(paymentMethod);
-        return;
-    } else {
-        alert('Por favor selecciona un método de pago válido.');
-        return;
-    }
-});
-                          
-            // Scroll
-            window.addEventListener('scroll', handleScroll);
-            
-            // Prevenir enlaces rotos
-            document.querySelectorAll('a[href="#"]').forEach(link => {
-                link.addEventListener('click', e => e.preventDefault());
-            });
+    // Modales
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('productModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
         }
+    });
+    
+    document.getElementById('closeCheckout').addEventListener('click', closeCheckout);
+    document.getElementById('checkoutModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeCheckout();
+        }
+    });
 
+    // 🔥 CONFIGURAR MANEJADOR DE FORMA DE PAGO
+    setupPaymentMethodHandler();
+    
+    // 🔥 NUEVO: Actualizar en resize
+    window.addEventListener('resize', updateMobileCartButton);
+    
+    // 🔥 CONFIGURAR INTEGRACIÓN WOMPI
+    setupWompiIntegration();
+    
+    // Formulario de checkout
+    document.getElementById('checkoutForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        
+        // 🔥 NUEVA LÓGICA - Redirigir según método de pago
+        if (paymentMethod === 'wompi') {
+            initiateWompiPayment();
+            return;
+        } else if (paymentMethod === 'transferencia' || paymentMethod === 'contra_entrega') {
+            processManualPayment(paymentMethod);
+            return;
+        } else {
+            alert('Por favor selecciona un método de pago válido.');
+            return;
+        }
+    });
+                      
+    // Scroll
+    window.addEventListener('scroll', handleScroll);
+    
+    // Prevenir enlaces rotos
+    document.querySelectorAll('a[href="#"]').forEach(link => {
+        link.addEventListener('click', e => e.preventDefault());
+    });
+    
+} // ← ¡IMPORTANTE! ESTA LLAVE CIERRA setupEventListeners
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', function() {
             // 🔥 INICIALIZAR BÚSQUEDA DE CIUDADES
@@ -5374,6 +5374,7 @@ function handleFailedPayment(result) {
   </script>
  </body>
 </html>
+
 
 
 
