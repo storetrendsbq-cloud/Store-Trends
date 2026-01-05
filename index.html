@@ -5081,19 +5081,13 @@ function submitOrderToSheets(orderData) {
 }
 
         function generateOrderData(formData) {
-            // 🔴 **NUEVO: Si es pedido de prueba, no usar STBQ**
     const timestamp = Date.now();
     
-    // Verificar si es ambiente de desarrollo/prueba
-    const isTestEnvironment = window.location.href.includes('localhost') || 
-                              window.location.href.includes('127.0.0.1') ||
-                              window.location.href.includes('test');
+    // 🔴 **SOLO ESTAS 2 LÍNEAS NUEVAS:**
+    const randomNum = Math.floor(Math.random() * 1000);
+    const orderNumber = 'STORE-' + timestamp + '-' + randomNum;
+    // 🔴 **FIN DE CAMBIOS**
     
-    // Si es prueba, usar prefijo TEST- en lugar de STBQ-
-    const orderNumber = isTestEnvironment 
-        ? 'TEST-' + timestamp 
-        : 'STORE-' + timestamp + '-' + Math.floor(Math.random() * 1000);
-    const orderNumber = 'STBQ-' + Date.now();
     const orderDate = new Date().toLocaleString('es-CO', {
         timeZone: 'America/Bogota'
     });
@@ -5125,8 +5119,8 @@ function submitOrderToSheets(orderData) {
         metadata: {
             orderNumber: orderNumber,
             orderDate: orderDate,
-            paymentMethod: paymentMethodText, // 🔥 USAR EL TEXTO MEJORADO
-            paymentMethodCode: paymentMethod, // 🔥 GUARDAR TAMBIÉN EL CÓDIGO
+            paymentMethod: paymentMethodText,
+            paymentMethodCode: paymentMethod,
             subtotal: subtotal,
             shipping: shipping,
             total: total
@@ -5877,6 +5871,7 @@ document.addEventListener('click', function(e) {
   </script>
  </body>
 </html>
+
 
 
 
