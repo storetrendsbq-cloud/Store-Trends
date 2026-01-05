@@ -1821,7 +1821,63 @@
         margin: 15px 0 !important;
     }
 }
-     </style>
+      /* 🔥 SOLUCIÓN DE EMERGENCIA PARA ANDROID - CARRITO COMPLETAMENTE VISIBLE */
+@media (max-width: 768px) {
+    /* Forzar visibilidad completa */
+    #cartSidebar {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+    }
+    
+    .cart-content {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding-bottom: 200px !important; /* Espacio para footer */
+    }
+    
+    .cart-footer {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: var(--background) !important;
+        padding: 20px !important;
+        border-top: 3px solid var(--accent) !important;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.7) !important;
+        z-index: 999999 !important;
+        transform: translateY(0) !important;
+        animation: slideUpFooter 0.3s ease !important;
+    }
+    
+    @keyframes slideUpFooter {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    
+    /* Botones gigantes para Android */
+    .cart-actions .btn {
+        min-height: 65px !important;
+        font-size: 1.3rem !important;
+        font-weight: 800 !important;
+        border-radius: 15px !important;
+        margin: 10px 0 !important;
+    }
+    
+    /* Total más visible */
+    .summary-row.total {
+        font-size: 1.5rem !important;
+        padding: 20px 0 !important;
+        background: var(--accent) !important;
+        color: black !important;
+        border-radius: 10px !important;
+        margin: 15px 0 !important;
+        text-align: center !important;
+    }
+}  
+    
      </style>
 </head>
 <body>
@@ -5713,6 +5769,7 @@ window.addEventListener('resize', ensureCartFooterVisible);
   </script>
  </body>
 </html>
+
 
 
 
