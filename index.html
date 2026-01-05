@@ -125,6 +125,75 @@
                 grid-template-columns: 1fr;
             }
         }
+          /* ===== OPTIMIZACIONES PARA MÓVIL ===== */
+         @media (max-width: 768px) {
+    /* Loading screen más visible */
+    .loading-screen {
+        background: var(--gradient) !important;
+        z-index: 99999 !important;
+    }
+    
+    .loading-screen p {
+        font-size: 1.1rem;
+        margin-top: 15px;
+    }
+    
+    /* Optimizar grids para móvil */
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    
+    /* Optimizar búsqueda para móvil */
+    .search-input {
+        font-size: 1rem !important;
+        padding: 14px 45px 14px 15px !important;
+    }
+    
+    .search-button {
+        font-size: 1.3rem !important;
+        right: 8px !important;
+    }
+    
+    /* Reducir animaciones en móvil para mejor rendimiento */
+    .fade-in-up {
+        animation-duration: 0.4s !important;
+    }
+    
+    /* Optimizar modales para móvil */
+    .modal-content {
+        width: 95% !important;
+        margin: 10px auto !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Mejorar rendimiento de scroll */
+    * {
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* Prevenir zoom en inputs en iOS */
+@media (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Loading específico para móvil lento */
+.loading-mobile-message {
+    display: none;
+}
+
+@media (max-width: 768px) and (max-height: 700px) {
+    .loading-mobile-message {
+        display: block;
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-top: 10px;
+    }
+}
         /* ===== RESET Y VARIABLES ===== */
         :root {
             --primary: #000000;      /* Negro principal */
@@ -3994,75 +4063,7 @@ async function processManualPayment(paymentMethod) {
         alert('Error al procesar el pedido: ' + error.message);
     }
 }
-             /* ===== OPTIMIZACIONES PARA MÓVIL ===== */
-@media (max-width: 768px) {
-    /* Loading screen más visible */
-    .loading-screen {
-        background: var(--gradient) !important;
-        z-index: 99999 !important;
-    }
-    
-    .loading-screen p {
-        font-size: 1.1rem;
-        margin-top: 15px;
-    }
-    
-    /* Optimizar grids para móvil */
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-    }
-    
-    /* Optimizar búsqueda para móvil */
-    .search-input {
-        font-size: 1rem !important;
-        padding: 14px 45px 14px 15px !important;
-    }
-    
-    .search-button {
-        font-size: 1.3rem !important;
-        right: 8px !important;
-    }
-    
-    /* Reducir animaciones en móvil para mejor rendimiento */
-    .fade-in-up {
-        animation-duration: 0.4s !important;
-    }
-    
-    /* Optimizar modales para móvil */
-    .modal-content {
-        width: 95% !important;
-        margin: 10px auto !important;
-        max-height: 90vh !important;
-        overflow-y: auto !important;
-    }
-    
-    /* Mejorar rendimiento de scroll */
-    * {
-        -webkit-overflow-scrolling: touch !important;
-    }
-}
-
-/* Prevenir zoom en inputs en iOS */
-@media (max-width: 768px) {
-    input, select, textarea {
-        font-size: 16px !important;
-    }
-}
-
-/* Loading específico para móvil lento */
-.loading-mobile-message {
-    display: none;
-}
-
-@media (max-width: 768px) and (max-height: 700px) {
-    .loading-mobile-message {
-        display: block;
-        font-size: 0.9rem;
-        opacity: 0.8;
-        margin-top: 10px;
-    }
-}
+           
       // ===== MEJORAS PARA MÓVILES =====
 
 // Función para mejorar la experiencia táctil
@@ -5377,6 +5378,7 @@ function handleFailedPayment(result) {
   </script>
  </body>
 </html>
+
 
 
 
