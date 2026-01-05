@@ -5081,6 +5081,18 @@ function submitOrderToSheets(orderData) {
 }
 
         function generateOrderData(formData) {
+            // 🔴 **NUEVO: Si es pedido de prueba, no usar STBQ**
+    const timestamp = Date.now();
+    
+    // Verificar si es ambiente de desarrollo/prueba
+    const isTestEnvironment = window.location.href.includes('localhost') || 
+                              window.location.href.includes('127.0.0.1') ||
+                              window.location.href.includes('test');
+    
+    // Si es prueba, usar prefijo TEST- en lugar de STBQ-
+    const orderNumber = isTestEnvironment 
+        ? 'TEST-' + timestamp 
+        : 'STORE-' + timestamp + '-' + Math.floor(Math.random() * 1000);
     const orderNumber = 'STBQ-' + Date.now();
     const orderDate = new Date().toLocaleString('es-CO', {
         timeZone: 'America/Bogota'
@@ -5401,10 +5413,23 @@ function getBaseUrl() {
     // Para desarrollo local
     return window.location.origin;
 }
-        // 🔧 FUNCIÓN PARA MANEJAR PAGO EXITOSO DE WOMPI
+       // 🔧 FUNCIÓN PARA MANEJAR PAGO EXITOSO DE WOMPI
 async function handleSuccessfulPayment(orderData, wompiReference, result) {
     try {
+        // ============================================
+        // 🔴 **CAMBIO 1: Evitar duplicados**
+        // ============================================
+        if (window.paymentBeingProcessed === wompiReference) {
+            console.log('⚠️ Este pago ya está siendo procesado:', wompiReference);
+            return; // ¡SALIR! No hacer nada más
+        }
+        
+        // Marcar que estamos procesando ESTE pago
+        window.paymentBeingProcessed = wompiReference;
+        // ============================================
+        
         console.log('🔍 DEBUG handleSuccessfulPayment: INICIANDO...');
+        console.log('🔍 DEBUG - Referencia Wompi:', wompiReference);
         
         // Actualizar datos del pedido con info de Wompi
         orderData.metadata.wompiReference = wompiReference;
@@ -5431,17 +5456,22 @@ async function handleSuccessfulPayment(orderData, wompiReference, result) {
             closeCheckout();
             closeCart();
             
-           // 4. Mostrar confirmación
-            alert('🎉 ¡Pago exitoso! \n\n' +
-                  '📦 Pedido: ' + orderData.metadata.orderNumber + '\n' +
-                  '💳 Referencia Wompi: ' + wompiReference + '\n' +
-                  '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n\n' +
-                  'Tu pedido ha sido registrado correctamente.');
+           // ============================================
+           // 🔴 **CAMBIO 2: Alert con timeout para evitar problemas**
+           // ============================================
+           setTimeout(() => {
+               alert('🎉 ¡Pago exitoso! \n\n' +
+                     '📦 Pedido: ' + orderData.metadata.orderNumber + '\n' +
+                     '💳 Referencia Wompi: ' + wompiReference + '\n' +
+                     '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n\n' +
+                     'Tu pedido ha sido registrado correctamente.');
+           }, 500); // Medio segundo después
+           // ============================================
 
             // 5. Redirigir a página de gracias
             setTimeout(() => {
                 window.location.href = `${getBaseUrl()}/gracias.html?order=${orderData.metadata.orderNumber}`;
-            }, 2000);
+            }, 3000);
             
         } else {
             console.log('❌ Error en sheetsResult:', sheetsResult);
@@ -5457,6 +5487,13 @@ async function handleSuccessfulPayment(orderData, wompiReference, result) {
         setTimeout(() => {
             window.open(whatsappUrl, '_blank');
         }, 1000);
+    } finally {
+        // ============================================
+        // 🔴 **CAMBIO 3: Limpiar la bandera**
+        // ============================================
+        window.paymentBeingProcessed = null;
+        console.log('🔄 Bandera de procesamiento limpiada');
+        // ============================================
     }
 }
 
@@ -5840,6 +5877,7 @@ document.addEventListener('click', function(e) {
   </script>
  </body>
 </html>
+
 
 
 
