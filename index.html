@@ -1736,6 +1736,17 @@
     border: 2px solid var(--background);
 }
 
+/* Mostrar botón flotante solo en móviles */
+@media (max-width: 768px) {
+    .mobile-cart-btn {
+        display: flex;
+    }
+    
+    /* Ocultar el botón de carrito del header en móviles */
+    #openCart {
+        display: none;
+    }
+}
 
 /* Mejoras para tablets */
 @media (max-width: 1024px) and (min-width: 769px) {
@@ -1863,17 +1874,7 @@
     ESTE CÓDIGO SOLO SE EJECUTA EN DISPOSITIVOS iOS
     No afecta Android, Windows, ni otros dispositivos
     */
-        /* 🔥 FORZAR QUE LAS SECCIONES SE VEAN EN iPHONE */
-    #productsGridCombos, #productsGridMujer {
-        display: grid !important;
-        visibility: visible !important;
-        background: rgba(0,0,0,0.01) !important; /* Truco para forzar render */
-    }
     
-    .product-card {
-        opacity: 1 !important;
-        transform: none !important;
-    }
     /* ========== 1. CARRITO MÁS COMPACTO ========== */
     @media (max-width: 768px) {
         .cart-footer {
@@ -4785,10 +4786,6 @@ function loadMoreProducts(section) {
         }
 
         function displayProductSection(section) {
-            function displayProductSection(section) {
-    // 🔥 FORZAR PARA iPHONE
-    console.log('📱 Mostrando sección:', section);
-    
     const grid = document.getElementById(`productsGrid${section.charAt(0).toUpperCase() + section.slice(1)}`);
     if (!grid) {
         console.error(`❌ No se encontró el grid para: ${section}`);
@@ -6089,65 +6086,11 @@ function debugCategories() {
     
     alert(`📊 Diagnóstico completado.\n\nTotal productos: ${products.length}\nCombos encontrados: ${combos.length}\n\nRevisa la consola (F12) para más detalles.`);
 }        
-  // 🔍 ESTE CÓDIGO SIRVE PARA VER QUÉ PASA EN iPHONE
-setTimeout(function() {
-    console.log('=== REVISANDO iPHONE ===');
-    console.log('1. ¿Es iPhone?', /iPhone/.test(navigator.userAgent));
-    console.log('2. Productos cargados:', window.products ? window.products.length : '0');
-    console.log('3. Sección Combos existe?', !!document.getElementById('combos'));
-    console.log('4. Sección Mujer existe?', !!document.getElementById('mujer'));
-    
-    // Si es iPhone y no hay productos
-    if (/iPhone|iPad/.test(navigator.userAgent) && (!window.products || window.products.length === 0)) {
-        alert('📱 iPhone: No hay productos cargados\n\nRecarga la página manteniendo presionado el botón de recargar y selecciona "Recargar sin contenido de caché"');
-    }
-}, 3000);
-    // 🔄 BOTÓN PARA RECARGAR EN iPHONE
-if (/iPhone|iPad/.test(navigator.userAgent)) {
-    // Esperar a que cargue la página
-    setTimeout(function() {
-        // Crear botón rojo
-        var botonRojo = document.createElement('button');
-        botonRojo.innerHTML = '🔄 iPhone';
-        botonRojo.style.cssText = `
-            position: fixed;
-            bottom: 120px;
-            right: 20px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            z-index: 999999;
-            box-shadow: 0 0 20px red;
-        `;
-        
-        // Al hacer clic
-        botonRojo.onclick = function() {
-            alert('Recargando para iPhone...');
-            // Recargar las secciones
-            if (typeof displayProductSection === 'function') {
-                displayProductSection('combos');
-                displayProductSection('mujer');
-                displayProductSection('hombre');
-            }
-        };
-        
-        // Agregar a la página
-        document.body.appendChild(botonRojo);
-        console.log('✅ Botón rojo agregado para iPhone');
-    }, 2000);
-}   
-</script>            
+  
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="bepLA18mMEZIWIzii5F36";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
   </script>
  </body>
 </html>
-
-
-
 
 
 
