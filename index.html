@@ -6055,58 +6055,12 @@ document.addEventListener('click', function(e) {
         setInterval(checkCartVisibility, 1000); // Verificar cada segundo
     }
 });
-    // 🔍 FUNCIÓN DE DIAGNÓSTICO
-function debugCategories() {
-    console.log('🔍 DIAGNÓSTICO DE CATEGORÍAS');
-    console.log('Total productos:', products.length);
     
-    // Mostrar todas las categorías encontradas
-    const todasCategorias = {};
-    
-    products.forEach((p, i) => {
-        console.log(`Producto ${i + 1}: "${p.nombre}"`);
-        console.log(`  - Categorías: ${p.categorias.join(', ')}`);
-        console.log(`  - Tipo: ${p.tipo}`);
-        console.log(`  - Categoria (original): ${p.categoria}`);
-        
-        // Contar categorías
-        p.categorias.forEach(cat => {
-            todasCategorias[cat] = (todasCategorias[cat] || 0) + 1;
-        });
-    });
-    
-    console.log('📊 Resumen de categorías:');
-    Object.entries(todasCategorias).forEach(([cat, count]) => {
-        console.log(`  - "${cat}": ${count} productos`);
-    });
-    
-    // Mostrar combos específicamente
-    const combos = products.filter(p => p.categorias.includes('combo'));
-    console.log(`🎁 Productos "combo": ${combos.length}`);
-    combos.forEach(combo => {
-        console.log(`  - ${combo.nombre}`);
-    });
-    
-    alert(`📊 Diagnóstico completado.\n\nTotal productos: ${products.length}\nCombos encontrados: ${combos.length}\n\nRevisa la consola (F12) para más detalles.`);
-}        
-  // 🔍 ESTE CÓDIGO SIRVE PARA VER QUÉ PASA EN iPHONE
-setTimeout(function() {
-    console.log('=== REVISANDO iPHONE ===');
-    console.log('1. ¿Es iPhone?', /iPhone/.test(navigator.userAgent));
-    console.log('2. Productos cargados:', window.products ? window.products.length : '0');
-    console.log('3. Sección Combos existe?', !!document.getElementById('combos'));
-    console.log('4. Sección Mujer existe?', !!document.getElementById('mujer'));
-    
-    // Si es iPhone y no hay productos
-    if (/iPhone|iPad/.test(navigator.userAgent) && (!window.products || window.products.length === 0)) {
-        alert('📱 iPhone: No hay productos cargados\n\nRecarga la página manteniendo presionado el botón de recargar y selecciona "Recargar sin contenido de caché"');
-    }
-}, 3000);
-   </script>
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="bepLA18mMEZIWIzii5F36";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
   </script>
  </body>
 </html>
+
 
 
 
