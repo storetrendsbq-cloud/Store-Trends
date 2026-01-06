@@ -275,20 +275,48 @@
             color: var(--primary);
         }
 
-        .btn-whatsapp {
-            background: #25D366;
-            color: white;
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            z-index: 1000;
-            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
-        }
+       /* 🔥 BOTÓN WHATSAPP REDONDO Y PEQUEÑO */
+.btn-whatsapp {
+    background: #25D366;
+    color: white;
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+    
+    /* 🔥 HACERLO REDONDO */
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    
+    /* 🔥 CENTRAR EL EMOJI */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* 🔥 TEXTO MÁS GRANDE */
+    font-size: 28px;
+    text-decoration: none;
+    border: 2px solid white;
+}
 
-        .btn-whatsapp:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 30px rgba(37, 211, 102, 0.4);
-        }
+/* Efecto cuando pasas el mouse */
+.btn-whatsapp:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+}
+
+/* Para celulares */
+@media (max-width: 768px) {
+    .btn-whatsapp {
+        width: 60px;
+        height: 60px;
+        bottom: 20px;
+        left: 20px;
+        font-size: 30px;
+    }
+}
 
         /* ===== LOADING SCREEN ===== */
         .loading-screen {
@@ -3491,20 +3519,14 @@
     <!-- Overlay para el carrito -->
     <div class="overlay" id="overlay"></div>
 
-    <!-- Botón de WhatsApp -->
-    <a href="https://wa.me/573054813630?text=Hola%20Store%20Trends,%20me%20interesa%20saber%20más%20sobre%20sus%20perfumes" 
-       class="btn btn-whatsapp" target="_blank">
-       💬 WhatsApp
+        <!-- 🔥 BOTÓN WHATSAPP REDONDO Y PEQUEÑO -->
+    <a href="https://wa.me/573054813630?text=Hola%20Store%20Trends,%20quisiera%20información%20sobre%20sus%20perfumes" 
+       class="btn-whatsapp" 
+       target="_blank"
+       title="Chatea con nosotros por WhatsApp"
+       aria-label="Abrir WhatsApp">
+       💬
     </a>
-<!-- Botón de WhatsApp existente -->
-<a href="https://wa.me/573054813630" class="btn btn-whatsapp" target="_blank">
-   💬 WhatsApp
-</a>
-
-<!-- Botón de WhatsApp existente -->
-<a href="https://wa.me/573054813630" class="btn btn-whatsapp" target="_blank">
-   💬 WhatsApp
-</a>
 
     <!-- Footer -->
     <footer class="footer" id="contacto">
@@ -5871,6 +5893,7 @@ document.addEventListener('click', function(e) {
   </script>
  </body>
 </html>
+
 
 
 
