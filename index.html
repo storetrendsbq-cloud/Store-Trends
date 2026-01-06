@@ -4474,18 +4474,17 @@ function handleCheckoutSubmit() {
     console.log('✅ Aplicación completamente inicializada');
 }
 
-        async function loadProductsFromJSON() {
+       async function loadProductsFromJSON() {
     try {
         console.log('🔄 Cargando catálogo...');
         
-        // Mostrar loading más tiempo en móvil
+        // Mostrar loading
         if (isMobileDevice()) {
             document.getElementById('loadingScreen').innerHTML = `
                 <div class="loading-logo">
                     <img src="https://static.wixstatic.com/media/25cde0_39145722f3a04887944e5a271462d69f~mv2.jpeg" alt="Store Trends BQ">
                 </div>
-                <p>Cargando ${products.length} productos premium...</p>
-                <small style="opacity: 0.7;">Esto puede tomar unos segundos en móvil</small>
+                <p>Preparando catálogo premium...</p>
             `;
         }
         
@@ -4497,42 +4496,102 @@ function handleCheckoutSubmit() {
         
         const catalogData = await response.json();
         
-        if (!catalogData.productos || !Array.isArray(catalogData.productos)) {
-            throw new Error('El archivo JSON no tiene la estructura correcta');
-        }
+        // 🔥 CONVERTIR TU FORMATO AL FORMATO QUE NECESITA TU CÓDIGO
+        console.log('🔨 Convirtiendo formato de catálogo...');
         
-        products = catalogData.productos;
-        allProducts = catalogData.productos;
-        
-        console.log(`✅ ${products.length} productos cargados`);
-        
-        // En móvil, cargar primero solo productos esenciales
-        if (isMobileDevice() && products.length > 100) {
-            console.log('📱 Móvil detectado, optimizando visualización...');
-            // Limitar productos iniciales para mejor rendimiento
-            const initialProducts = products.slice(0, 50);
-            displayInitialProducts(initialProducts);
+        if (Array.isArray(catalogData)) {
+            // Si es un array directo
+            products = catalogData.map((item, index) => convertProductFormat(item, index));
+        } else if (catalogData.productos && Array.isArray(catalogData.productos)) {
+            // Si es un objeto con propiedad "productos"
+            products = catalogData.productos.map((item, index) => convertProductFormat(item, index));
         } else {
-            displayProducts();
+            // Si es otro formato
+            console.log('📋 Estructura del catálogo:', Object.keys(catalogData));
+            products = Object.values(catalogData).flat().map((item, index) => convertProductFormat(item, index));
         }
         
-        // Ocultar loading - timeout diferente para móvil
-        const loadTime = isMobileDevice() ? 1500 : 800;
+        allProducts = [...products];
+        
+        console.log(`✅ ${products.length} productos convertidos y listos`);
+        
+        // Mostrar productos
+        displayProducts();
+        
+        // Ocultar loading
         setTimeout(() => {
             document.getElementById('loadingScreen').style.display = 'none';
-            console.log('🏁 Aplicación cargada');
-            
-            // Configurar búsqueda
-            setupSearchFunctionality();
-            
-        }, loadTime);
+            console.log('🏁 Catálogo cargado y convertido');
+        }, 800);
         
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('❌ Error cargando catálogo:', error);
         loadEmergencyProducts();
     }
 }
 
+// 🔥 FUNCIÓN PARA CONVERTIR EL FORMATO
+function convertProductFormat(item, index) {
+    // Crear un ID único si no existe
+    const id = item.id || `product-${index}-${Date.now()}`;
+    
+    // Obtener categorías (puede venir como string "Combo, Hombre" o array)
+    let categorias = [];
+    if (item.Categoria) {
+        // Convertir "Combo, Hombre" a ["Combo", "Hombre"]
+        categorias = item.Categoria.split(',').map(cat => cat.trim().toLowerCase());
+    } else if (item.categoria) {
+        categorias = item.categoria.split(',').map(cat => cat.trim().toLowerCase());
+    } else if (item.categorias && Array.isArray(item.categorias)) {
+        categorias = item.categorias.map(cat => cat.toLowerCase());
+    }
+    
+    // Determinar tipo basado en categorías
+    let tipo = 'hombre';
+    if (categorias.includes('mujer')) tipo = 'mujer';
+    if (categorias.includes('combo')) tipo = 'combo';
+    if (categorias.includes('mixto')) tipo = 'mixto';
+    
+    // Convertir precio
+    let precioActual = 0;
+    let precioAnterior = null;
+    
+    if (typeof item.precio === 'object') {
+        // Si ya está en formato correcto
+        precioActual = item.precio.actual || item.precio || 0;
+        precioAnterior = item.precio.anterior || item.precio?.anterior || null;
+    } else {
+        // Si viene como número plano
+        precioActual = item.precio || item.precio_actual || 0;
+        precioAnterior = item['precio anterior'] || item.precio_anterior || null;
+    }
+    
+    // Calcular descuento si hay precio anterior
+    let descuento = 0;
+    if (precioAnterior && precioAnterior > precioActual) {
+        descuento = Math.round(((precioAnterior - precioActual) / precioAnterior) * 100);
+    }
+    
+    return {
+        id: id,
+        nombre: item.Nombre || item.nombre || `Producto ${index + 1}`,
+        descripcion: item.descripción || item.descripcion || 'Descripción no disponible',
+        imagen: item['URL Normalizada'] || item.imagen || item.url || 'https://cdn-icons-png.flaticon.com/512/2972/2972421.png',
+        precio: {
+            actual: precioActual,
+            anterior: precioAnterior,
+            descuento: descuento,
+            esOportunidad: descuento > 15 // Si tiene más de 15% de descuento
+        },
+        categorias: categorias,
+        tipo: tipo,
+        categoria: item.Categoria || item.categoria || 'Premium',
+        marca: item.marca || 'Store Trends',
+        tags: item.tags || [],
+        stock: item.stock || 10,
+        disponible: true
+    };
+}
 // Función para mostrar productos iniciales en móvil
 function displayInitialProducts(initialProducts) {
     console.log('📱 Mostrando productos iniciales para móvil:', initialProducts.length);
@@ -4634,93 +4693,105 @@ function loadMoreProducts(section) {
         }
 
         function displayProductSection(section) {
-            const grid = document.getElementById(`productsGrid${section.charAt(0).toUpperCase() + section.slice(1)}`);
-            if (!grid) {
-                console.error(`❌ No se encontró el grid para: ${section}`);
-                return;
-            }
+    const grid = document.getElementById(`productsGrid${section.charAt(0).toUpperCase() + section.slice(1)}`);
+    if (!grid) {
+        console.error(`❌ No se encontró el grid para: ${section}`);
+        return;
+    }
 
-            let sectionProducts = [];
+    console.log(`🛍️ Mostrando productos para: ${section}`);
+    
+    let sectionProducts = [];
+    
+    if (section === 'combos') {
+        // 🔥 BUSCAR COMBOS: productos con "combo" en categorías o tipo
+        sectionProducts = products.filter(product => 
+            product.categorias.includes('combo') || 
+            product.tipo === 'combo' ||
+            product.categoria.toLowerCase().includes('combo')
+        );
+    } else if (section === 'hombre') {
+        // BUSCAR HOMBRE: productos con "hombre" en categorías
+        sectionProducts = products.filter(product => 
+            product.categorias.includes('hombre')
+        );
+    } else if (section === 'mujer') {
+        // BUSCAR MUJER: productos con "mujer" en categorías
+        sectionProducts = products.filter(product => 
+            product.categorias.includes('mujer')
+        );
+    }
+
+    console.log(`✅ ${section}:`, sectionProducts.length, 'productos encontrados');
+    
+    // Mostrar detalles de cada producto encontrado
+    sectionProducts.forEach(p => {
+        console.log(`   - ${p.nombre} (categorías: ${p.categorias.join(', ')})`);
+    });
+
+    if (sectionProducts.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-dark); opacity: 0.7;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">📦</div>
+                <h3>No hay productos en esta categoría</h3>
+                <p>Verificando catálogo...</p>
+                <button onclick="debugCategories()" style="margin-top: 20px; padding: 10px 20px; background: var(--accent); color: black; border: none; border-radius: 5px; cursor: pointer;">
+                    🔍 Ver diagnóstico
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    // 🔥 MOSTRAR PRODUCTOS CON EL FORMATO CORRECTO
+    grid.innerHTML = sectionProducts.map(product => {
+        return `
+        <div class="product-card fade-in-up">
+            ${product.precio.descuento > 0 ? 
+                `<div class="product-badge badge-discount">-${product.precio.descuento}%</div>` : ''}
+            ${product.precio.esOportunidad ? 
+                `<div class="product-badge badge-oferta">🔥 OFERTA</div>` : ''}
             
-            if (section === 'combos') {
-                sectionProducts = products.filter(product => 
-                    product.categorias && (
-                        product.categorias.includes('combo') || 
-                        product.categorias.includes('mixto') ||
-                        product.tipo === 'combo'
-                    )
-                );
-            } else {
-                sectionProducts = products.filter(product => 
-                    product.categorias && (
-                        product.categorias.includes(section) || 
-                        product.tipo === section
-                    )
-                );
-            }
-
-            console.log(`🛍️ ${section}:`, sectionProducts.length, 'productos');
-
-            if (sectionProducts.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-dark); opacity: 0.7;">
-                        <div style="font-size: 3rem; margin-bottom: 20px;">😔</div>
-                        <h3>Próximamente</h3>
-                        <p>Estamos preparando productos increíbles para esta categoría.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = sectionProducts.map(product => `
-                <div class="product-card fade-in-up">
-                    ${product.precio && product.precio.descuento > 0 ? 
-                        `<div class="product-badge badge-discount">-${product.precio.descuento}%</div>` : ''}
-                    ${product.precio && product.precio.esOportunidad ? 
-                        `<div class="product-badge badge-oferta">🔥 OFERTA</div>` : ''}
-                    
-                    <div class="product-image" onclick="openProductModal('${product.id}')">
-                        <img src="${product.imagen || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='}" 
-                             alt="${product.nombre}" 
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD48L3N2Zz4='">
-                        <div class="product-overlay">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); openProductModal('${product.id}')">
-                                👁️ Ver Detalles
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="product-info">
-                        <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.Nombre || product.nombre || 'Producto'}</h3>
-<p class="product-description">${(product.descripción || product.descripcion || '').substring(0, 100)}...</p>
-                        
-                        <div class="product-tags">
-                            ${(product.tags || []).map(tag => `<span class="product-tag">#${tag}</span>`).join('')}
-                            ${(product.categorias || []).map(cat => `<span class="product-tag">${cat}</span>`).join('')}
-                        </div>
-                        
-                        <div class="product-meta">
-                            <span class="product-stock">${product.disponible !== false ? `✅ ${product.stock || 10} disponibles` : '❌ Agotado'}</span>
-                            <span class="product-brand">${product.Categoria || product.categoria || 'Premium'}</span>
-                        </div>
-                        
-                        <div class="product-price">
-                            <span class="price-current">${formatPriceFull(product.precio?.actual || 0)}</span>
-                            ${product.precio?.anterior ? `
-                                <span class="price-old">${formatPriceFull(product.precio.anterior)}</span>
-                            ` : ''}
-                        </div>
-                        
-                        <button class="btn btn-primary" onclick="addToCart('${product.id}')" 
-                                ${product.disponible === false ? 'disabled style="opacity: 0.5;"' : ''}
-                                style="width: 100%;">
-                            ${product.disponible === false ? '❌ Agotado' : '🛒 Agregar al Carrito'}
-                        </button>
-                    </div>
+            <div class="product-image" onclick="openProductModal('${product.id}')">
+                <img src="${product.imagen}" 
+                     alt="${product.nombre}" 
+                     onerror="this.src='https://cdn-icons-png.flaticon.com/512/2972/2972421.png'">
+                <div class="product-overlay">
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); openProductModal('${product.id}')">
+                        👁️ Ver Detalles
+                    </button>
                 </div>
-            `).join('');
-        }
-
+            </div>
+            
+            <div class="product-info">
+                <h3 class="product-title" onclick="openProductModal('${product.id}')">${product.nombre}</h3>
+                <p class="product-description">${product.descripcion.substring(0, 100)}...</p>
+                
+                <div class="product-tags">
+                    ${product.categoria ? `<span class="product-tag">${product.categoria}</span>` : ''}
+                    ${product.tags.map(tag => `<span class="product-tag">#${tag}</span>`).join('')}
+                </div>
+                
+                <div class="product-meta">
+                    <span class="product-stock">✅ ${product.stock} disponibles</span>
+                    <span class="product-brand">${product.marca}</span>
+                </div>
+                
+                <div class="product-price">
+                    <span class="price-current">${formatPriceFull(product.precio.actual)}</span>
+                    ${product.precio.anterior ? `
+                        <span class="price-old">${formatPriceFull(product.precio.anterior)}</span>
+                    ` : ''}
+                </div>
+                
+                <button class="btn btn-primary" onclick="addToCart('${product.id}')" style="width: 100%;">
+                    🛒 Agregar al Carrito
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
         // ===== FUNCIONES DE PRECIOS =====
         function formatPriceFull(price) {
             if (!price) return '$0';
@@ -5888,11 +5959,46 @@ document.addEventListener('click', function(e) {
         setInterval(checkCartVisibility, 1000); // Verificar cada segundo
     }
 });
+    // 🔍 FUNCIÓN DE DIAGNÓSTICO
+function debugCategories() {
+    console.log('🔍 DIAGNÓSTICO DE CATEGORÍAS');
+    console.log('Total productos:', products.length);
+    
+    // Mostrar todas las categorías encontradas
+    const todasCategorias = {};
+    
+    products.forEach((p, i) => {
+        console.log(`Producto ${i + 1}: "${p.nombre}"`);
+        console.log(`  - Categorías: ${p.categorias.join(', ')}`);
+        console.log(`  - Tipo: ${p.tipo}`);
+        console.log(`  - Categoria (original): ${p.categoria}`);
+        
+        // Contar categorías
+        p.categorias.forEach(cat => {
+            todasCategorias[cat] = (todasCategorias[cat] || 0) + 1;
+        });
+    });
+    
+    console.log('📊 Resumen de categorías:');
+    Object.entries(todasCategorias).forEach(([cat, count]) => {
+        console.log(`  - "${cat}": ${count} productos`);
+    });
+    
+    // Mostrar combos específicamente
+    const combos = products.filter(p => p.categorias.includes('combo'));
+    console.log(`🎁 Productos "combo": ${combos.length}`);
+    combos.forEach(combo => {
+        console.log(`  - ${combo.nombre}`);
+    });
+    
+    alert(`📊 Diagnóstico completado.\n\nTotal productos: ${products.length}\nCombos encontrados: ${combos.length}\n\nRevisa la consola (F12) para más detalles.`);
+}        
   
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="bepLA18mMEZIWIzii5F36";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
   </script>
  </body>
 </html>
+
 
 
 
