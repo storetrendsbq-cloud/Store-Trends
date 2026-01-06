@@ -6102,49 +6102,12 @@ setTimeout(function() {
         alert('📱 iPhone: No hay productos cargados\n\nRecarga la página manteniendo presionado el botón de recargar y selecciona "Recargar sin contenido de caché"');
     }
 }, 3000);
-    // 🔄 BOTÓN PARA RECARGAR EN iPHONE
-if (/iPhone|iPad/.test(navigator.userAgent)) {
-    // Esperar a que cargue la página
-    setTimeout(function() {
-        // Crear botón rojo
-        var botonRojo = document.createElement('button');
-        botonRojo.innerHTML = '🔄 iPhone';
-        botonRojo.style.cssText = `
-            position: fixed;
-            bottom: 120px;
-            right: 20px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            z-index: 999999;
-            box-shadow: 0 0 20px red;
-        `;
-        
-        // Al hacer clic
-        botonRojo.onclick = function() {
-            alert('Recargando para iPhone...');
-            // Recargar las secciones
-            if (typeof displayProductSection === 'function') {
-                displayProductSection('combos');
-                displayProductSection('mujer');
-                displayProductSection('hombre');
-            }
-        };
-        
-        // Agregar a la página
-        document.body.appendChild(botonRojo);
-        console.log('✅ Botón rojo agregado para iPhone');
-    }, 2000);
-}   
-  </script>       
+   
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="bepLA18mMEZIWIzii5F36";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
   </script>
  </body>
 </html>
+
 
 
 
