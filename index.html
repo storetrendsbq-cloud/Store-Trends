@@ -5237,6 +5237,21 @@ function submitOrderToSheets(orderData) {
         console.log('🔍 DEBUG submitOrderToSheets: INICIANDO...');
         console.log('🔍 DEBUG - Datos a enviar:', orderData);
         
+        // 🔥🔥🔥 NUEVO: VERIFICAR SI ES PEDIDO FANTASMA ANTES DE ENVIAR 🔥🔥🔥
+        console.log('🔍 Verificando si es pedido fantasma...');
+        const isGhostOrder = checkIfGhostOrder(orderData);
+        if (isGhostOrder) {
+            console.log('🎭 DETECTADO: Pedido fantasma - NO se enviará a Google Sheets');
+            resolve({
+                success: true,
+                message: 'Pedido fantasma ignorado correctamente',
+                ignored: true,
+                ghostOrder: true
+            });
+            return;
+        }
+        console.log('✅ Pedido válido - Continuando con envío...');
+        
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
         
         console.log('📤 Enviando pedido a Google Sheets via JSONP...', orderData);
@@ -5296,7 +5311,99 @@ function submitOrderToSheets(orderData) {
         }, 15000);
     });
 }
-
+// 🔥🔥🔥 FUNCIÓN PARA DETECTAR PEDIDOS FANTASMA EN EL CLIENTE 🔥🔥🔥
+function checkIfGhostOrder(orderData) {
+    console.log('🔍 Ejecutando checkIfGhostOrder...');
+    
+    if (!orderData) {
+        console.log('❌ orderData es nulo');
+        return false;
+    }
+    
+    // Verificar si es un pedido de Wompi con datos vacíos
+    const customer = orderData.customer || {};
+    const metadata = orderData.metadata || {};
+    const items = orderData.items || [];
+    
+    console.log('📊 Datos a analizar:', {
+        customerName: customer.name,
+        customerEmail: customer.email,
+        customerAddress: customer.address,
+        itemsCount: items.length,
+        total: metadata.total
+    });
+    
+    // CRITERIO 1: Verificar nombre del cliente
+    if (customer.name) {
+        const nameLower = customer.name.toLowerCase();
+        if (nameLower.includes('cliente wompi') || 
+            nameLower.includes('wompi customer') ||
+            nameLower.includes('cliente de wompi')) {
+            console.log('⚠️ CRITERIO 1: Cliente Wompi detectado');
+            return true;
+        }
+    }
+    
+    // CRITERIO 2: Verificar email
+    if (customer.email) {
+        const emailLower = customer.email.toLowerCase();
+        if (emailLower.includes('cliente@wompi.com') || 
+            emailLower.includes('noreply@wompi') ||
+            emailLower.includes('wompi@')) {
+            console.log('⚠️ CRITERIO 2: Email Wompi detectado');
+            return true;
+        }
+    }
+    
+    // CRITERIO 3: Verificar dirección
+    if (customer.address) {
+        const addressLower = customer.address.toLowerCase();
+        if (addressLower.includes('por confirmar') || 
+            addressLower.includes('dirección por confirmar') ||
+            addressLower === '' || addressLower === 'null') {
+            console.log('⚠️ CRITERIO 3: Dirección por confirmar detectada');
+            return true;
+        }
+    }
+    
+    // CRITERIO 4: Verificar productos
+    if (items.length > 0) {
+        const firstItem = items[0];
+        if (firstItem.nombre) {
+            const nombreLower = firstItem.nombre.toLowerCase();
+            if (nombreLower.includes('productos varios') || 
+                nombreLower.includes('producto genérico') ||
+                nombreLower === 'producto') {
+                console.log('⚠️ CRITERIO 4: Producto genérico detectado');
+                return true;
+            }
+        }
+    }
+    
+    // CRITERIO 5: Verificar total
+    if (metadata.total === 0 || metadata.total === '0') {
+        console.log('⚠️ CRITERIO 5: Total 0 detectado');
+        return true;
+    }
+    
+    // CRITERIO 6: Verificar si no hay items reales
+    if (items.length === 0) {
+        console.log('⚠️ CRITERIO 6: No hay items en el pedido');
+        return true;
+    }
+    
+    // CRITERIO 7: Verificar precio unitario 0 en todos los items
+    const allItemsZero = items.every(item => 
+        !item.precio_unitario || item.precio_unitario === 0 || item.precio_unitario === '0'
+    );
+    if (allItemsZero && items.length > 0) {
+        console.log('⚠️ CRITERIO 7: Todos los items tienen precio 0');
+        return true;
+    }
+    
+    console.log('✅ Pedido válido - No es fantasma');
+    return false;
+}
         function generateOrderData(formData) {
     const timestamp = Date.now();
     
@@ -6122,6 +6229,7 @@ function debugCategories() {
   </script>
  </body>
 </html>
+
 
 
 
