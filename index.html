@@ -5234,23 +5234,83 @@ function enhanceCitySearch() {
                // ===== GOOGLE SHEETS INTEGRATION - SOLUCIÓN JSONP =====
 function submitOrderToSheets(orderData) {
     return new Promise((resolve) => {
-        console.log('🔍 DEBUG submitOrderToSheets: INICIANDO...');
-        console.log('🔍 DEBUG - Datos a enviar:', orderData);
+        console.log('🔍 submitOrderToSheets INICIANDO...');
         
-        // 🔥🔥🔥 NUEVO: VERIFICAR SI ES PEDIDO FANTASMA ANTES DE ENVIAR 🔥🔥🔥
-        console.log('🔍 Verificando si es pedido fantasma...');
-        const isGhostOrder = checkIfGhostOrder(orderData);
-        if (isGhostOrder) {
-            console.log('🎭 DETECTADO: Pedido fantasma - NO se enviará a Google Sheets');
-            resolve({
-                success: true,
-                message: 'Pedido fantasma ignorado correctamente',
-                ignored: true,
-                ghostOrder: true
+        // 🔥🔥🔥 VERIFICACIÓN EXTREMA ANTES DE ENVIAR 🔥🔥🔥
+        console.log('🔍 Verificando pedido antes de enviar...');
+        
+        // 1. Verificar que orderData existe
+        if (!orderData) {
+            console.log('❌ orderData es nulo');
+            resolve({ success: false, message: 'Datos del pedido nulos' });
+            return;
+        }
+        
+        // 2. Verificar cliente
+        if (!orderData.customer) {
+            console.log('❌ No hay datos del cliente');
+            resolve({ success: false, message: 'Datos del cliente faltantes' });
+            return;
+        }
+        
+        // 3. Verificar que no sea un pedido fantasma de Wompi
+        const customer = orderData.customer;
+        const metadata = orderData.metadata || {};
+        
+        // Detección de pedidos fantasmas de Wompi
+        if (customer.name && 
+            (customer.name.includes('Cliente Wompi') || 
+             customer.name.includes('Wompi Customer'))) {
+            console.log('🎭🔥 BLOQUEADO: Pedido fantasma de Wompi detectado por nombre');
+            resolve({ 
+                success: true, 
+                message: 'Pedido fantasma bloqueado',
+                blocked: true 
             });
             return;
         }
-        console.log('✅ Pedido válido - Continuando con envío...');
+        
+        if (customer.email && 
+            (customer.email.includes('cliente@wompi.com') ||
+             customer.email.includes('noreply@wompi'))) {
+            console.log('🎭🔥 BLOQUEADO: Pedido fantasma de Wompi detectado por email');
+            resolve({ 
+                success: true, 
+                message: 'Pedido fantasma bloqueado',
+                blocked: true 
+            });
+            return;
+        }
+        
+        // 4. Verificar que haya productos REALES
+        const items = orderData.items || [];
+        if (items.length === 0) {
+            console.log('❌ No hay productos en el pedido');
+            resolve({ success: false, message: 'No hay productos' });
+            return;
+        }
+        
+        // Verificar que al menos un producto tenga nombre real
+        const hasRealProduct = items.some(item => 
+            item.nombre && 
+            !item.nombre.toLowerCase().includes('productos varios') &&
+            !item.nombre.toLowerCase().includes('producto genérico')
+        );
+        
+        if (!hasRealProduct) {
+            console.log('❌ Todos los productos son genéricos');
+            resolve({ success: false, message: 'Productos inválidos' });
+            return;
+        }
+        
+        // 5. Verificar que el total no sea 0
+        if (metadata.total === 0 || metadata.total === '0') {
+            console.log('❌ Total del pedido es 0');
+            resolve({ success: false, message: 'Total inválido' });
+            return;
+        }
+        
+        console.log('✅ Pedido validado, procediendo con envío...');
         
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
         
@@ -6229,6 +6289,7 @@ function debugCategories() {
   </script>
  </body>
 </html>
+
 
 
 
