@@ -4158,158 +4158,183 @@ localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
     }
 }      
     
-// 🔥 VERSIÓN MEJORADA DE processManualPayment
+// 🔥 VERSIÓN CORREGIDA - PROCESA Y ENVÍA ANTES DE REDIRIGIR
 async function processManualPayment(paymentMethod) {
-    console.log('🔄 Procesando pago manual:', paymentMethod);
-    
-    try {
-        // 1. Prevenir doble procesamiento
-        if (window.paymentInProgress) {
-            console.log('⏭️ Ya hay un pago en proceso');
-            return;
-        }
-        window.paymentInProgress = true;
-        
-        // 2. Validar formulario
-        if (!validateCheckoutForm()) {
-            window.paymentInProgress = false;
-            alert('Por favor completa todos los campos');
-            return;
-        }
-
-        // 3. Obtener datos del formulario
-        const formData = new FormData(document.getElementById('checkoutForm'));
-        const orderData = generateOrderData(formData);
-        
-        console.log('📋 Datos del pedido:', orderData);
-
-        // 4. 🔥 NUEVO: Verificar que NO sea una llamada de Wompi
-        if (isWompiGhostOrder(orderData)) {
-            console.log('🎭 Detectado intento de Wompi, bloqueando...');
-            window.paymentInProgress = false;
-            
-            // Pero mostrar mensaje positivo al usuario
-            alert('✅ Pedido procesado. Ignorando confirmación automática de Wompi.');
-            
-            // Limpiar carrito de todas formas
-            cart = [];
-            updateCartUI();
-            localStorage.removeItem('cart');
-            
-            // Cerrar modales
-            closeCheckout();
-            closeCart();
-            
-            // Redirigir a página de gracias
-            setTimeout(() => {
-                const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}`;
-                window.location.href = graciasUrl;
-            }, 1000);
-            
-            return;
-        }
-
-        // 5. Generar referencia única
-        const manualReference = 'STBQ-' + paymentMethod.toUpperCase().substring(0, 2) + '-' + Date.now();
-        
-        // 6. Verificar si ya se procesó (por si Wompi ya lo intentó)
-        const lastProcessedOrder = localStorage.getItem('lastProcessedOrder');
-        if (lastProcessedOrder) {
-            const lastOrder = JSON.parse(lastProcessedOrder);
-            if (lastOrder.orderNumber === orderData.metadata.orderNumber) {
-                console.log('⏭️ Este pedido ya fue procesado');
-                window.paymentInProgress = false;
-                
-                // Limpiar y redirigir de todas formas
-                cart = [];
-                updateCartUI();
-                localStorage.removeItem('cart');
-                closeCheckout();
-                closeCart();
-                
-                setTimeout(() => {
-                    const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}`;
-                    window.location.href = graciasUrl;
-                }, 500);
-                
-                return;
-            }
-        }
-
-        // 7. Mostrar loading
-        const submitBtn = document.getElementById('confirmOrderBtn');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '⏳ Procesando...';
-        submitBtn.disabled = true;
-
-        // 8. Enviar a Google Sheets (SOLO UNA VEZ)
-        console.log('📤 Enviando pedido REAL a Google Sheets...');
-        const sheetsResult = await submitOrderToSheets(orderData);
-        
-        if (sheetsResult && sheetsResult.success) {
-            console.log('✅ Pedido registrado en Google Sheets');
-            
-            // Marcar como procesado
-            localStorage.setItem('lastProcessedOrder', JSON.stringify({
-                orderNumber: orderData.metadata.orderNumber,
-                timestamp: Date.now(),
-                paymentMethod: paymentMethod
-            }));
-            
-            // Limpiar carrito
-            cart = [];
-            updateCartUI();
-            localStorage.removeItem('cart');
-            
-            // Cerrar modales
-            closeCheckout();
-            closeCart();
-            
-            // Generar WhatsApp
-            const whatsappUrl = sendOrderConfirmation(orderData);
-            
-            // Mostrar confirmación
-            setTimeout(() => {
-                const userChoice = confirm(
-                    '✅ Pedido procesado exitosamente\n\n' +
-                    '📦 Número: ' + orderData.metadata.orderNumber + '\n' +
-                    '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n\n' +
-                    '¿Abrir WhatsApp para enviar comprobante?'
-                );
-                
-                if (userChoice) {
-                    window.open(whatsappUrl, '_blank');
-                }
-                
-                // Redirigir
-                setTimeout(() => {
-                    const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
-                    window.location.href = graciasUrl;
-                }, userChoice ? 2000 : 500);
-                
-            }, 500);
-            
-        } else {
-            throw new Error(sheetsResult?.message || 'Error en Google Sheets');
-        }
-        
-    } catch (error) {
-        console.error('❌ Error:', error);
-        window.paymentInProgress = false;
-        
-        const submitBtn = document.getElementById('confirmOrderBtn');
-        if (submitBtn) {
-            submitBtn.innerHTML = '✅ Confirmar Pedido';
-            submitBtn.disabled = false;
-        }
-        
-        alert('Error: ' + error.message);
-        
-    } finally {
-        window.paymentInProgress = false;
+  console.log('🔄 Procesando pago manual:', paymentMethod);
+  
+  try {
+    // 1. Prevenir doble procesamiento
+    if (window.paymentInProgress) {
+      console.log('⏭️ Ya hay un pago en proceso, ignorando...');
+      return;
     }
+    window.paymentInProgress = true;
+    
+    // 2. Validar formulario
+    if (!validateCheckoutForm()) {
+      window.paymentInProgress = false;
+      alert('❌ Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    // 3. Obtener datos del formulario
+    const formData = new FormData(document.getElementById('checkoutForm'));
+    const orderData = generateOrderData(formData);
+    
+    // 4. Generar número de pedido único
+    const orderNumber = 'STORE-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    orderData.metadata.orderNumber = orderNumber;
+    
+    // 5. Generar referencia manual
+    const manualReference = 'STBQ-' + paymentMethod.toUpperCase().substring(0, 2) + '-' + Date.now();
+    
+    console.log('📋 Datos del pedido a enviar:', {
+      orderNumber: orderNumber,
+      total: orderData.metadata.total,
+      customer: orderData.customer.name,
+      reference: manualReference
+    });
+
+    // 🔥 BLOQUEO CRÍTICO: Verificar que NO sea una llamada de Wompi
+    if (isWompiGhostOrder(orderData)) {
+      console.log('🎭 Detectado intento de Wompi, bloqueando...');
+      window.paymentInProgress = false;
+      
+      alert('✅ Pedido procesado. Ignorando confirmación automática de Wompi.');
+      
+      // Limpiar carrito
+      cart = [];
+      updateCartUI();
+      localStorage.removeItem('cart');
+      
+      // Cerrar modales
+      closeCheckout();
+      closeCart();
+      
+      // Redirigir
+      setTimeout(() => {
+        const graciasUrl = `gracias.html?payment_method=${paymentMethod}&order=${orderNumber}&ref=${manualReference}`;
+        window.location.href = graciasUrl;
+      }, 1000);
+      
+      return;
+    }
+
+    // 6. Mostrar loading
+    const submitBtn = document.getElementById('confirmOrderBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '⏳ Procesando...';
+    submitBtn.disabled = true;
+
+    // 7. 🔥 ENVIAR A GOOGLE SHEETS (ANTES DE REDIRIGIR)
+    console.log('📤 Enviando pedido REAL a Google Sheets...');
+    
+    const sheetsResult = await submitOrderToSheets(orderData);
+    
+    if (sheetsResult && sheetsResult.success && !sheetsResult.blocked) {
+      console.log('✅ Pedido registrado exitosamente en Google Sheets');
+      
+      // Guardar en localStorage para referencia
+      localStorage.setItem('lastProcessedOrder', JSON.stringify({
+        orderNumber: orderNumber,
+        timestamp: Date.now(),
+        paymentMethod: paymentMethod,
+        sentToSheets: true,
+        reference: manualReference
+      }));
+      
+      // Guardar datos COMPLETOS para posible verificación
+      localStorage.setItem('order_' + orderNumber, JSON.stringify(orderData));
+      
+      // Limpiar carrito
+      cart = [];
+      updateCartUI();
+      localStorage.removeItem('cart');
+      
+      // Cerrar modales
+      closeCheckout();
+      closeCart();
+      
+      // Generar URL de WhatsApp
+      const whatsappUrl = sendOrderConfirmation(orderData);
+      
+      // Mostrar confirmación
+      const userChoice = confirm(
+        '✅ Pedido #' + orderNumber + ' procesado exitosamente\n\n' +
+        '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n' +
+        '📦 Productos: ' + orderData.items.length + '\n\n' +
+        '¿Abrir WhatsApp para enviar comprobante?'
+      );
+      
+      if (userChoice) {
+        window.open(whatsappUrl, '_blank');
+      }
+      
+      // Redirigir a página de gracias con TODOS los parámetros
+      setTimeout(() => {
+        const graciasUrl = `gracias.html?` +
+          `payment_method=${paymentMethod}&` +
+          `order=${orderNumber}&` +
+          `ref=${manualReference}&` +
+          `amount=${orderData.metadata.total}&` +
+          `products=${encodeURIComponent(orderData.items.map(item => item.nombre).join(', '))}`;
+        
+        console.log('🔀 Redirigiendo a:', graciasUrl);
+        window.location.href = graciasUrl;
+      }, userChoice ? 2000 : 500);
+      
+    } else if (sheetsResult && sheetsResult.blocked) {
+      // Fue bloqueado como Wompi (no debería pasar con datos reales)
+      console.log('⚠️ Pedido bloqueado (falso positivo?)');
+      window.paymentInProgress = false;
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+      alert('❌ El pedido fue bloqueado. Por favor contacta al soporte.');
+      
+    } else {
+      throw new Error(sheetsResult?.message || 'Error al registrar en Google Sheets');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error en processManualPayment:', error);
+    
+    // Restaurar botón
+    const submitBtn = document.getElementById('confirmOrderBtn');
+    if (submitBtn) {
+      submitBtn.innerHTML = '✅ Confirmar Pedido';
+      submitBtn.disabled = false;
+    }
+    
+    alert('❌ Error al procesar el pedido: ' + error.message);
+    
+  } finally {
+    window.paymentInProgress = false;
+  }
 }
 
+// 🔥 FUNCIÓN PARA ENVIAR CONFIRMACIÓN POR WHATSAPP
+function sendOrderConfirmation(orderData) {
+  const customer = orderData.customer;
+  const metadata = orderData.metadata;
+  const items = orderData.items;
+  
+  let message = `*NUEVO PEDIDO - STORE TRENDS*%0A%0A`;
+  message += `*📦 Número de Pedido:* ${metadata.orderNumber}%0A`;
+  message += `*👤 Cliente:* ${customer.name}%0A`;
+  message += `*📧 Email:* ${customer.email}%0A`;
+  message += `*📱 Teléfono:* ${customer.phone}%0A`;
+  message += `*📍 Dirección:* ${customer.address}, ${customer.city}%0A`;
+  message += `*💰 Total:* ${formatPriceFull(metadata.total)}%0A%0A`;
+  message += `*🛒 Productos:*%0A`;
+  
+  items.forEach((item, index) => {
+    message += `${index + 1}. ${item.nombre} - ${formatPriceFull(item.precio_total)}%0A`;
+  });
+  
+  message += `%0A*📝 Notas:* ${customer.notes || 'Ninguna'}`;
+  
+  return `https://wa.me/573054813630?text=${message}`;
+}
 // 🔥 NUEVA FUNCIÓN PARA DETECTAR PEDIDOS FANTASMA DE WOMPI
 function isWompiGhostOrder(orderData) {
     if (!orderData || !orderData.customer) return false;
@@ -6379,6 +6404,7 @@ function debugCategories() {
   </script>
  </body>
 </html>
+
 
 
 
