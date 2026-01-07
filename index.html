@@ -4157,14 +4157,15 @@ localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
         alert('Error al iniciar el pago: ' + error.message);
     }
 }      
-    // 🔥 VERSIÓN CORREGIDA PARA EVITAR DUPLICADOS
+    
+// 🔥 VERSIÓN MEJORADA DE processManualPayment
 async function processManualPayment(paymentMethod) {
     console.log('🔄 Procesando pago manual:', paymentMethod);
     
     try {
-        // 1. 🔥 NUEVO: Prevenir doble envío
+        // 1. Prevenir doble procesamiento
         if (window.paymentInProgress) {
-            console.log('⏭️ Ya hay un pago en proceso, evitando duplicado');
+            console.log('⏭️ Ya hay un pago en proceso');
             return;
         }
         window.paymentInProgress = true;
@@ -4172,7 +4173,7 @@ async function processManualPayment(paymentMethod) {
         // 2. Validar formulario
         if (!validateCheckoutForm()) {
             window.paymentInProgress = false;
-            alert('Por favor completa todos los campos obligatorios antes de continuar.');
+            alert('Por favor completa todos los campos');
             return;
         }
 
@@ -4180,37 +4181,60 @@ async function processManualPayment(paymentMethod) {
         const formData = new FormData(document.getElementById('checkoutForm'));
         const orderData = generateOrderData(formData);
         
-        console.log('📋 Datos del pedido para ' + paymentMethod + ':', orderData);
+        console.log('📋 Datos del pedido:', orderData);
 
-        // 4. Generar referencia única
-        const manualReference = 'STBQ-' + paymentMethod.toUpperCase().substring(0, 2) + '-' + Date.now();
-        
-        // 5. 🔥 NUEVO: Verificar si este pedido ya se procesó
-        const lastProcessedOrder = localStorage.getItem('lastProcessedOrder');
-        if (lastProcessedOrder && JSON.parse(lastProcessedOrder).orderNumber === orderData.metadata.orderNumber) {
-            console.log('⏭️ Este pedido ya fue procesado:', orderData.metadata.orderNumber);
+        // 4. 🔥 NUEVO: Verificar que NO sea una llamada de Wompi
+        if (isWompiGhostOrder(orderData)) {
+            console.log('🎭 Detectado intento de Wompi, bloqueando...');
             window.paymentInProgress = false;
-            alert('✅ Este pedido ya fue procesado anteriormente.');
+            
+            // Pero mostrar mensaje positivo al usuario
+            alert('✅ Pedido procesado. Ignorando confirmación automática de Wompi.');
+            
+            // Limpiar carrito de todas formas
+            cart = [];
+            updateCartUI();
+            localStorage.removeItem('cart');
+            
+            // Cerrar modales
+            closeCheckout();
+            closeCart();
+            
+            // Redirigir a página de gracias
+            setTimeout(() => {
+                const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}`;
+                window.location.href = graciasUrl;
+            }, 1000);
+            
             return;
         }
 
-        // 6. Guardar datos para recuperación
-        const paymentData = {
-            ourReference: manualReference,
-            metadata: orderData.metadata,
-            customer: orderData.customer,
-            items: orderData.items,
-            timestamp: Date.now(),
-            cartItemsCount: cart.length,
-            source: 'index_page',
-            paymentMethod: paymentMethod,
-            status: 'pending_confirmation'
-        };
-
-        // Guardar temporalmente
-        sessionStorage.setItem('pendingWompiOrder', JSON.stringify(paymentData));
+        // 5. Generar referencia única
+        const manualReference = 'STBQ-' + paymentMethod.toUpperCase().substring(0, 2) + '-' + Date.now();
         
-        console.log('💾 Datos guardados temporalmente');
+        // 6. Verificar si ya se procesó (por si Wompi ya lo intentó)
+        const lastProcessedOrder = localStorage.getItem('lastProcessedOrder');
+        if (lastProcessedOrder) {
+            const lastOrder = JSON.parse(lastProcessedOrder);
+            if (lastOrder.orderNumber === orderData.metadata.orderNumber) {
+                console.log('⏭️ Este pedido ya fue procesado');
+                window.paymentInProgress = false;
+                
+                // Limpiar y redirigir de todas formas
+                cart = [];
+                updateCartUI();
+                localStorage.removeItem('cart');
+                closeCheckout();
+                closeCart();
+                
+                setTimeout(() => {
+                    const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}`;
+                    window.location.href = graciasUrl;
+                }, 500);
+                
+                return;
+            }
+        }
 
         // 7. Mostrar loading
         const submitBtn = document.getElementById('confirmOrderBtn');
@@ -4218,50 +4242,46 @@ async function processManualPayment(paymentMethod) {
         submitBtn.innerHTML = '⏳ Procesando...';
         submitBtn.disabled = true;
 
-        // 8. 🔥 NUEVO: Solo una llamada a Google Sheets
-        console.log('📤 Enviando pedido a Google Sheets (UNA SOLA VEZ)...');
+        // 8. Enviar a Google Sheets (SOLO UNA VEZ)
+        console.log('📤 Enviando pedido REAL a Google Sheets...');
         const sheetsResult = await submitOrderToSheets(orderData);
         
         if (sheetsResult && sheetsResult.success) {
             console.log('✅ Pedido registrado en Google Sheets');
             
-            // 🔥 NUEVO: Marcar como procesado
+            // Marcar como procesado
             localStorage.setItem('lastProcessedOrder', JSON.stringify({
                 orderNumber: orderData.metadata.orderNumber,
                 timestamp: Date.now(),
                 paymentMethod: paymentMethod
             }));
             
-            // 9. Limpiar carrito
+            // Limpiar carrito
             cart = [];
             updateCartUI();
             localStorage.removeItem('cart');
             
-            // 🔥 NUEVO: Limpiar datos temporales
-            sessionStorage.removeItem('pendingWompiOrder');
-            
-            // 10. Cerrar modales
+            // Cerrar modales
             closeCheckout();
             closeCart();
             
-            // 11. 🔥 NUEVO: Generar WhatsApp SIN enviar automáticamente
+            // Generar WhatsApp
             const whatsappUrl = sendOrderConfirmation(orderData);
             
-            // 12. Mostrar confirmación
+            // Mostrar confirmación
             setTimeout(() => {
                 const userChoice = confirm(
                     '✅ Pedido procesado exitosamente\n\n' +
-                    '📦 Número de pedido: ' + orderData.metadata.orderNumber + '\n' +
-                    '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n' +
-                    '💳 Método: ' + (paymentMethod === 'transferencia' ? 'Transferencia' : 'Contra entrega') + '\n\n' +
-                    '¿Quieres abrir WhatsApp para enviar el comprobante?'
+                    '📦 Número: ' + orderData.metadata.orderNumber + '\n' +
+                    '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n\n' +
+                    '¿Abrir WhatsApp para enviar comprobante?'
                 );
                 
                 if (userChoice) {
                     window.open(whatsappUrl, '_blank');
                 }
                 
-                // 13. Redirigir a página de gracias
+                // Redirigir
                 setTimeout(() => {
                     const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
                     window.location.href = graciasUrl;
@@ -4270,30 +4290,69 @@ async function processManualPayment(paymentMethod) {
             }, 500);
             
         } else {
-            throw new Error(sheetsResult?.message || 'Error registrando en Google Sheets');
+            throw new Error(sheetsResult?.message || 'Error en Google Sheets');
         }
         
     } catch (error) {
-        console.error('❌ Error procesando pago manual:', error);
-        
-        // Limpiar flag
+        console.error('❌ Error:', error);
         window.paymentInProgress = false;
         
-        // Restaurar botón
         const submitBtn = document.getElementById('confirmOrderBtn');
         if (submitBtn) {
             submitBtn.innerHTML = '✅ Confirmar Pedido';
             submitBtn.disabled = false;
         }
         
-        alert('❌ Error al procesar el pedido: ' + error.message);
+        alert('Error: ' + error.message);
         
     } finally {
-        // Siempre limpiar el flag
         window.paymentInProgress = false;
     }
 }
-           
+
+// 🔥 NUEVA FUNCIÓN PARA DETECTAR PEDIDOS FANTASMA DE WOMPI
+function isWompiGhostOrder(orderData) {
+    if (!orderData || !orderData.customer) return false;
+    
+    const customer = orderData.customer;
+    const metadata = orderData.metadata || {};
+    const items = orderData.items || [];
+    
+    // Detectar patrones de Wompi
+    const patterns = [
+        // Nombre
+        () => customer.name && (
+            customer.name.includes('Cliente Wompi') ||
+            customer.name.includes('Wompi Customer')
+        ),
+        
+        // Email
+        () => customer.email && (
+            customer.email.includes('cliente@wompi.com') ||
+            customer.email.includes('noreply@wompi')
+        ),
+        
+        // Dirección
+        () => customer.address && customer.address.includes('Por confirmar'),
+        
+        // Producto
+        () => items.length > 0 && 
+               items[0].nombre && 
+               items[0].nombre.includes('Productos varios'),
+        
+        // Total 0
+        () => metadata.total === 0 || metadata.total === '0',
+        
+        // Pago Wompi con datos vacíos
+        () => metadata.paymentMethod && 
+              metadata.paymentMethod.includes('Wompi') && 
+              (!customer.name || customer.name === '')
+    ];
+    
+    // Si coincide con AL MENOS 2 patrones, es Wompi
+    const matches = patterns.filter(pattern => pattern()).length;
+    return matches >= 2;
+}
       // ===== MEJORAS PARA MÓVILES =====
 
 // Función para mejorar la experiencia táctil
@@ -5234,85 +5293,116 @@ function enhanceCitySearch() {
                // ===== GOOGLE SHEETS INTEGRATION - SOLUCIÓN JSONP =====
 function submitOrderToSheets(orderData) {
     return new Promise((resolve) => {
-        console.log('🔍 submitOrderToSheets INICIANDO...');
+        console.log('🔍 DEBUG submitOrderToSheets: INICIANDO...');
+        console.log('🔍 DEBUG - Datos a enviar:', orderData);
         
-        // 🔥🔥🔥 VERIFICACIÓN EXTREMA ANTES DE ENVIAR 🔥🔥🔥
-        console.log('🔍 Verificando pedido antes de enviar...');
+        // 🔥🔥🔥 NUEVO: BLOQUEAR ABSOLUTAMENTE CUALQUIER COSA DE WOMPI 🔥🔥🔥
+        console.log('🛡️ Verificando si es llamada de Wompi...');
         
-        // 1. Verificar que orderData existe
-        if (!orderData) {
-            console.log('❌ orderData es nulo');
-            resolve({ success: false, message: 'Datos del pedido nulos' });
+        if (!orderData || !orderData.customer || !orderData.metadata) {
+            console.log('❌ Datos incompletos, bloqueando...');
+            resolve({
+                success: true,
+                message: 'Datos incompletos bloqueados',
+                blocked: true
+            });
             return;
         }
         
-        // 2. Verificar cliente
-        if (!orderData.customer) {
-            console.log('❌ No hay datos del cliente');
-            resolve({ success: false, message: 'Datos del cliente faltantes' });
-            return;
-        }
-        
-        // 3. Verificar que no sea un pedido fantasma de Wompi
+        // 1. Verificar si es una llamada POST-PAGO de Wompi
         const customer = orderData.customer;
-        const metadata = orderData.metadata || {};
-        
-        // Detección de pedidos fantasmas de Wompi
-        if (customer.name && 
-            (customer.name.includes('Cliente Wompi') || 
-             customer.name.includes('Wompi Customer'))) {
-            console.log('🎭🔥 BLOQUEADO: Pedido fantasma de Wompi detectado por nombre');
-            resolve({ 
-                success: true, 
-                message: 'Pedido fantasma bloqueado',
-                blocked: true 
-            });
-            return;
-        }
-        
-        if (customer.email && 
-            (customer.email.includes('cliente@wompi.com') ||
-             customer.email.includes('noreply@wompi'))) {
-            console.log('🎭🔥 BLOQUEADO: Pedido fantasma de Wompi detectado por email');
-            resolve({ 
-                success: true, 
-                message: 'Pedido fantasma bloqueado',
-                blocked: true 
-            });
-            return;
-        }
-        
-        // 4. Verificar que haya productos REALES
+        const metadata = orderData.metadata;
         const items = orderData.items || [];
-        if (items.length === 0) {
-            console.log('❌ No hay productos en el pedido');
-            resolve({ success: false, message: 'No hay productos' });
-            return;
-        }
         
-        // Verificar que al menos un producto tenga nombre real
-        const hasRealProduct = items.some(item => 
-            item.nombre && 
-            !item.nombre.toLowerCase().includes('productos varios') &&
-            !item.nombre.toLowerCase().includes('producto genérico')
+        // 🔥 DETECCIÓN MEJORADA DE LLAMADAS WOMPI
+        const isWompiCall = (
+            // Nombre genérico de Wompi
+            (customer.name && (
+                customer.name.includes('Cliente Wompi') ||
+                customer.name.includes('Wompi Customer') ||
+                customer.name === 'Cliente' ||
+                customer.name === 'Customer'
+            )) ||
+            
+            // Email genérico de Wompi
+            (customer.email && (
+                customer.email.includes('cliente@wompi.com') ||
+                customer.email.includes('noreply@wompi') ||
+                customer.email === 'cliente@ejemplo.com'
+            )) ||
+            
+            // Dirección por confirmar
+            (customer.address && (
+                customer.address.includes('Por confirmar') ||
+                customer.address === '' ||
+                customer.address === 'null'
+            )) ||
+            
+            // Producto genérico
+            (items.length > 0 && items[0].nombre && 
+             items[0].nombre.includes('Productos varios')) ||
+            
+            // Total 0 (típico de Wompi)
+            (metadata.total === 0 || metadata.total === '0') ||
+            
+            // Forma de pago Wompi con total 0
+            (metadata.paymentMethod && 
+             metadata.paymentMethod.includes('Wompi') && 
+             metadata.total === 0)
         );
         
-        if (!hasRealProduct) {
-            console.log('❌ Todos los productos son genéricos');
-            resolve({ success: false, message: 'Productos inválidos' });
+        if (isWompiCall) {
+            console.log('🎭🔥 BLOQUEADO CRÍTICO: Llamada POST-PAGO de Wompi detectada');
+            console.log('📊 Razones de bloqueo:', {
+                name: customer.name,
+                email: customer.email,
+                address: customer.address,
+                product: items.length > 0 ? items[0].nombre : 'No items',
+                total: metadata.total,
+                paymentMethod: metadata.paymentMethod
+            });
+            
+            resolve({
+                success: true,
+                message: 'Llamada de Wompi bloqueada exitosamente',
+                blocked: true,
+                wompiCall: true,
+                timestamp: new Date().toLocaleString()
+            });
             return;
         }
         
-        // 5. Verificar que el total no sea 0
-        if (metadata.total === 0 || metadata.total === '0') {
-            console.log('❌ Total del pedido es 0');
-            resolve({ success: false, message: 'Total inválido' });
+        // 2. Verificar que sea un pedido REAL (no de prueba)
+        const isRealOrder = (
+            customer.name &&
+            customer.name.trim() !== '' &&
+            !customer.name.includes('Cliente Wompi') &&
+            customer.email &&
+            customer.email.includes('@') &&
+            !customer.email.includes('cliente@wompi.com') &&
+            customer.address &&
+            !customer.address.includes('Por confirmar') &&
+            items.length > 0 &&
+            items[0].nombre &&
+            !items[0].nombre.includes('Productos varios') &&
+            metadata.total > 0
+        );
+        
+        if (!isRealOrder) {
+            console.log('❌ Pedido no válido, bloqueando...');
+            resolve({
+                success: true,
+                message: 'Pedido no válido bloqueado',
+                blocked: true,
+                invalid: true
+            });
             return;
         }
         
-        console.log('✅ Pedido validado, procediendo con envío...');
+        console.log('✅ Pedido válido confirmado, procediendo con envío...');
         
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyHu3rI_L_JeFJfO2W-3iDT1AbT4r57TybbqrHklY_dvnru8lilLRGo7_172AMhMnEvAQ/exec';
+        
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxiLK2Yc9K9z0jWg3W5ciMsHGgNkvSYXmSZNzxmf2VC75uM1DeyET6L_n5smSXJrvE86g/exec';
         
         console.log('📤 Enviando pedido a Google Sheets via JSONP...', orderData);
         
@@ -6289,6 +6379,7 @@ function debugCategories() {
   </script>
  </body>
 </html>
+
 
 
 
