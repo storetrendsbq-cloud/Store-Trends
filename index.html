@@ -4157,30 +4157,46 @@ localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentTracking));
         alert('Error al iniciar el pago: ' + error.message);
     }
 }      
-     // 🔥 NUEVA FUNCIÓN PARA PROCESAR PAGOS MANUALES - VERSIÓN CORREGIDA
+    // 🔥 VERSIÓN CORREGIDA PARA EVITAR DUPLICADOS
 async function processManualPayment(paymentMethod) {
     console.log('🔄 Procesando pago manual:', paymentMethod);
     
     try {
-        // 1. Validar formulario
+        // 1. 🔥 NUEVO: Prevenir doble envío
+        if (window.paymentInProgress) {
+            console.log('⏭️ Ya hay un pago en proceso, evitando duplicado');
+            return;
+        }
+        window.paymentInProgress = true;
+        
+        // 2. Validar formulario
         if (!validateCheckoutForm()) {
+            window.paymentInProgress = false;
             alert('Por favor completa todos los campos obligatorios antes de continuar.');
             return;
         }
 
-        // 2. Obtener datos del formulario
+        // 3. Obtener datos del formulario
         const formData = new FormData(document.getElementById('checkoutForm'));
         const orderData = generateOrderData(formData);
         
         console.log('📋 Datos del pedido para ' + paymentMethod + ':', orderData);
 
-        // 3. Generar referencia única
+        // 4. Generar referencia única
         const manualReference = 'STBQ-' + paymentMethod.toUpperCase().substring(0, 2) + '-' + Date.now();
         
-        // 4. Guardar datos para recuperación (IGUAL QUE WOMPI)
+        // 5. 🔥 NUEVO: Verificar si este pedido ya se procesó
+        const lastProcessedOrder = localStorage.getItem('lastProcessedOrder');
+        if (lastProcessedOrder && JSON.parse(lastProcessedOrder).orderNumber === orderData.metadata.orderNumber) {
+            console.log('⏭️ Este pedido ya fue procesado:', orderData.metadata.orderNumber);
+            window.paymentInProgress = false;
+            alert('✅ Este pedido ya fue procesado anteriormente.');
+            return;
+        }
+
+        // 6. Guardar datos para recuperación
         const paymentData = {
             ourReference: manualReference,
-            wompiId: null,
             metadata: orderData.metadata,
             customer: orderData.customer,
             items: orderData.items,
@@ -4191,58 +4207,66 @@ async function processManualPayment(paymentMethod) {
             status: 'pending_confirmation'
         };
 
-        // Guardar en AMBOS almacenamientos
+        // Guardar temporalmente
         sessionStorage.setItem('pendingWompiOrder', JSON.stringify(paymentData));
-        localStorage.setItem('pendingWompiOrder', JSON.stringify(paymentData));
         
-        console.log('💾 Datos guardados para ' + paymentMethod + ':', paymentData);
+        console.log('💾 Datos guardados temporalmente');
 
-        // 5. 🔥 CORREGIDO: Mostrar loading - usar el ID correcto
+        // 7. Mostrar loading
         const submitBtn = document.getElementById('confirmOrderBtn');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '⏳ Procesando...';
         submitBtn.disabled = true;
 
-        // 6. Enviar a Google Sheets
-        console.log('📤 Enviando pedido a Google Sheets...');
+        // 8. 🔥 NUEVO: Solo una llamada a Google Sheets
+        console.log('📤 Enviando pedido a Google Sheets (UNA SOLA VEZ)...');
         const sheetsResult = await submitOrderToSheets(orderData);
         
         if (sheetsResult && sheetsResult.success) {
             console.log('✅ Pedido registrado en Google Sheets');
             
-            // 7. 🔥 NUEVO: Generar y ofrecer enlace de WhatsApp
-            const whatsappUrl = sendOrderConfirmation(orderData);
+            // 🔥 NUEVO: Marcar como procesado
+            localStorage.setItem('lastProcessedOrder', JSON.stringify({
+                orderNumber: orderData.metadata.orderNumber,
+                timestamp: Date.now(),
+                paymentMethod: paymentMethod
+            }));
             
-            // 8. Limpiar carrito
+            // 9. Limpiar carrito
             cart = [];
             updateCartUI();
             localStorage.removeItem('cart');
             
-            // 9. Cerrar modales
+            // 🔥 NUEVO: Limpiar datos temporales
+            sessionStorage.removeItem('pendingWompiOrder');
+            
+            // 10. Cerrar modales
             closeCheckout();
             closeCart();
             
-            // 10. 🔥 MOSTRAR CONFIRMACIÓN CON WHATSAPP
+            // 11. 🔥 NUEVO: Generar WhatsApp SIN enviar automáticamente
+            const whatsappUrl = sendOrderConfirmation(orderData);
+            
+            // 12. Mostrar confirmación
             setTimeout(() => {
                 const userChoice = confirm(
                     '✅ Pedido procesado exitosamente\n\n' +
                     '📦 Número de pedido: ' + orderData.metadata.orderNumber + '\n' +
-                    '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n\n' +
-                    '¿Quieres abrir WhatsApp para confirmar los detalles con el vendedor?'
+                    '💰 Total: ' + formatPriceFull(orderData.metadata.total) + '\n' +
+                    '💳 Método: ' + (paymentMethod === 'transferencia' ? 'Transferencia' : 'Contra entrega') + '\n\n' +
+                    '¿Quieres abrir WhatsApp para enviar el comprobante?'
                 );
                 
                 if (userChoice) {
                     window.open(whatsappUrl, '_blank');
-                    // Redirigir después de abrir WhatsApp
-                    setTimeout(() => {
-                        const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
-                        window.location.href = graciasUrl;
-                    }, 1000);
-                } else {
-                    // Redirigir directamente si no quiere WhatsApp
+                }
+                
+                // 13. Redirigir a página de gracias
+                setTimeout(() => {
                     const graciasUrl = `${getBaseUrl()}/gracias.html?payment_method=${paymentMethod}&order=${orderData.metadata.orderNumber}&ref=${manualReference}`;
                     window.location.href = graciasUrl;
-                }
+                }, userChoice ? 2000 : 500);
+                
             }, 500);
             
         } else {
@@ -4252,14 +4276,21 @@ async function processManualPayment(paymentMethod) {
     } catch (error) {
         console.error('❌ Error procesando pago manual:', error);
         
-        // 🔥 CORREGIDO: Restaurar botón con el ID correcto
+        // Limpiar flag
+        window.paymentInProgress = false;
+        
+        // Restaurar botón
         const submitBtn = document.getElementById('confirmOrderBtn');
         if (submitBtn) {
             submitBtn.innerHTML = '✅ Confirmar Pedido';
             submitBtn.disabled = false;
         }
         
-        alert('Error al procesar el pedido: ' + error.message);
+        alert('❌ Error al procesar el pedido: ' + error.message);
+        
+    } finally {
+        // Siempre limpiar el flag
+        window.paymentInProgress = false;
     }
 }
            
@@ -6091,6 +6122,7 @@ function debugCategories() {
   </script>
  </body>
 </html>
+
 
 
 
